@@ -24,6 +24,9 @@ Enable small businesses to accept Pi Network payments with lower transaction fee
 - [ ] **Sales Reports** — View sales history, revenue analytics, and business trends
 - [ ] **Multi-Business Support** — Flexible system supporting retail, restaurant, and mixed-use business types
 - [ ] **Order Completion Flow** — End-to-end workflow from scanning to payment confirmation to item release
+- [ ] **Row-Level Security (RLS)** — All database tables protected by RLS policies with security definer access
+- [ ] **UUID Architecture** — Full UUID system for all entity identifiers (no varchar IDs)
+- [ ] **Envelope Encryption** — Sensitive data protected using envelope encryption patterns
 
 ### Out of Scope
 
@@ -43,6 +46,8 @@ Enable small businesses to accept Pi Network payments with lower transaction fee
 
 **Technical Environment**: Pi Network provides APIs for dApp integration, escrow services, and user authentication. The Pi Browser serves as both a wallet and application platform. Desktop interface provides traditional keyboard/mouse management capabilities.
 
+**Technical Architecture**: The system uses a security-first approach with Row-Level Security (RLS) policies on all database tables, accessed only through security definer functions. All entities use UUID identifiers instead of sequential integers or varchars to prevent enumeration attacks and support distributed systems. Sensitive data is protected using envelope encryption patterns where data encryption keys are managed separately from encrypted data, providing defense-in-depth security.
+
 ## Constraints
 
 - **Pi Network API**: Must work within current Pi Network API capabilities and limitations
@@ -50,6 +55,7 @@ Enable small businesses to accept Pi Network payments with lower transaction fee
 - **Inventory Scale**: System optimized for 100-1000 items per business
 - **Escrow Dependency**: Payment processing relies on Pi Network's escrow system availability
 - **Authentication Flow**: Hybrid approach requires both Pi Network and local authentication systems
+- **Security Requirements**: All database access must go through RLS policies with security definers, UUID-only architecture, and envelope encryption for sensitive data
 
 ## Key Decisions
 
@@ -60,6 +66,9 @@ Enable small businesses to accept Pi Network payments with lower transaction fee
 | Escrow-based payment processing | Provides security for both merchants and customers | — Pending |
 | Desktop for inventory management | Better UX for detailed management tasks than mobile interface | — Pending |
 | Multi-business type support | Single system can serve retail, restaurant, and service businesses | — Pending |
+| Row-Level Security (RLS) with security definers | Multi-tenant data isolation and enhanced security posture | — Pending |
+| UUID architecture (no varchar IDs) | Prevents enumeration attacks, improves distributed system design | — Pending |
+| Envelope encryption for sensitive data | Defense-in-depth approach, protects data at rest even if database is compromised | — Pending |
 
 ## Evolution
 
