@@ -38,9 +38,15 @@ Enable small businesses to accept Pi Network payments with lower transaction fee
 
 ## Context
 
+**Founder Motivation**: This project is driven by a Pi Network token holder who wants to create real utility and value creation within the Pi ecosystem. By building practical applications that merchants actually use, the system increases Pi Network's utility and drives broader adoption — ultimately increasing the value of Pi tokens through genuine economic activity.
+
+**Target Users**: The system is designed for universal merchant adoption across all business types (retail, restaurant, service). The approach begins with dogfooding — using the system in the founder's own businesses — followed by broader merchant adoption. Success is measured by active merchant usage, not just deployment.
+
+**User Experience Strategy**: Guided onboarding is critical for merchant adoption. New merchants sign up through Pi Browser (the natural entry point for Pi Network accounts), then connect both mobile scanning (Pi Browser) and desktop management interfaces. The workflow separates concerns: mobile/fast-paced checkout in Pi Browser, desktop/deliberate management tasks.
+
 **Pi Network Ecosystem**: Pi Network is a cryptocurrency platform with a growing user base of "pioneers" who use the Pi Browser and mobile app. The network supports decentralized applications and payment processing through an escrow system that provides security for both buyers and sellers.
 
-**Small Business Pain Points**: Traditional payment processors charge high transaction fees (2-3% or more) that cut into already-thin margins for small businesses. Additionally, many POS systems are expensive, complex, or require specialized hardware.
+**Small Business Pain Points**: Traditional payment processors charge high transaction fees (2-3% or more) that cut into already-thin margins for small businesses. Additionally, many POS systems are expensive, complex, or require specialized hardware. Merchants also want access to Pi's millions of users and faster settlement times than traditional banking offers.
 
 **Decentralized Payment Advantages**: By leveraging Pi Network's escrow system, merchants can accept payments with lower fees, faster settlement times, and without relying on traditional financial intermediaries. The system also provides access to Pi's ecosystem of millions of potential customers.
 
@@ -66,6 +72,10 @@ Enable small businesses to accept Pi Network payments with lower transaction fee
 | Escrow-based payment processing | Provides security for both merchants and customers | — Pending |
 | Desktop for inventory management | Better UX for detailed management tasks than mobile interface | — Pending |
 | Multi-business type support | Single system can serve retail, restaurant, and service businesses | — Pending |
+| Guided onboarding experience | Critical for merchant adoption — smooth setup reduces churn | — Pending |
+| Pi Browser as entry point | Natural sign-up flow through existing Pi Network accounts | — Pending |
+| Mobile scan + desktop manage workflow | Separates fast-paced checkout (mobile) from management (desktop) | — Pending |
+| Full feature v1 scope | Production-ready deployment, not MVP — drives real merchant adoption | — Pending |
 | Row-Level Security (RLS) with security definers | Multi-tenant data isolation and enhanced security posture | — Pending |
 | UUID architecture (no varchar IDs) | Prevents enumeration attacks, improves distributed system design | — Pending |
 | Envelope encryption for sensitive data | Defense-in-depth approach, protects data at rest even if database is compromised | — Pending |
@@ -88,4 +98,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2025-05-17 after initialization*
+*Last updated: 2025-05-18 after questioning and context gathering*
