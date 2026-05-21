@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Product } from '@/types';
 import BarcodeScanner from '@/components/pos/BarcodeScanner';
 
@@ -86,6 +86,12 @@ export default function IMSPage() {
   const [scanningBarcode, setScanningBarcode] = useState(false);
   const [scannedBarcode, setScannedBarcode] = useState<string>('');
   const [mobileView, setMobileView] = useState<'dashboard' | 'inventory' | 'add'>('dashboard');
+
+  // Set up global handler for Pi Browser
+  useEffect(() => {
+    (window as any).openScanner = () => setScanningBarcode(true);
+    return () => { delete (window as any).openScanner; };
+  }, []);
 
   const categories = ['All', 'Beverages', 'Food', 'Snacks', 'Condiments', 'Confectionery'];
 
