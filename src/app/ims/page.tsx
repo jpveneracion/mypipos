@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Product } from '@/types';
-import ProductBarcodeScanner from '@/components/ims/ProductBarcodeScanner';
+import BarcodeScanner from '@/components/pos/BarcodeScanner';
 
 // Sample inventory data
 const sampleInventory: Product[] = [
@@ -121,7 +121,7 @@ export default function IMSPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Barcode Scanner Modal */}
       {scanningBarcode && (
-        <ProductBarcodeScanner
+        <BarcodeScanner
           onScan={handleBarcodeScanned}
           onClose={() => setScanningBarcode(false)}
         />
