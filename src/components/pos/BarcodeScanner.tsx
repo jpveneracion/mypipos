@@ -17,6 +17,7 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
   const [scannerInitialized, setScannerInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cameraSupported, setCameraSupported] = useState(true);
+  const [cameraFailed, setCameraFailed] = useState(false);
 
   const stopScanner = async () => {
     if (scannerRef.current?.isScanning) {
@@ -32,17 +33,23 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
   const handleScannerClose = async () => {
     await stopScanner();
     setError(null);
+    setCameraFailed(false);
     onClose();
   };
 
-  // Check camera support on mount
+  // Check camera support and HTTPS on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      const isSecureContext = window.isSecureContext || window.location.protocol === 'http:' && window.location.hostname === 'localhost';
       const hasCamera = navigator.mediaDevices && 'getUserMedia' in navigator.mediaDevices;
-      setCameraSupported(hasCamera);
+      setCameraSupported(hasCamera && isSecureContext);
 
       if (!hasCamera) {
         setError('Camera access is not supported in this browser. Please use the file upload method below.');
+        setCameraFailed(true);
+      } else if (!isSecureContext) {
+        setError('Camera access requires HTTPS or localhost. Please use the file upload method below.');
+        setCameraFailed(true);
       }
     }
   }, []);
@@ -52,6 +59,7 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
     if (scanning && !scannerInitialized && cameraSupported) {
       const initializeScanner = async () => {
         try {
+          setCameraFailed(false);
           const html5QrCode = new Html5Qrcode("pi-scanner-region");
           scannerRef.current = html5QrCode;
 
@@ -68,18 +76,29 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
               stopScanner();
               setScanning(false);
               setError(null);
+              setCameraFailed(false);
             },
             () => {}
           );
           setScannerInitialized(true);
           setError(null);
+          setCameraFailed(false);
         } catch (err: any) {
           console.error('Error initializing scanner:', err);
           const errorMsg = err?.message || 'Failed to start camera';
-          if (errorMsg.includes('Camera streaming not supported') || errorMsg.includes('NotAllowedError')) {
-            setError('Camera access denied or not supported. Please check permissions or use file upload.');
+
+          if (errorMsg.includes('Camera streaming not supported') ||
+              errorMsg.includes('NotAllowedError') ||
+              errorMsg.includes('Permission denied') ||
+              errorMsg.includes('NotFoundError')) {
+            setError('⚠️ Camera access failed. Please: 1) Allow camera permissions, 2) Use HTTPS/localhost, or 3) Try file upload below.');
+            setCameraFailed(true);
+          } else if (errorMsg.includes('NotAllowedError')) {
+            setError('⚠️ Camera permission denied. Please allow camera access or use the file upload method below.');
+            setCameraFailed(true);
           } else {
-            setError('Failed to start camera: ' + errorMsg);
+            setError('⚠️ Camera error: ' + errorMsg + '. Please try the file upload method below.');
+            setCameraFailed(true);
           }
           setScanning(false);
           setScannerInitialized(false);
@@ -139,7 +158,7 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
             </div>
             <div className="flex items-center justify-center gap-2 text-purple-300">
               <Loader2 className="w-5 h-5 animate-spin" />
-              <span>Scanning...</span>
+              <span>Starting camera...</span>
             </div>
             <button
               onClick={async () => {
@@ -148,42 +167,74 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
               }}
               className="w-full py-2 rounded-lg bg-red-600 text-white text-sm font-semibold hover:bg-red-700"
             >
-              Stop Scanner
+              Cancel & Try File Upload
             </button>
           </div>
         ) : (
           <div className="space-y-4">
-            <button
-              onClick={openNativeScanner}
-              disabled={scanning || !cameraSupported}
-              className="w-full px-4 py-6 rounded-xl bg-green-700 border border-dashed border-green-500 text-white text-sm text-center hover:bg-green-600 hover:border-green-400 transition-colors flex flex-col items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Camera className="w-6 h-6" />
-              {scanning ? 'Starting Scanner...' :
-               !cameraSupported ? '📷 Camera Not Available' :
-               '📱 Live Scanner (Recommended)'}
-            </button>
+            {/* Show file upload first if camera failed */}
+            {cameraFailed ? (
+              <>
+                <div className="bg-yellow-900/30 border border-yellow-600 rounded-lg p-3 text-center">
+                  <p className="text-yellow-200 text-sm font-semibold mb-2">📷 Camera Not Available</p>
+                  <p className="text-yellow-300 text-xs">Use file upload to scan barcodes from images</p>
+                </div>
 
-            <div className="text-center text-purple-300 text-sm">
-              or
-            </div>
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full px-4 py-6 rounded-xl bg-green-700 border border-dashed border-green-500 text-white text-sm text-center hover:bg-green-600 hover:border-green-400 transition-colors flex flex-col items-center gap-2"
+                >
+                  <Camera className="w-6 h-6" />
+                  📷 Upload Barcode Image (Recommended)
+                </button>
 
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="w-full px-4 py-6 rounded-xl bg-purple-800 border border-dashed border-purple-600 text-purple-200 text-sm text-center hover:border-purple-400 hover:text-purple-300 transition-colors flex flex-col items-center gap-2"
-            >
-              <Camera className="w-6 h-6" />
-              📷 Camera Method
-            </button>
+                <button
+                  onClick={() => {
+                    setError(null);
+                    setCameraFailed(false);
+                    openNativeScanner();
+                  }}
+                  className="w-full px-4 py-3 rounded-xl bg-gray-700 border border-gray-600 text-gray-300 text-xs text-center hover:bg-gray-600 transition-colors"
+                >
+                  🔄 Retry Camera Access
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={openNativeScanner}
+                  disabled={scanning || !cameraSupported}
+                  className="w-full px-4 py-6 rounded-xl bg-green-700 border border-dashed border-green-500 text-white text-sm text-center hover:bg-green-600 hover:border-green-400 transition-colors flex flex-col items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Camera className="w-6 h-6" />
+                  {scanning ? 'Starting Scanner...' :
+                   !cameraSupported ? '📷 Camera Not Available' :
+                   '📱 Live Scanner (Recommended)'}
+                </button>
+
+                <div className="text-center text-purple-300 text-sm">
+                  or
+                </div>
+
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full px-4 py-6 rounded-xl bg-purple-800 border border-dashed border-purple-600 text-purple-200 text-sm text-center hover:border-purple-400 hover:text-purple-300 transition-colors flex flex-col items-center gap-2"
+                >
+                  <Camera className="w-6 h-6" />
+                  📷 Upload Barcode Image
+                </button>
+              </>
+            )}
           </div>
         )}
 
         <div className="mt-4 p-3 bg-purple-800/50 border border-purple-600 rounded-lg text-sm">
           <p className="font-semibold mb-1 text-purple-200">💡 Scanning Tips:</p>
           <ul className="text-xs space-y-1 text-purple-300">
-            <li>• Ensure good lighting on the barcode</li>
-            <li>• Hold camera steady and parallel to barcode</li>
+            <li>• For camera: Allow permissions and use HTTPS/localhost</li>
+            <li>• For file upload: Take clear photo of barcode</li>
             <li>• Works with standard UPC, EAN, and QR codes</li>
+            <li>• Ensure good lighting and hold camera steady</li>
           </ul>
         </div>
       </div>
@@ -206,7 +257,7 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
       onClose();
     } catch (err) {
       console.error('Error scanning file:', err);
-      alert('Failed to scan barcode. Please try again.');
+      alert('Failed to scan barcode from image. Please ensure the barcode is clearly visible and try again.');
     }
   }
 }
