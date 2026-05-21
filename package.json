@@ -2,25 +2,40 @@
   "name": "mypi-pos",
   "version": "0.1.0",
   "private": true,
+  "description": "myPiPOS - Decentralized Point of Sale + Inventory Management System with Pi Auth",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "migrate": "ts-node database/migrations/migrate.ts",
+    "migrate:status": "ts-node database/migrations/migrate.ts status",
+    "migrate:rollback": "ts-node database/migrations/migrate.ts rollback",
+    "db:test": "ts-node -e \"require('./src/lib/db').testConnection()\""
   },
   "dependencies": {
+    "@zxing/library": "^0.23.0",
+    "clsx": "^2.1.1",
+    "date-fns": "^2.30.0",
+    "html5-qrcode": "^2.3.8",
+    "lucide-react": "^1.16.0",
     "next": "16.2.6",
+    "pg": "^8.11.3",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "react-qr-reader": "^3.0.0-beta-1",
+    "zustand": "^4.5.7"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/pg": "^8.10.9",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "tailwindcss": "^4",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }
