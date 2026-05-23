@@ -22,10 +22,10 @@ import {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { txid: string } }
+  { params }: { params: Promise<{ txid: string }> }
 ) {
   try {
-    const txid = params.txid;
+    const { txid } = await params;
 
     // Validate TXID parameter
     if (!txid) {
@@ -163,10 +163,10 @@ export async function GET(
 
 export async function HEAD(
   request: NextRequest,
-  { params }: { params: { txid: string } }
+  { params }: { params: Promise<{ txid: string }> }
 ) {
   try {
-    const txid = params.txid;
+    const { txid } = await params;
 
     if (!txid) {
       return new NextResponse(null, { status: 400 });

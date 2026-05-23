@@ -6,11 +6,11 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getExplorerUrl } from '@/lib/blockchain';
 
 export async function GET(request: NextRequest) {
   try {
-    const explorerUrl = getExplorerUrl();
+    // Use the testnet URL for health check
+    const explorerUrl = 'https://blockexplorer.minepi.com/testnet/api';
 
     // Try to reach the blockchain explorer
     const controller = new AbortController();

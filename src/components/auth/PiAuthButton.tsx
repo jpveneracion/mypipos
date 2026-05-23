@@ -18,11 +18,18 @@ export default function PiAuthButton() {
         appId: process.env.NEXT_PUBLIC_PI_APP_ID || 'your-app-id',
         version: '1.0',
         authCallback: (accessToken, user) => {
-          setAuth(true, user);
+          // Map Pi user to our User interface
+          const mappedUser = {
+            id: user.uid,
+            piUsername: user.username,
+            role: 'cashier' as const, // Default role for Pi users
+            createdAt: new Date()
+          };
+          setAuth(true, mappedUser);
           // Store auth token securely
           if (typeof window !== 'undefined') {
             localStorage.setItem('pi_auth_token', accessToken);
-            localStorage.setItem('pi_user', JSON.stringify(user));
+            localStorage.setItem('pi_user', JSON.stringify(mappedUser));
           }
         }
       });
