@@ -686,25 +686,74 @@ useEffect(() => {
 
 **Fallback: Gentle Polling (To Be Implemented)**
 
-If neither channel works, implement gentle polling:
+If neither channel works, implement gentle polling with strict boundaries:
+
 ```typescript
-// TO BE IMPLEMENTED: Only for active checkout flow (disabled after 2 min)
-const POLL_INTERVALS = [1000, 2000, 5000, 10000]; // Exponential backoff
+// TO BE IMPLEMENTED: Edge-case fallback configuration
+const BACKOFF_CONFIG = {
+  initialInterval: 2000,   // Start at 2 seconds for active checkout
+  maxInterval: 15000,      // Max out at 15 seconds if customer is idling
+  multiplier: 1.5,         // Slower deceleration to save server hits
+  maxAttempts: 10          // Cease automated polling if invoice isn't cleared in ~1.5 mins
+};
+
+// Only for active checkout flow (disabled after 2 min)
+const POLL_INTERVALS = [2000, 3000, 4500, 6750, 10125, 15000]; // Configurable backoff
 
 useEffect(() => {
   if (!isAwaitingPayment) return;
 
-  let pollIndex = 0;
-  const poll = setInterval(() => {
-    fetchInvoiceStatus(invoiceId);
-    pollIndex = Math.min(pollIndex + 1, POLL_INTERVALS.length - 1);
-    clearInterval(poll);
-    setInterval(() => fetchInvoiceStatus(invoiceId), POLL_INTERVALS[pollIndex]);
-  }, POLL_INTERVALS[0]);
+  let attempts = 0;
+  let currentInterval = BACKOFF_CONFIG.initialInterval;
+  let pollTimer: NodeJS.Timeout;
 
-  return () => clearInterval(poll);
-}, [isAwaitingPayment]);
+  const poll = () => {
+    if (attempts >= BACKOFF_CONFIG.maxAttempts) {
+      clearInterval(pollTimer);
+      return;
+    }
+
+    fetchInvoiceStatus(invoiceId);
+    attempts++;
+    
+    // Exponential backoff with multiplier
+    currentInterval = Math.min(
+      currentInterval * BACKOFF_CONFIG.multiplier,
+      BACKOFF_CONFIG.maxInterval
+    );
+    
+    pollTimer = setTimeout(poll, currentInterval);
+  };
+
+  pollTimer = setTimeout(poll, currentInterval);
+
+  // CRITICAL: Cleanup on blur/minimize
+  const handleBlur = () => {
+    clearTimeout(pollTimer);
+  };
+
+  // CRITICAL: Reset on focus
+  const handleFocus = () => {
+    attempts = 0;
+    currentInterval = BACKOFF_CONFIG.initialInterval;
+    pollTimer = setTimeout(poll, currentInterval);
+  };
+
+  window.addEventListener('blur', handleBlur);
+  window.addEventListener('focus', handleFocus);
+
+  return () => {
+    clearTimeout(pollTimer);
+    window.removeEventListener('blur', handleBlur);
+    window.removeEventListener('focus', handleFocus);
+  };
+}, [isAwaitingPayment, invoiceId]);
 ```
+
+**Implementation Requirements:**
+- **State-Driven Network Throttling:** Polling must immediately self-terminate on blur/minimize
+- **Lightweight API Endpoint:** Create dedicated `/api/payments/status/:invoiceId` returning minimal payload
+- **Automated Cleanup:** Server-side purge of active checkout flags when invoice completes/cancels/expired
 
 ### 9.2 QR Code Size Optimization
 
@@ -856,6 +905,14 @@ POST /api/payments/invoice/complete
 ```
 
 ```
+GET /api/payments/status/:invoiceId
+- **[NEW]** Lightweight status check for active checkout polling
+- Returns minimal payload: `{ status: 'pending'|'completed'|'cancelled', updated_at: timestamp }`
+- Optimized for frequent polling (no heavy invoice data)
+- Automatically cleans up stale checkout flags
+```
+
+```
 GET /api/invoices/:id
 - Get invoice details with itemized list
 - Include payment status and blockchain transaction
@@ -889,12 +946,18 @@ GET /api/blockchain/contract/:vaultId
 - [ ] Implement customer QR code generation and validation
 - [ ] Create invoice list page with filters
 - [ ] Build invoice detail modal with itemized receipt
+- [ ] **[NEW]** Implement visibilitychange window lifecycle triggers for smart fetch
+- [ ] **[NEW]** Build lightweight `/api/payments/status/:invoiceId` endpoint (minimal payload)
+- [ ] **[NEW]** Add Web Push notification setup and user subscription flow
 
 ### Phase 3: Payment Integration (Week 3)
 - [ ] Integrate Pi Network payment flow
 - [ ] Build payment approval and completion API endpoints
 - [ ] Implement Soroban smart contract integration
 - [ ] Create payment confirmation UI for both merchant and customer
+- [ ] **[NEW]** Implement state-driven network throttling (blur/focus handling)
+- [ ] **[NEW]** Add exponential backoff polling with strict boundaries
+- [ ] **[NEW]** Build automated cleanup routines for active checkout flags
 
 ### Phase 4: POS Integration (Week 4)
 - [ ] Update POS to scan customer QR codes
