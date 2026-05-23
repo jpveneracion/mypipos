@@ -1,32 +1,46 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/lib/store';
 import FeatureSlider from '@/components/ui/FeatureSlider';
 import LoginModal from '@/components/auth/LoginModal';
 
 export default function Home() {
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userType, setUserType] = useState<'pos' | 'ims' | null>(null);
+  const { isAuthenticated, user, merchantId, currentContext, setAuth } = useAuthStore();
+  const [isRouting, setIsRouting] = useState(false);
   const router = useRouter();
 
-  const handleLoginSuccess = (method: string) => {
-    setIsAuthenticated(true);
+  // Handle post-login routing
+  useEffect(() => {
+    if (isAuthenticated && user && !isRouting) {
+      setIsRouting(true);
 
-    // Route based on login method
+      // Route based on user context
+      if (merchantId) {
+        // User is a merchant
+        if (currentContext === 'merchant') {
+          // Merchant context - go to dashboard or mode selection
+          router.push('/mode-selection');
+        } else {
+          // Customer context - go to customer dashboard
+          router.push('/customer');
+        }
+      } else {
+        // User is not a merchant - always customer
+        router.push('/customer');
+      }
+    }
+  }, [isAuthenticated, user, merchantId, currentContext, router, isRouting]);
+
+  const handleLoginSuccess = (method: string) => {
     if (method === 'credentials') {
-      // Desktop IMS login
-      setUserType('ims');
-      setTimeout(() => {
-        router.push('/ims');
-      }, 500);
+      // Desktop IMS login - not implemented yet
+      console.log('IMS login not implemented');
     } else {
-      // Pi Network login - show role selection
-      setUserType('pos');
-      setTimeout(() => {
-        router.push('/pos');
-      }, 500);
+      // Pi Network login - auth store will be updated by PiAuthButton
+      // The useEffect above will handle routing
     }
   };
 
