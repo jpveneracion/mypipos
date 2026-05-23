@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { Product, CartItem } from '@/types';
+import type { Customer } from '@/types/customer';
 
 interface CartStore {
   items: CartItem[];
@@ -69,13 +70,21 @@ export const useCartStore = create<CartStore>((set, get) => ({
 interface AuthStore {
   isAuthenticated: boolean;
   user: { uid: string; username: string } | null;
+  merchantId: string | null;
+  currentContext: 'merchant' | 'customer' | null;
   setAuth: (isAuthenticated: boolean, user: { uid: string; username: string } | null) => void;
+  setMerchantId: (merchantId: string | null) => void;
+  switchContext: (context: 'merchant' | 'customer') => void;
   logout: () => void;
 }
 
 export const useAuthStore = create<AuthStore>((set) => ({
   isAuthenticated: false,
   user: null,
+  merchantId: null,
+  currentContext: null,
   setAuth: (isAuthenticated, user) => set({ isAuthenticated, user }),
-  logout: () => set({ isAuthenticated: false, user: null }),
+  setMerchantId: (merchantId) => set({ merchantId }),
+  switchContext: (context) => set({ currentContext: context }),
+  logout: () => set({ isAuthenticated: false, user: null, merchantId: null, currentContext: null }),
 }));
