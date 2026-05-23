@@ -447,12 +447,14 @@ CREATE TRIGGER update_products_updated_at BEFORE UPDATE ON products
 -- GRANT PERMISSIONS
 -- ============================================================================
 
-CREATE ROLE mypipos_app;
-GRANT CONNECT ON DATABASE mypipos TO mypipos_app;
-GRANT USAGE ON SCHEMA public TO mypipos_app;
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO mypipos_app;
-GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO mypipos_app;
-GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO mypipos_app;
+-- These permissions are typically handled automatically by Neon
+-- If you need custom permissions, uncomment below:
+
+-- CREATE ROLE mypipos_app;
+-- GRANT USAGE ON SCHEMA public TO mypipos_app;
+-- GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO mypipos_app;
+-- GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO mypipos_app;
+-- GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO mypipos_app;
 
 -- ============================================================================
 -- END OF MIGRATION
