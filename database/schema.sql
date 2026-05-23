@@ -198,10 +198,7 @@ CREATE TABLE products (
     -- Metadata
     metadata JSONB DEFAULT '{}',
     attributes JSONB DEFAULT '{}',
-    seo_data JSONB DEFAULT '{}',
-
-    -- Constraints
-    EXCLUDE USING gist (barcode WITH =) WHERE barcode IS NOT NULL
+    seo_data JSONB DEFAULT '{}'
 );
 
 -- ============================================================================
