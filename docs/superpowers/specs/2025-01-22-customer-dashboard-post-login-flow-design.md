@@ -624,11 +624,11 @@ export function getBlockchainExplorerUrl(txId: string): string {
 
 **Problem:** Heavy WebSocket/polling doesn't scale to millions of concurrent users.
 
-**Solution:** Dual-channel notification strategy
+**Solution Proposed:** Dual-channel notification strategy (to be implemented)
 
 **Channel 1: Web Push Notifications (Background)**
 ```typescript
-// When merchant creates invoice
+// TO BE IMPLEMENTED: When merchant creates invoice
 await sendWebPushNotification(customer.id, {
   title: "New Invoice",
   body: `${merchantName} - $${amount}`,
@@ -639,6 +639,13 @@ await sendWebPushNotification(customer.id, {
 });
 ```
 
+**Implementation Requirements:**
+- Install: `npm install web-push service-worker-loader`
+- Generate VAPID keys for push authentication
+- Set up service worker in Next.js app
+- Subscribe users to push notifications
+- Send push notifications from backend API
+
 **Benefits:**
 - ✅ Lightweight (doesn't require persistent connection)
 - ✅ Works in background (app closed)
@@ -648,7 +655,7 @@ await sendWebPushNotification(customer.id, {
 **Channel 2: Smart Dashboard Fetch (Foreground)**
 
 ```typescript
-// Customer Dashboard - Focus detection
+// TO BE IMPLEMENTED: Customer Dashboard - Focus detection
 useEffect(() => {
   const handleVisibilityChange = () => {
     if (document.visibilityState === 'visible') {
@@ -666,17 +673,22 @@ useEffect(() => {
 }, []);
 ```
 
+**Implementation Requirements:**
+- Add visibility change detection to customer dashboard
+- Create API endpoint for latest invoices
+- Implement state update when new data arrives
+
 **Benefits:**
 - ✅ Instant updates when user opens app
 - ✅ No constant polling (only on focus change)
 - ✅ Minimal backend load
 - ✅ Great UX (instant data refresh)
 
-**Fallback: Gentle Polling (Optional)**
+**Fallback: Gentle Polling (To Be Implemented)**
 
 If neither channel works, implement gentle polling:
 ```typescript
-// Only for active checkout flow (disabled after 2 min)
+// TO BE IMPLEMENTED: Only for active checkout flow (disabled after 2 min)
 const POLL_INTERVALS = [1000, 2000, 5000, 10000]; // Exponential backoff
 
 useEffect(() => {
@@ -734,7 +746,7 @@ useEffect(() => {
 - `ts` = timestamp (Unix seconds vs ISO string)
 - `s` = signature
 
-**Performance Impact:**
+**Expected Performance Impact (Once Implemented):**
 - ✅ 40% smaller QR codes
 - ✅ 2x faster scan time on merchant devices
 - ✅ Better low-light scanning performance
