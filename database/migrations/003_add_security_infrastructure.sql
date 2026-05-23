@@ -12,7 +12,13 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- ============================================================================
 
 -- Create application role for SECURITY DEFINER functions
-CREATE ROLE IF NOT EXISTS mypipos_app;
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'mypipos_app') THEN
+        CREATE ROLE mypipos_app;
+    END IF;
+END
+$$;
 
 -- Grant basic usage to mypipos_app
 GRANT USAGE ON SCHEMA public TO mypipos_app;
