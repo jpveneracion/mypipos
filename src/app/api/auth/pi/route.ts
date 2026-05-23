@@ -84,12 +84,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 3. Create or update user using SECURITY DEFINER function
-    console.log('🧠 [PI AUTH] Using SECURITY DEFINER function: create_or_update_user()');
+    // 3. Create or update user using enhanced SECURITY DEFINER function
+    console.log('🧠 [PI AUTH] Using enhanced SECURITY DEFINER function: create_or_update_user()');
 
     const result = await query(
-      'SELECT * FROM create_or_update_user($1, $2, $3, $4, $5, $6)',
-      [user.uid, user.username, 'pioneer', 'customer', false, null]
+      'SELECT * FROM create_or_update_user($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
+      [user.uid, user.username, 'pioneer', 'customer', false, null, null, null, null, null]
     );
 
     if (!result.rows || result.rows.length === 0) {
@@ -172,10 +172,10 @@ async function verifyPiAccessToken(accessToken: string) {
 
 async function upsertUser(userData: any) {
   try {
-    // Use SECURITY DEFINER function to bypass RLS
+    // Use enhanced SECURITY DEFINER function to bypass RLS
     const result = await query(
-      'SELECT * FROM create_or_update_user($1, $2, $3, $4, $5, $6)',
-      [userData.piUid, userData.username, 'pioneer', 'customer', false, null]
+      'SELECT * FROM create_or_update_user($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
+      [userData.piUid, userData.username, 'pioneer', 'customer', false, null, null, null, null, null]
     );
 
     return {
