@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { authenticateWithPi, storeSession } from '@/lib/pi-auth';
 import { useAuthStore } from '@/lib/store';
 
@@ -8,6 +9,7 @@ export default function PiAuthButton() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { setAuth } = useAuthStore();
+  const router = useRouter();
 
   const handlePiLogin = async () => {
     setIsLoading(true);
@@ -26,24 +28,49 @@ export default function PiAuthButton() {
         username: authResult.user.username
       });
 
-      // Map Pi user to our User interface
-      const mappedUser = {
-        id: authResult.user.uid,
-        piUsername: authResult.user.username,
-        role: 'cashier' as const, // Default role for Pi users
-        createdAt: new Date()
-      };
+      // Call backend to verify token and get/create user
+      const response = await fetch('/api/auth/pi', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          accessToken: authResult.accessToken,
+          user: authResult.user
+        }),
+      });
 
-      // Update auth store
-      setAuth(true, mappedUser);
-
-      // Store auth data in localStorage for persistence
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('pi_auth_token', authResult.accessToken);
-        localStorage.setItem('pi_user', JSON.stringify(mappedUser));
+      if (!response.ok) {
+        throw new Error('Backend authentication failed');
       }
 
-      console.log('✅ User logged in successfully:', mappedUser);
+      const { user } = await response.json();
+
+      // Update auth store with backend user data
+      setAuth(true, {
+        id: user.id,
+        piUsername: user.pi_username,
+        role: user.role,
+        createdAt: new Date()
+      });
+
+      // Store auth data for persistence
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('pi_auth_token', authResult.accessToken);
+        localStorage.setItem('pi_user', JSON.stringify(user));
+      }
+
+      console.log('✅ User logged in successfully:', user);
+
+      // Check if user needs onboarding
+      if (!user.onboarding_complete) {
+        console.log('👋 New user - redirecting to onboarding');
+        router.push('/onboarding');
+      } else if (user.user_type === 'merchant') {
+        console.log('🏪 Merchant user - redirecting to mode selection');
+        router.push('/mode-selection');
+      } else {
+        console.log('🛒 Customer user - redirecting to customer dashboard');
+        router.push('/customer');
+      }
 
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Authentication failed');
