@@ -36,7 +36,10 @@ export interface Sale {
 export interface User {
   id: string;
   piUsername: string;
-  role: 'admin' | 'cashier' | 'manager';
+  role: 'admin' | 'cashier' | 'manager' | 'merchant_admin';
+  user_type?: 'customer' | 'merchant';
+  onboarding_complete?: boolean;
+  merchantId?: string | null;
   createdAt: Date;
 }
 

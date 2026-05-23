@@ -15,6 +15,14 @@ export default function Home() {
   // Handle post-login routing
   useEffect(() => {
     if (isAuthenticated && user && !isRouting) {
+      // Check if user needs onboarding first
+      if (!user.onboarding_complete) {
+        console.log('👋 User needs onboarding - redirecting');
+        setIsRouting(true);
+        router.push('/onboarding');
+        return;
+      }
+
       setIsRouting(true);
 
       // Route based on user context

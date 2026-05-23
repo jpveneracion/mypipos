@@ -6,7 +6,7 @@ import { useAuthStore } from '@/lib/store';
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const { user, isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated, setAuth } = useAuthStore();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -30,6 +30,16 @@ export default function OnboardingPage() {
       if (response.ok) {
         const { user } = await response.json();
 
+        // Update auth store with new user data
+        setAuth(true, {
+          id: user.id,
+          piUsername: user.pi_username,
+          role: user.user_role,
+          createdAt: new Date()
+        }, user.merchant_id);
+
+        console.log('✅ User onboarding completed:', user);
+
         // Redirect based on role selection
         switch (role) {
           case 'customer':
@@ -42,9 +52,12 @@ export default function OnboardingPage() {
             router.push('/customer'); // Start with customer, can switch later
             break;
         }
+      } else {
+        throw new Error('Onboarding failed');
       }
     } catch (error) {
       console.error('Onboarding error:', error);
+      alert('Failed to complete onboarding. Please try again.');
     } finally {
       setLoading(false);
     }
