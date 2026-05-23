@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Script from 'next/script';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,13 +29,18 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
-        {/* Pi Network SDK */}
-        <script
-          src="https://sdk.minepi.com/pi-sdk.js"
-          async
-        />
+        {/* Prevent browser extensions from interfering */}
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="browser-mode" content="application" />
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        {/* Load Pi Network SDK - strategy="beforeInteractive" ensures it loads before page renders */}
+        <Script
+          src="https://sdk.minepi.com/pi-sdk.js"
+          strategy="beforeInteractive"
+        />
+      </body>
     </html>
   );
 }
