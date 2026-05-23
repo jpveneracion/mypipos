@@ -126,7 +126,7 @@ export default function Home() {
                 Join the Universal Pi Commerce Network
               </h2>
               <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
-                Start accepting millions of Pi Pioneers as customers today
+                Connect with millions of Pi Pioneers and merchants worldwide
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -134,14 +134,14 @@ export default function Home() {
                   onClick={() => setShowLoginModal(true)}
                   className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-4 px-8 rounded-full text-lg shadow-xl transform transition hover:scale-105"
                 >
-                  🥧 Start Accepting Pi
+                  🥧 Get Started with Pi
                 </button>
 
                 <button
                   onClick={() => setShowLoginModal(true)}
                   className="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-800 dark:text-white font-bold py-4 px-8 rounded-full text-lg shadow-lg transform transition hover:scale-105 border-2 border-purple-200 dark:border-purple-700"
                 >
-                  🔐 Access IMS
+                  🔐 Desktop IMS Login
                 </button>
               </div>
             </div>
