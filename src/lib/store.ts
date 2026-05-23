@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Product, CartItem } from '@/types';
+import { Product, CartItem, User } from '@/types';
 import type { Customer } from '@/types/customer';
 
 interface CartStore {
@@ -69,12 +69,12 @@ export const useCartStore = create<CartStore>((set, get) => ({
 
 interface AuthStore {
   isAuthenticated: boolean;
-  user: { uid: string; username: string } | null;
+  user: User | null;
   merchantId: string | null;
-  currentContext: 'merchant' | 'customer' | null;
-  setAuth: (isAuthenticated: boolean, user: { uid: string; username: string } | null) => void;
+  currentContext: 'merchant' | 'customer';
+  setAuth: (isAuthenticated: boolean, user: User | null, merchantId?: string | null) => void;
   setMerchantId: (merchantId: string | null) => void;
-  switchContext: (context: 'merchant' | 'customer') => void;
+  setContext: (context: 'merchant' | 'customer') => void;
   logout: () => void;
 }
 
@@ -82,9 +82,19 @@ export const useAuthStore = create<AuthStore>((set) => ({
   isAuthenticated: false,
   user: null,
   merchantId: null,
-  currentContext: null,
-  setAuth: (isAuthenticated, user) => set({ isAuthenticated, user }),
+  currentContext: 'customer',
+  setAuth: (isAuthenticated, user, merchantId) => set({
+    isAuthenticated,
+    user,
+    merchantId: merchantId || null,
+    currentContext: merchantId ? 'merchant' : 'customer'
+  }),
   setMerchantId: (merchantId) => set({ merchantId }),
-  switchContext: (context) => set({ currentContext: context }),
-  logout: () => set({ isAuthenticated: false, user: null, merchantId: null, currentContext: null }),
+  setContext: (context) => set({ currentContext: context }),
+  logout: () => set({
+    isAuthenticated: false,
+    user: null,
+    merchantId: null,
+    currentContext: 'customer'
+  }),
 }));

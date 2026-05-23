@@ -1,5 +1,47 @@
 // src/types/customer.ts
 
+/**
+ * Pi Network amount type - ensures 7 decimal places
+ * @description All monetary values must use 7 decimal places for Pi Network compatibility
+ * Example: 3.1415926 π (Pi) should be stored as 3.1415926
+ */
+export type PiAmount = number;
+
+/**
+ * Validates that a number has exactly 7 decimal places for Pi Network compatibility
+ * @param amount - The amount to validate
+ * @returns true if the amount has valid Pi precision
+ */
+export function isValidPiAmount(amount: number): boolean {
+  const decimals = amount.toString().split('.')[1]?.length || 0;
+  return decimals <= 7;
+}
+
+/**
+ * Formats a number to exactly 7 decimal places for Pi Network
+ * @param amount - The amount to format
+ * @returns String formatted with exactly 7 decimal places
+ */
+export function formatPiAmount(amount: number): string {
+  return amount.toFixed(7);
+}
+
+/**
+ * Parses a Pi amount string to number with validation
+ * @param value - The string value to parse
+ * @returns PiAmount number or throws if invalid
+ */
+export function parsePiAmount(value: string): PiAmount {
+  const parsed = parseFloat(value);
+  if (isNaN(parsed)) {
+    throw new Error(`Invalid Pi amount: ${value}`);
+  }
+  if (!isValidPiAmount(parsed)) {
+    throw new Error(`Pi amount must have at most 7 decimal places, got: ${value}`);
+  }
+  return parsed;
+}
+
 export interface Customer {
   id: string;
   username: string;  // Pi Network username
@@ -24,12 +66,12 @@ export interface Invoice {
   posTerminalId?: string;
   /** List of items included in this invoice */
   items: InvoiceItem[];
-  /** Subtotal amount before tax */
-  subtotal: number;
-  /** Tax amount applied to the invoice */
-  tax: number;
-  /** Total amount including tax */
-  total: number;
+  /** Subtotal amount before tax (must use 7 decimal places for Pi) */
+  subtotal: PiAmount;
+  /** Tax amount applied to the invoice (must use 7 decimal places for Pi) */
+  tax: PiAmount;
+  /** Total amount including tax (must use 7 decimal places for Pi) */
+  total: PiAmount;
   /** Current status of the invoice */
   status: 'pending' | 'completed' | 'cancelled' | 'expired' | 'refunded';
   /** Payment method used for this transaction */
@@ -54,8 +96,8 @@ export interface InvoiceItem {
   productId: string;
   productName: string;
   quantity: number;
-  unitPrice: number;
-  totalPrice: number;
+  unitPrice: PiAmount;
+  totalPrice: PiAmount;
 }
 
 export interface InvoiceFilter {
