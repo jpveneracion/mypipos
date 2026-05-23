@@ -8,6 +8,30 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- ============================================================================
+-- POS TERMINALS TABLE (must be created first before invoices)
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS pos_terminals (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    merchant_id UUID NOT NULL REFERENCES merchants(id) ON DELETE CASCADE,
+
+    -- Terminal details
+    name VARCHAR(255) NOT NULL,
+    location VARCHAR(255),
+    terminal_code VARCHAR(50) UNIQUE,
+
+    -- Status
+    is_active BOOLEAN DEFAULT true,
+
+    -- Timestamps
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+
+    -- Metadata
+    metadata JSONB DEFAULT '{}'
+);
+
+-- ============================================================================
 -- INVOICES TABLE
 -- ============================================================================
 
@@ -58,30 +82,6 @@ CREATE TABLE IF NOT EXISTS invoice_items (
 
     -- Timestamp
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-
-    -- Metadata
-    metadata JSONB DEFAULT '{}'
-);
-
--- ============================================================================
--- POS TERMINALS TABLE (if not exists)
--- ============================================================================
-
-CREATE TABLE IF NOT EXISTS pos_terminals (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    merchant_id UUID NOT NULL REFERENCES merchants(id) ON DELETE CASCADE,
-
-    -- Terminal details
-    name VARCHAR(255) NOT NULL,
-    location VARCHAR(255),
-    terminal_code VARCHAR(50) UNIQUE,
-
-    -- Status
-    is_active BOOLEAN DEFAULT true,
-
-    -- Timestamps
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
 
     -- Metadata
     metadata JSONB DEFAULT '{}'
