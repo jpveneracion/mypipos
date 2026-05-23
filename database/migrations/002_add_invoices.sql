@@ -4,6 +4,16 @@
 -- Adds customer invoice functionality with Pi Network payment integration
 -- ============================================================================
 
+-- Drop existing functions, views, and tables if they exist (for re-running migrations)
+-- Drop in reverse dependency order to avoid foreign key issues
+DROP FUNCTION IF EXISTS create_invoice_from_cart(UUID, UUID, JSONB, NUMERIC, NUMERIC, NUMERIC) CASCADE;
+DROP FUNCTION IF EXISTS get_invoice_with_items(UUID) CASCADE;
+DROP VIEW IF EXISTS merchant_invoice_analytics CASCADE;
+DROP VIEW IF EXISTS customer_invoice_summary CASCADE;
+DROP TABLE IF EXISTS invoice_items CASCADE;
+DROP TABLE IF EXISTS invoices CASCADE;
+DROP TABLE IF EXISTS pos_terminals CASCADE;
+
 -- Enable UUID extension if not already enabled
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
