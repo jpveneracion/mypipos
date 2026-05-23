@@ -16,7 +16,7 @@ export default function Home() {
   useEffect(() => {
     if (isAuthenticated && user && !isRouting) {
       // Check if user needs onboarding first
-      if (!user.onboarding_complete) {
+      if (!user.onboardingComplete) {
         console.log('👋 User needs onboarding - redirecting');
         setIsRouting(true);
         router.push('/onboarding');
@@ -25,22 +25,16 @@ export default function Home() {
 
       setIsRouting(true);
 
-      // Route based on user context
+      // Route based on merchant_id - send merchants to mode selection
       if (merchantId) {
-        // User is a merchant
-        if (currentContext === 'merchant') {
-          // Merchant context - go to dashboard or mode selection
-          router.push('/mode-selection');
-        } else {
-          // Customer context - go to customer dashboard
-          router.push('/customer');
-        }
+        // User is a merchant - go to mode selection first
+        router.push('/mode-selection');
       } else {
-        // User is not a merchant - always customer
+        // User is not a merchant - go to customer dashboard
         router.push('/customer');
       }
     }
-  }, [isAuthenticated, user, merchantId, currentContext, router, isRouting]);
+  }, [isAuthenticated, user, merchantId, router, isRouting]);
 
   const handleLoginSuccess = (method: string) => {
     if (method === 'credentials') {

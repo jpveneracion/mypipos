@@ -2,42 +2,146 @@ import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { randomUUID } from 'crypto';
 
+/**
+ * Pi Network Authentication API (mypiroll-style)
+ * POST /api/auth/pi
+ * Body: { accessToken: string, user: { uid: string, username: string } }
+ */
 export async function POST(request: NextRequest) {
+  const requestId = randomUUID();
+  const startTime = Date.now();
+
+  console.log(`🔍 [PI AUTH] ${requestId} - Request started`, {
+    timestamp: new Date().toISOString(),
+  });
+
   try {
-    const { accessToken, user } = await request.json();
+    const body = await request.json();
+    const { accessToken, user } = body;
 
-    // Verify the access token with Pi Network API
-    // You'll need to implement server-side verification
-    const piApiResponse = await verifyPiAccessToken(accessToken);
+    console.log(`📥 [PI AUTH] ${requestId} - Request body parsed`, {
+      hasAccessToken: !!accessToken,
+      hasUser: !!user,
+      username: user?.username,
+      uid: user?.uid,
+    });
 
-    if (!piApiResponse.valid) {
+    if (!accessToken) {
+      console.log(`⚠️ [PI AUTH] ${requestId} - No access token provided`);
+      return NextResponse.json({ error: 'Missing access token' }, { status: 400 });
+    }
+
+    if (!user || !user.uid || !user.username) {
+      console.log(`⚠️ [PI AUTH] ${requestId} - Invalid user data`);
+      return NextResponse.json({ error: 'Invalid user data' }, { status: 400 });
+    }
+
+    // 1. Verify with Pi Network API (CRITICAL - this was missing!)
+    const piApiUrl = process.env.PI_API_URL || 'https://api.minepi.com/v2';
+
+    console.log('🌐 [PI AUTH] Calling Pi Network API to verify token', { piApiUrl });
+
+    const piResponse = await fetch(`${piApiUrl}/me`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!piResponse.ok) {
+      const errorText = await piResponse.text();
+      console.log('❌ [PI AUTH] Pi Network API verification failed', {
+        status: piResponse.status,
+        errorText
+      });
       return NextResponse.json(
-        { error: 'Invalid access token' },
+        { error: 'Invalid Pi access token', details: errorText },
         { status: 401 }
       );
     }
 
-    // Create or update user in your database
-    // This is where you'd integrate with your database
-    const dbUser = await upsertUser({
-      piUid: user.uid,
-      username: user.username,
-      role: 'cashier', // Default role
+    const piUser = await piResponse.json();
+
+    console.log('✅ [PI AUTH] Pi Network API verification successful', {
+      piUid: piUser.uid,
+      piUsername: piUser.username,
+      clientUid: user.uid,
+      clientUsername: user.username,
+      match: piUser.uid === user.uid && piUser.username === user.username
     });
 
-    // Create a session token for your app
-    const sessionToken = generateSessionToken(dbUser);
+    // 2. Verify the frontend user data matches the API response
+    if (piUser.uid !== user.uid || piUser.username !== user.username) {
+      console.error('❌ [PI AUTH] User data mismatch!', {
+        apiUid: piUser.uid,
+        apiUsername: piUser.username,
+        clientUid: user.uid,
+        clientUsername: user.username
+      });
+      return NextResponse.json(
+        { error: 'User data verification failed' },
+        { status: 400 }
+      );
+    }
+
+    // 3. Create or update user using SECURITY DEFINER function
+    console.log('🧠 [PI AUTH] Using SECURITY DEFINER function: create_or_update_user()');
+
+    const result = await query(
+      'SELECT * FROM create_or_update_user($1, $2, $3, $4, $5, $6)',
+      [user.uid, user.username, 'pioneer', 'customer', false, null]
+    );
+
+    if (!result.rows || result.rows.length === 0) {
+      console.error('❌ [PI AUTH] No user returned from database');
+      return NextResponse.json(
+        { error: 'Failed to create user in database' },
+        { status: 500 }
+      );
+    }
+
+    const dbUser = {
+      id: result.rows[0].id,
+      pi_username: result.rows[0].pi_username,
+      userType: result.rows[0].userType,
+      role: result.rows[0].role,
+      onboardingComplete: result.rows[0].onboardingComplete || false,
+      merchant_id: result.rows[0].merchant_id,
+    };
+
+    console.log('✅ [PI AUTH] User processed successfully', {
+      userId: dbUser.id,
+      username: dbUser.pi_username,
+      userType: dbUser.userType,
+      role: dbUser.role,
+      onboardingComplete: dbUser.onboardingComplete,
+      merchant_id: dbUser.merchant_id
+    });
+
+    const duration = Date.now() - startTime;
+    console.log(`✅ [PI AUTH] ${requestId} - Success`, {
+      duration: `${duration}ms`,
+      userId: dbUser.id
+    });
 
     return NextResponse.json({
       success: true,
       user: dbUser,
-      sessionToken,
     });
 
   } catch (error) {
-    console.error('Pi auth error:', error);
+    const duration = Date.now() - startTime;
+    console.error(`❌ [PI AUTH] ${requestId} - REQUEST FAILED`, {
+      duration: `${duration}ms`,
+      error: error instanceof Error ? error.message : error,
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+
     return NextResponse.json(
-      { error: 'Authentication failed' },
+      {
+        error: 'Authentication failed',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }
@@ -77,9 +181,9 @@ async function upsertUser(userData: any) {
     return {
       id: result.rows[0].id,
       pi_username: result.rows[0].pi_username,
-      user_type: result.rows[0].user_type,
+      userType: result.rows[0].userType,
       role: result.rows[0].role,
-      onboarding_complete: result.rows[0].onboarding_complete || false,
+      onboardingComplete: result.rows[0].onboardingComplete || false,
       merchant_id: result.rows[0].merchant_id,
     };
   } catch (error) {

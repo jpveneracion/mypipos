@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
+import { useAuthStore } from '@/lib/store';
 
 // Dynamically import PiAuthButton to avoid SSR issues
 const PiAuthButton = dynamic(() => import('./PiAuthButton'), {
@@ -33,17 +34,38 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
     setError(null);
 
     try {
-      // Simulate credential authentication
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const response = await fetch('/api/auth/ims', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: credentials.username,
+          password: credentials.password,
+        }),
+      });
 
-      if (credentials.username && credentials.password) {
-        onLoginSuccess('credentials');
-        onClose();
-      } else {
-        setError('Please enter both username and password');
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Authentication failed');
       }
+
+      const { user } = await response.json();
+
+      // Update auth store
+      const { setAuth } = useAuthStore.getState();
+      setAuth(true, {
+        id: user.id,
+        piUsername: user.piUsername || user.username,
+        userType: user.userType || 'customer',
+        role: user.role,
+        onboardingComplete: user.onboardingComplete || false,
+        merchantId: user.merchantId,
+        createdAt: new Date()
+      });
+
+      onLoginSuccess('credentials');
+      onClose();
     } catch (err) {
-      setError('Login failed. Please check your credentials.');
+      setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
       setIsLoading(false);
     }

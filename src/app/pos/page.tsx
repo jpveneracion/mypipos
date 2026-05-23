@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/lib/store';
 import { useCartStore } from '@/lib/store';
 import { Product } from '@/types';
 import BarcodeScanner from '@/components/pos/BarcodeScanner';
@@ -70,10 +72,34 @@ const sampleProducts: Product[] = [
 ];
 
 export default function POSPage() {
+  const router = useRouter();
+  const { isAuthenticated, merchantId, currentContext } = useAuthStore();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [showScanner, setShowScanner] = useState(false);
   const [scannedProduct, setScannedProduct] = useState<Product | null>(null);
+
+  // Auth check
+  useEffect(() => {
+    // Must be authenticated
+    if (!isAuthenticated) {
+      router.push('/');
+      return;
+    }
+
+    // Must be a merchant to access POS
+    if (!merchantId) {
+      // Not a merchant - send to customer dashboard
+      router.push('/customer');
+      return;
+    }
+
+    // If merchant but not in merchant context, redirect to mode selection
+    if (currentContext !== 'merchant') {
+      router.push('/mode-selection');
+      return;
+    }
+  }, [isAuthenticated, merchantId, currentContext, router]);
 
   // Set up global handler for Pi Browser
   useEffect(() => {
