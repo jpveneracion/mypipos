@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { Product, CartItem, User } from '@/types';
 import type { Customer } from '@/types/customer';
 
@@ -78,23 +79,35 @@ interface AuthStore {
   logout: () => void;
 }
 
-export const useAuthStore = create<AuthStore>((set) => ({
-  isAuthenticated: false,
-  user: null,
-  merchantId: null,
-  currentContext: 'customer',
-  setAuth: (isAuthenticated, user, merchantId) => set({
-    isAuthenticated,
-    user,
-    merchantId: merchantId || null,
-    currentContext: merchantId ? 'merchant' : 'customer'
-  }),
-  setMerchantId: (merchantId) => set({ merchantId }),
-  setContext: (context) => set({ currentContext: context }),
-  logout: () => set({
-    isAuthenticated: false,
-    user: null,
-    merchantId: null,
-    currentContext: 'customer'
-  }),
-}));
+export const useAuthStore = create<AuthStore>()(
+  persist(
+    (set) => ({
+      isAuthenticated: false,
+      user: null,
+      merchantId: null,
+      currentContext: 'customer',
+      setAuth: (isAuthenticated, user, merchantId) => set({
+        isAuthenticated,
+        user,
+        merchantId: merchantId || null,
+        currentContext: merchantId ? 'merchant' : 'customer'
+      }),
+      setMerchantId: (merchantId) => set({ merchantId }),
+      setContext: (context) => set({ currentContext: context }),
+      logout: () => {
+        // Clear persisted storage first
+        localStorage.removeItem('mypipos-auth');
+        // Then update state
+        set({
+          isAuthenticated: false,
+          user: null,
+          merchantId: null,
+          currentContext: 'customer'
+        });
+      },
+    }),
+    {
+      name: 'mypipos-auth',
+    }
+  )
+);

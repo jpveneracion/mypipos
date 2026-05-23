@@ -37,8 +37,8 @@ export interface User {
   id: string;
   piUsername: string;
   role: 'admin' | 'cashier' | 'manager' | 'merchant_admin';
-  user_type?: 'customer' | 'merchant';
-  onboarding_complete?: boolean;
+  userType?: 'customer' | 'merchant';
+  onboardingComplete?: boolean;
   merchantId?: string | null;
   createdAt: Date;
 }

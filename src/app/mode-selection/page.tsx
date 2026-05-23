@@ -7,7 +7,7 @@ import Header from '@/components/Header';
 
 export default function ModeSelectionPage() {
   const router = useRouter();
-  const { isAuthenticated, user, merchantId, currentContext } = useAuthStore();
+  const { isAuthenticated, user, merchantId, currentContext, setContext } = useAuthStore();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -54,7 +54,10 @@ export default function ModeSelectionPage() {
           <div className="grid md:grid-cols-2 gap-6 mt-12">
             {/* Merchant Mode Card */}
             <button
-              onClick={() => router.push('/dashboard')}
+              onClick={() => {
+                setContext('merchant');
+                router.push('/pos');
+              }}
               className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 p-8 border-2 border-transparent hover:border-purple-500 dark:hover:border-purple-400 group"
             >
               <div className="flex flex-col items-center text-center space-y-4">
@@ -84,7 +87,10 @@ export default function ModeSelectionPage() {
 
             {/* Customer Mode Card */}
             <button
-              onClick={() => router.push('/customer')}
+              onClick={() => {
+                setContext('customer');
+                router.push('/customer');
+              }}
               className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 p-8 border-2 border-transparent hover:border-purple-500 dark:hover:border-purple-400 group"
             >
               <div className="flex flex-col items-center text-center space-y-4">

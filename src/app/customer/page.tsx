@@ -14,12 +14,13 @@ export default function CustomerPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Must be authenticated
     if (!isAuthenticated) {
       router.push('/');
       return;
     }
 
-    // If user is a merchant but not in customer context, show mode selection
+    // If user is a merchant but not in customer context, redirect to mode selection
     if (merchantId && currentContext !== 'customer') {
       router.push('/mode-selection');
       return;
