@@ -24,7 +24,7 @@ export default function OnboardingPage() {
       const response = await fetch('/api/users/onboarding', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role }),
+        body: JSON.stringify({ role, userId: user?.id }),
       });
 
       if (response.ok) {

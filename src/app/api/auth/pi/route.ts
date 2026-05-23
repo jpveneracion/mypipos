@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { query } from '@/lib/db';
+import { randomUUID } from 'crypto';
 
 export async function POST(request: NextRequest) {
   try {
@@ -65,14 +67,54 @@ async function verifyPiAccessToken(accessToken: string) {
 }
 
 async function upsertUser(userData: any) {
-  // Implement database upsert logic
-  // This is a placeholder - implement based on your database
-  return {
-    id: userData.piUid,
-    piUsername: userData.username,
-    role: userData.role,
-    createdAt: new Date(),
-  };
+  try {
+    // Check if user exists
+    const existingUser = await query(
+      'SELECT * FROM users WHERE pi_uid = $1',
+      [userData.piUid]
+    );
+
+    if (existingUser.rows.length > 0) {
+      // User exists - update last login
+      const updatedUser = await query(
+        `UPDATE users
+         SET last_login_at = NOW(),
+             updated_at = NOW()
+         WHERE pi_uid = $1
+         RETURNING id, pi_username, user_type, role, onboarding_complete, merchant_id`,
+        [userData.piUid]
+      );
+
+      return {
+        id: updatedUser.rows[0].id,
+        pi_username: updatedUser.rows[0].pi_username,
+        user_type: updatedUser.rows[0].user_type,
+        role: updatedUser.rows[0].role,
+        onboarding_complete: updatedUser.rows[0].onboarding_complete || false,
+        merchant_id: updatedUser.rows[0].merchant_id,
+      };
+    }
+
+    // Create new user
+    const newUser = await query(
+      `INSERT INTO users (pi_uid, pi_username, user_type, role, onboarding_complete, is_active, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+       RETURNING id, pi_username, user_type, role, onboarding_complete, merchant_id`,
+      [userData.piUid, userData.username, 'pioneer', 'customer', false, true]
+    );
+
+    return {
+      id: newUser.rows[0].id,
+      pi_username: newUser.rows[0].pi_username,
+      user_type: newUser.rows[0].user_type,
+      role: newUser.rows[0].role,
+      onboarding_complete: newUser.rows[0].onboarding_complete || false,
+      merchant_id: newUser.rows[0].merchant_id,
+    };
+  } catch (error) {
+    console.error('Database upsert error:', error);
+    throw new Error('Failed to create/update user in database');
+  }
 }
 
 function generateSessionToken(user: any) {

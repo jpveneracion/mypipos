@@ -7,10 +7,11 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { randomUUID } from 'crypto';
+import { query } from '@/lib/db';
 
 export async function POST(request: NextRequest) {
   try {
-    const { role } = await request.json();
+    const { role, userId } = await request.json();
 
     if (!role || !['customer', 'merchant', 'both'].includes(role)) {
       return NextResponse.json(
@@ -19,35 +20,68 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // TODO: Implement proper database integration
-    // For now, simulate the onboarding process
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'User ID required' },
+        { status: 400 }
+      );
+    }
 
-    let userRole = 'customer';
+    // Determine user type and role
+    let userRole = 'merchant_admin';
     let userType = 'customer';
+    let merchantId = null;
 
     if (role === 'merchant') {
       userRole = 'merchant_admin';
       userType = 'merchant';
+      // Create merchant record
+      merchantId = randomUUID();
+      await query(
+        `INSERT INTO merchants (id, business_name, is_active, created_at, updated_at)
+         VALUES ($1, $2, $3, NOW(), NOW())`,
+        [merchantId, `${userType}'s Business`, true]
+      );
     } else if (role === 'both') {
       userRole = 'merchant_admin';
-      userType = 'customer'; // Start with customer context
+      userType = 'customer';
+      // Create merchant record for "both" users
+      merchantId = randomUUID();
+      await query(
+        `INSERT INTO merchants (id, business_name, is_active, created_at, updated_at)
+         VALUES ($1, $2, $3, NOW(), NOW())`,
+        [merchantId, `${userType}'s Business`, true]
+      );
     }
 
-    // Mock user update (replace with actual database query)
-    const user = {
-      id: randomUUID(),
-      pi_uid: randomUUID(),
-      pi_username: 'pioneer',
-      user_type: userType,
-      user_role: userRole,
-      onboarding_complete: true,
-      merchant_id: role === 'both' || role === 'merchant' ? randomUUID() : null,
-    };
+    // Update user with onboarding completion
+    const result = await query(
+      `UPDATE users
+       SET user_type = $1,
+           role = $2,
+           merchant_id = $3,
+           onboarding_complete = $4,
+           updated_at = NOW()
+       WHERE id = $5
+       RETURNING id, pi_username, user_type, role, onboarding_complete, merchant_id`,
+      [userType, userRole, merchantId, true, userId]
+    );
+
+    if (result.rows.length === 0) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      );
+    }
+
+    const user = result.rows[0];
 
     console.log('✅ User onboarding completed:', {
+      userId,
       role,
       userType,
       userRole,
+      merchantId,
       onboarding_complete: true
     });
 
