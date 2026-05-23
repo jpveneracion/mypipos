@@ -109,130 +109,6 @@ CREATE INDEX IF NOT EXISTS idx_pos_terminals_merchant_id ON pos_terminals(mercha
 CREATE INDEX IF NOT EXISTS idx_pos_terminals_is_active ON pos_terminals(is_active) WHERE is_active = true;
 
 -- ============================================================================
--- ROW-LEVEL SECURITY (RLS) POLICIES
--- ============================================================================
-
--- Enable RLS on tables
-ALTER TABLE invoices ENABLE ROW LEVEL SECURITY;
-ALTER TABLE invoice_items ENABLE ROW LEVEL SECURITY;
-ALTER TABLE pos_terminals ENABLE ROW LEVEL SECURITY;
-
--- Invoices table policies
-CREATE POLICY invoices_select_policy ON invoices
-    FOR SELECT
-    TO authenticated
-    USING (
-        EXISTS (
-            SELECT 1 FROM get_current_user_context() ctx
-            WHERE (
-                ctx.user_type = 'system_admin' OR
-                ctx.merchant_id = invoices.merchant_id OR
-                ctx.id = invoices.customer_id
-            )
-        )
-    );
-
-CREATE POLICY invoices_insert_policy ON invoices
-    FOR INSERT
-    TO authenticated
-    WITH CHECK (
-        EXISTS (
-            SELECT 1 FROM get_current_user_context() ctx
-            WHERE (
-                ctx.user_type = 'system_admin' OR
-                ctx.merchant_id = invoices.merchant_id
-            )
-        )
-    );
-
-CREATE POLICY invoices_update_policy ON invoices
-    FOR UPDATE
-    TO authenticated
-    USING (
-        EXISTS (
-            SELECT 1 FROM get_current_user_context() ctx
-            WHERE (
-                ctx.user_type = 'system_admin' OR
-                ctx.merchant_id = invoices.merchant_id
-            )
-        )
-    );
-
-CREATE POLICY invoices_delete_policy ON invoices
-    FOR DELETE
-    TO authenticated
-    USING (
-        EXISTS (
-            SELECT 1 FROM get_current_user_context() ctx
-            WHERE ctx.user_type = 'system_admin'
-        )
-    );
-
--- Invoice items table policies
-CREATE POLICY invoice_items_select_policy ON invoice_items
-    FOR SELECT
-    TO authenticated
-    USING (
-        EXISTS (
-            SELECT 1 FROM invoices i
-            JOIN get_current_user_context() ctx ON (
-                ctx.user_type = 'system_admin' OR
-                ctx.merchant_id = i.merchant_id OR
-                ctx.id = i.customer_id
-            )
-            WHERE i.id = invoice_items.invoice_id
-        )
-    );
-
-CREATE POLICY invoice_items_insert_policy ON invoice_items
-    FOR INSERT
-    TO authenticated
-    WITH CHECK (
-        EXISTS (
-            SELECT 1 FROM invoices i
-            JOIN get_current_user_context() ctx ON (
-                ctx.user_type = 'system_admin' OR
-                ctx.merchant_id = i.merchant_id
-            )
-            WHERE i.id = invoice_items.invoice_id
-        )
-    );
-
--- POS terminals table policies
-CREATE POLICY pos_terminals_select_policy ON pos_terminals
-    FOR SELECT
-    TO authenticated
-    USING (
-        EXISTS (
-            SELECT 1 FROM get_current_user_context() ctx
-            WHERE (
-                ctx.user_type = 'system_admin' OR
-                ctx.merchant_id = pos_terminals.merchant_id
-            )
-        )
-    );
-
-CREATE POLICY pos_terminals_insert_policy ON pos_terminals
-    FOR INSERT
-    TO authenticated
-    WITH CHECK (
-        EXISTS (
-            SELECT 1 FROM get_current_user_context() ctx
-            WHERE ctx.merchant_id = pos_terminals.merchant_id
-        )
-    );
-
-CREATE POLICY pos_terminals_update_policy ON pos_terminals
-    FOR UPDATE
-    TO authenticated
-    USING (
-        EXISTS (
-            SELECT 1 FROM get_current_user_context() ctx
-            WHERE ctx.merchant_id = pos_terminals.merchant_id
-        )
-    );
-
--- ============================================================================
 -- TRIGGERS FOR AUTOMATIC TIMESTAMPS
 -- ============================================================================
 
@@ -247,22 +123,6 @@ CREATE TRIGGER update_pos_terminals_updated_at
     BEFORE UPDATE ON pos_terminals
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
-
--- ============================================================================
--- AUDIT LOGGING
--- ============================================================================
-
--- Apply audit logging to invoices
-CREATE TRIGGER audit_invoices
-    AFTER INSERT OR UPDATE OR DELETE ON invoices
-    FOR EACH ROW
-    EXECUTE FUNCTION create_audit_log();
-
--- Apply audit logging to invoice_items
-CREATE TRIGGER audit_invoice_items
-    AFTER INSERT OR UPDATE OR DELETE ON invoice_items
-    FOR EACH ROW
-    EXECUTE FUNCTION create_audit_log();
 
 -- ============================================================================
 -- VIEWS FOR COMMON QUERIES
@@ -370,15 +230,7 @@ RETURNS UUID AS $$
 DECLARE
     v_invoice_id UUID;
     v_item JSONB;
-    v_user_context RECORD;
 BEGIN
-    -- Check permissions
-    SELECT * INTO v_user_context FROM get_current_user_context();
-
-    IF v_user_context.merchant_id IS DISTINCT FROM p_merchant_id AND v_user_context.user_type != 'system_admin' THEN
-        RAISE EXCEPTION 'Permission denied: Cannot create invoice for merchant %', p_merchant_id;
-    END IF;
-
     -- Create invoice
     INSERT INTO invoices (
         customer_id,
@@ -419,27 +271,6 @@ BEGIN
             (v_item->>'totalPrice')::NUMERIC
         );
     END LOOP;
-
-    -- Log the creation
-    INSERT INTO audit_logs (
-        merchant_id,
-        user_id,
-        action,
-        entity_type,
-        entity_id,
-        new_values
-    ) VALUES (
-        p_merchant_id,
-        v_user_context.current_user_id,
-        'create_invoice',
-        'invoices',
-        v_invoice_id,
-        jsonb_build_object(
-            'customer_id', p_customer_id,
-            'total', p_total,
-            'items_count', jsonb_array_length(p_items)
-        )
-    );
 
     RETURN v_invoice_id;
 END;
