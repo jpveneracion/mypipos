@@ -1,53 +1,40 @@
 /**
  * Database connection utility for myPiPOS
- * This will be used when actual database connection is established
+ * Uses same approach as mypiroll for Neon compatibility
  */
 
 import { Pool, PoolClient, QueryResult, QueryResultRow } from 'pg';
 
-// Database configuration - prioritize connection string for Neon
-const dbConfig = process.env.DATABASE_URL
-  ? {
-      connectionString: process.env.DATABASE_URL,
-      ssl: { rejectUnauthorized: false },
-      max: 20,
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 2000,
-      // Explicitly set these to undefined to prevent conflicts
-      host: undefined,
-      port: undefined,
-      database: undefined,
-      user: undefined,
-      password: undefined,
-    }
-  : {
-      host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT || '5432'),
-      database: process.env.DB_NAME || 'mypipos',
-      user: process.env.DB_USER || 'postgres',
-      password: process.env.DB_PASSWORD || 'postgres',
-      max: 20,
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 2000,
-    };
-
-let pool: Pool | null = null;
+// Simple database configuration - works with Neon
+let pool: Pool | null = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.DATABASE_URL?.includes('localhost') ? false : {
+    rejectUnauthorized: false,
+  },
+});
 
 /**
  * Initialize database connection pool
  */
 export function initDb(): Pool {
+  // Pool is already initialized at module level
+  // This function is kept for backwards compatibility
+
   if (!pool) {
-    pool = new Pool(dbConfig);
-
-    pool.on('error', (err) => {
-      console.error('Unexpected database client error:', err);
-      process.exit(-1);
+    pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: process.env.DATABASE_URL?.includes('localhost') ? false : {
+        rejectUnauthorized: false,
+      },
     });
-
-    console.log('Database connection pool initialized');
   }
 
+  pool.on('error', (err) => {
+    console.error('Unexpected database client error:', err);
+    process.exit(-1);
+  });
+
+  console.log('Database connection pool initialized');
   return pool;
 }
 
@@ -56,7 +43,12 @@ export function initDb(): Pool {
  */
 export function getDb(): Pool {
   if (!pool) {
-    return initDb();
+    pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: process.env.DATABASE_URL?.includes('localhost') ? false : {
+        rejectUnauthorized: false,
+      },
+    });
   }
   return pool;
 }
