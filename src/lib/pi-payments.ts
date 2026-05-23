@@ -91,12 +91,7 @@ export class PiPaymentService {
 export function usePiPayments() {
   const initiatePayment = async (amount: number, memo: string) => {
     // Implementation for React hook
-    const piAuth = new PiAuth({
-      appId: process.env.NEXT_PUBLIC_PI_APP_ID || 'your-app-id',
-      version: '1.0',
-      authCallback: () => {},
-    });
-
+    const piAuth = new PiAuth();
     const paymentService = new PiPaymentService(piAuth);
     return await paymentService.createPayment({ amount, memo });
   };
