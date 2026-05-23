@@ -13,6 +13,12 @@ const dbConfig = process.env.DATABASE_URL
       max: 20,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 2000,
+      // Explicitly set these to undefined to prevent conflicts
+      host: undefined,
+      port: undefined,
+      database: undefined,
+      user: undefined,
+      password: undefined,
     }
   : {
       host: process.env.DB_HOST || 'localhost',
