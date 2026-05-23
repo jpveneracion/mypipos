@@ -80,8 +80,6 @@ export default function CustomerPage() {
           </div>
         </div>
       </main>
-        </div>
-      </main>
     </div>
   );
 }
