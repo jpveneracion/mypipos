@@ -5,6 +5,25 @@
 -- Run this directly: psql -U postgres -d mypipos -f 001_complete_schema.sql
 -- ============================================================================
 
+-- Drop existing tables if they exist (for re-running migrations)
+-- Drop in reverse dependency order to avoid foreign key issues
+DROP TABLE IF EXISTS webhook_logs CASCADE;
+DROP TABLE IF EXISTS webhooks CASCADE;
+DROP TABLE IF EXISTS merchant_settings CASCADE;
+DROP TABLE IF EXISTS audit_logs CASCADE;
+DROP TABLE IF EXISTS sessions CASCADE;
+DROP TABLE IF EXISTS inventory_transactions CASCADE;
+DROP TABLE IF EXISTS sale_items CASCADE;
+DROP TABLE IF EXISTS sales CASCADE;
+DROP TABLE IF EXISTS categories CASCADE;
+DROP TABLE IF EXISTS merchant_inventory CASCADE;
+DROP TABLE IF EXISTS merchant_products CASCADE;
+DROP TABLE IF EXISTS products CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS merchants CASCADE;
+DROP TABLE IF EXISTS encryption_key_logs CASCADE;
+DROP TABLE IF EXISTS encryption_keys CASCADE;
+
 BEGIN;
 
 -- Enable required extensions
