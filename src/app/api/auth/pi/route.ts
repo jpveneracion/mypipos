@@ -68,48 +68,19 @@ async function verifyPiAccessToken(accessToken: string) {
 
 async function upsertUser(userData: any) {
   try {
-    // Check if user exists
-    const existingUser = await query(
-      'SELECT * FROM users WHERE pi_uid = $1',
-      [userData.piUid]
-    );
-
-    if (existingUser.rows.length > 0) {
-      // User exists - update last login
-      const updatedUser = await query(
-        `UPDATE users
-         SET last_login_at = NOW(),
-             updated_at = NOW()
-         WHERE pi_uid = $1
-         RETURNING id, pi_username, user_type, role, onboarding_complete, merchant_id`,
-        [userData.piUid]
-      );
-
-      return {
-        id: updatedUser.rows[0].id,
-        pi_username: updatedUser.rows[0].pi_username,
-        user_type: updatedUser.rows[0].user_type,
-        role: updatedUser.rows[0].role,
-        onboarding_complete: updatedUser.rows[0].onboarding_complete || false,
-        merchant_id: updatedUser.rows[0].merchant_id,
-      };
-    }
-
-    // Create new user
-    const newUser = await query(
-      `INSERT INTO users (pi_uid, pi_username, user_type, role, onboarding_complete, is_active, created_at, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
-       RETURNING id, pi_username, user_type, role, onboarding_complete, merchant_id`,
-      [userData.piUid, userData.username, 'pioneer', 'customer', false, true]
+    // Use SECURITY DEFINER function to bypass RLS
+    const result = await query(
+      'SELECT * FROM create_or_update_user($1, $2, $3, $4, $5, $6)',
+      [userData.piUid, userData.username, 'pioneer', 'customer', false, null]
     );
 
     return {
-      id: newUser.rows[0].id,
-      pi_username: newUser.rows[0].pi_username,
-      user_type: newUser.rows[0].user_type,
-      role: newUser.rows[0].role,
-      onboarding_complete: newUser.rows[0].onboarding_complete || false,
-      merchant_id: newUser.rows[0].merchant_id,
+      id: result.rows[0].id,
+      pi_username: result.rows[0].pi_username,
+      user_type: result.rows[0].user_type,
+      role: result.rows[0].role,
+      onboarding_complete: result.rows[0].onboarding_complete || false,
+      merchant_id: result.rows[0].merchant_id,
     };
   } catch (error) {
     console.error('Database upsert error:', error);

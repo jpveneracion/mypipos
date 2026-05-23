@@ -54,17 +54,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Update user with onboarding completion
+    // Update user with onboarding completion using SECURITY DEFINER function
     const result = await query(
-      `UPDATE users
-       SET user_type = $1,
-           role = $2,
-           merchant_id = $3,
-           onboarding_complete = $4,
-           updated_at = NOW()
-       WHERE id = $5
-       RETURNING id, pi_username, user_type, role, onboarding_complete, merchant_id`,
-      [userType, userRole, merchantId, true, userId]
+      'SELECT * FROM complete_user_onboarding($1, $2, $3, $4)',
+      [userId, userType, userRole, merchantId]
     );
 
     if (result.rows.length === 0) {
