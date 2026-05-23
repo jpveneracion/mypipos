@@ -1,6 +1,17 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
+
+// Dynamically import PiAuthButton to avoid SSR issues
+const PiAuthButton = dynamic(() => import('./PiAuthButton'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex justify-center items-center py-4">
+      <div className="w-5 h-5 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  ),
+});
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -10,43 +21,11 @@ interface LoginModalProps {
 
 export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps) {
   const [loginMethod, setLoginMethod] = useState<'choice' | 'pi' | 'credentials'>('choice');
+  const [credentials, setCredentials] = useState({ username: '', password: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [credentials, setCredentials] = useState({ username: '', password: '' });
 
   if (!isOpen) return null;
-
-  const handlePiLogin = async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      // Simulate Pi Network authentication
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      onLoginSuccess('pi');
-      onClose();
-    } catch (err) {
-      setError('Pi authentication failed. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handlePiRegister = async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      // Simulate Pi Network registration
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      onLoginSuccess('pi-register');
-      onClose();
-    } catch (err) {
-      setError('Pi registration failed. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleCredentialLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -99,7 +78,10 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
                 className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-4 rounded-xl font-semibold shadow-lg transform transition hover:scale-105 flex items-center justify-center gap-3"
               >
                 <span className="text-2xl">🥧</span>
-                <span>Continue with Pi Network</span>
+                <div className="text-left">
+                  <div>Continue with Pi Network</div>
+                  <div className="text-xs opacity-80">For Pioneers and Merchants</div>
+                </div>
               </button>
 
               <button
@@ -107,12 +89,16 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
                 className="w-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white py-4 rounded-xl font-semibold transition-colors flex items-center justify-center gap-3"
               >
                 <span className="text-2xl">🔐</span>
-                <span>Login with Credentials</span>
+                <div className="text-left">
+                  <div>Login with Credentials</div>
+                  <div className="text-xs opacity-70">For desktop IMS access</div>
+                </div>
               </button>
             </div>
 
-            <div className="text-center text-sm text-gray-500">
-              <p>New user? <button onClick={() => setLoginMethod('pi')} className="text-purple-600 hover:underline">Register with Pi</button></p>
+            <div className="text-center text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900 rounded-lg p-3">
+              <p className="font-semibold mb-1">🌍 Universal Pi Network Access</p>
+              <p>One Pi account = Every myPiPOS merchant worldwide</p>
             </div>
           </div>
         )}
@@ -124,39 +110,17 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
               <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
                 Pi Network Authentication
               </h2>
-              <p className="text-gray-600 dark:text-gray-300 text-sm">
-                Secure login using your Pi Network account
+              <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
+                Secure authentication using your Pi Network account
               </p>
+              <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 text-xs text-blue-800 dark:text-blue-300">
+                <p className="font-semibold mb-1">✨ New to Pi Network?</p>
+                <p>No problem! Your account is created automatically.</p>
+              </div>
             </div>
 
-            <div className="space-y-3">
-              <button
-                onClick={handlePiLogin}
-                disabled={isLoading}
-                className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-4 rounded-xl font-semibold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
-              >
-                {isLoading ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Connecting...</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="text-xl">🔓</span>
-                    <span>Login with Pi</span>
-                  </>
-                )}
-              </button>
-
-              <button
-                onClick={handlePiRegister}
-                disabled={isLoading}
-                className="w-full bg-purple-100 hover:bg-purple-200 dark:bg-purple-900 dark:hover:bg-purple-800 text-purple-700 dark:text-purple-300 py-3 rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                <span>📝</span>
-                <span>Register New Account</span>
-              </button>
-            </div>
+            {/* Use actual PiAuthButton component */}
+            <PiAuthButton />
 
             <button
               onClick={() => setLoginMethod('choice')}
@@ -253,10 +217,6 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
                 {error}
               </div>
             )}
-
-            <div className="text-center text-xs text-gray-500 border-t pt-4">
-              <p>Desktop IMS users can also use Pi Network authentication</p>
-            </div>
           </div>
         )}
       </div>
