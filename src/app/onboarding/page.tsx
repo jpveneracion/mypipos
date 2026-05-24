@@ -49,10 +49,10 @@ export default function OnboardingPage() {
             router.push('/customer');
             break;
           case 'merchant':
-            router.push('/merchant/onboarding'); // Business setup
+            router.push('/pos'); // Direct to POS for merchant-only users
             break;
           case 'both':
-            router.push('/customer'); // Start with customer, can switch later
+            router.push('/mode-selection'); // Let users choose their starting mode
             break;
         }
       } else {

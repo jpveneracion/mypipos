@@ -96,9 +96,9 @@ function getNextStep(role: string): string {
     case 'customer':
       return '/customer';
     case 'merchant':
-      return '/merchant/onboarding';
+      return '/pos'; // Direct to POS for merchant-only users
     case 'both':
-      return '/customer';
+      return '/mode-selection'; // Direct to mode selection for users with both roles
     default:
       return '/';
   }
