@@ -24,13 +24,13 @@ DROP VIEW IF EXISTS a2u_payment_stats CASCADE;
 DROP VIEW IF EXISTS customer_refunds_pending CASCADE;
 DROP VIEW IF EXISTS merchant_payouts_pending CASCADE;
 
+-- Drop triggers first (they depend on functions)
+DROP TRIGGER IF EXISTS trigger_update_a2u_payments_updated_at ON a2u_payments;
+
 -- Drop functions
 DROP FUNCTION IF EXISTS create_a2u_payment(UUID, VARCHAR(50), DECIMAL(15,7), TEXT, VARCHAR(50), JSONB, UUID);
 DROP FUNCTION IF EXISTS generate_a2u_transaction_number();
 DROP FUNCTION IF EXISTS update_a2u_payments_updated_at();
-
--- Drop triggers
-DROP TRIGGER IF EXISTS trigger_update_a2u_payments_updated_at ON a2u_payments;
 
 -- Drop table
 DROP TABLE IF EXISTS a2u_payments CASCADE;
