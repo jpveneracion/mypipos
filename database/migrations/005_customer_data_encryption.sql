@@ -127,7 +127,7 @@ AS $$
     is_active, created_at, updated_at
   )
   VALUES (
-    p_pi_uid, p_pi_username, p_user_type, p_role, p_onboarding_complete,
+    p_pi_uid, p_pi_username, p_user_type, p_role, COALESCE(p_onboarding_complete, false),
     p_merchant_id,
     -- Encrypt plaintext input before storing
     CASE WHEN p_email IS NOT NULL THEN encrypt_customer_pii(p_email) ELSE NULL END,
@@ -140,7 +140,8 @@ AS $$
     pi_username = EXCLUDED.pi_username,
     user_type = EXCLUDED.user_type,
     role = EXCLUDED.role,
-    onboarding_complete = EXCLUDED.onboarding_complete,
+    -- Preserve existing onboarding_complete if null is passed
+    onboarding_complete = COALESCE(EXCLUDED.onboarding_complete, users.onboarding_complete),
     merchant_id = COALESCE(EXCLUDED.merchant_id, users.merchant_id),
     email = COALESCE(EXCLUDED.email, users.email),
     phone = COALESCE(EXCLUDED.phone, users.phone),
