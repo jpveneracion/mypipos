@@ -321,14 +321,18 @@ COMMENT ON COLUMN users.wallet_address_verified IS 'Whether the wallet address h
 -- GRANT PERMISSIONS
 -- ============================================================================
 
--- Grant appropriate permissions to your database user
--- Adjust the username based on your setup
-GRANT SELECT, INSERT, UPDATE, DELETE ON a2u_payments TO your_database_user;
-GRANT SELECT, UPDATE ON sales TO your_database_user;
-GRANT SELECT, UPDATE ON users TO your_database_user;
+-- Grant permissions to mypipos_app role (consistent with migration 004)
+GRANT USAGE ON SCHEMA public TO mypipos_app;
+
+-- Grant permissions on a2u_payments table
+GRANT SELECT, INSERT, UPDATE, DELETE ON a2u_payments TO mypipos_app;
+
+-- Grant permissions on related tables
+GRANT SELECT, UPDATE ON sales TO mypipos_app;
+GRANT SELECT, UPDATE ON users TO mypipos_app;
 
 -- Grant access to sequences
-GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO your_database_user;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO mypipos_app;
 
 -- ============================================================================
 -- ROW LEVEL SECURITY (Optional - if using RLS)
