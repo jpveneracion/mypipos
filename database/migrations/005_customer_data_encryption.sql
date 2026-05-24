@@ -140,8 +140,7 @@ AS $$
     pi_username = EXCLUDED.pi_username,
     user_type = EXCLUDED.user_type,
     role = EXCLUDED.role,
-    -- Preserve existing onboarding_complete if null is passed
-    onboarding_complete = COALESCE(EXCLUDED.onboarding_complete, users.onboarding_complete),
+    -- Don't update onboarding_complete during login - only during onboarding process
     merchant_id = COALESCE(EXCLUDED.merchant_id, users.merchant_id),
     email = COALESCE(EXCLUDED.email, users.email),
     phone = COALESCE(EXCLUDED.phone, users.phone),
