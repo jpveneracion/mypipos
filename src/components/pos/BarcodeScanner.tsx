@@ -7,9 +7,10 @@ import { Html5Qrcode } from 'html5-qrcode';
 interface BarcodeScannerProps {
   onScan: (barcode: string) => void;
   onClose: () => void;
+  mode?: 'product' | 'customer';
 }
 
-export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps) {
+export default function BarcodeScanner({ onScan, onClose, mode = 'product' }: BarcodeScannerProps) {
   const [scanning, setScanning] = useState(false);
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -18,6 +19,10 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
   const [error, setError] = useState<string | null>(null);
   const [cameraSupported, setCameraSupported] = useState(true);
   const [cameraFailed, setCameraFailed] = useState(false);
+
+  const isCustomerMode = mode === 'customer';
+  const scannerTitle = isCustomerMode ? 'Scan Customer QR Code' : 'Scan Product Barcode';
+  const scannerHint = isCustomerMode ? 'Scan customer Pi Network QR code to identify them' : 'Scan product barcode to add to cart';
 
   const stopScanner = async () => {
     if (scannerRef.current?.isScanning) {
@@ -119,10 +124,10 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
 
   return (
     <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[9999] p-4">
-      <div className="bg-gradient-to-br from-purple-900 to-indigo-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border-2 border-purple-500">
+      <div className="bg-linear-to-r from-primary-900 to-secondary-900 rounded-2xl max-w-md w-full p-6 shadow-strong border-2 border-primary-500">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-white">Scan Barcode/QR</h2>
-          <button onClick={handleScannerClose} className="text-purple-300 hover:text-white text-2xl font-bold">×</button>
+          <h2 className="text-xl font-bold text-white">{scannerTitle}</h2>
+          <button onClick={handleScannerClose} className="text-primary-300 hover:text-white text-2xl font-bold">×</button>
         </div>
 
         <input
@@ -136,12 +141,12 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
 
         {/* Error Display */}
         {error && (
-          <div className="mb-4 p-3 bg-red-900/50 border border-red-500 rounded-lg">
-            <p className="text-red-200 text-sm font-semibold mb-2">⚠️ Camera Error</p>
-            <p className="text-red-300 text-xs">{error}</p>
+          <div className="mb-4 p-3 bg-error-900/50 border border-red-500 rounded-lg">
+            <p className="text-error200 text-sm font-semibold mb-2">⚠️ Camera Error</p>
+            <p className="text-error300 text-xs">{error}</p>
             <button
               onClick={() => setError(null)}
-              className="mt-2 text-xs text-red-400 hover:text-red-200 underline"
+              className="mt-2 text-xs text-error400 hover:text-error200 underline"
             >
               Dismiss
             </button>
@@ -151,12 +156,12 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
         {scanning ? (
           <div className="space-y-4">
             {usePiCompatibility && (
-              <p className="text-yellow-500 text-xs text-center mb-2">⚡ Running in Pi Browser Compatibility Mode</p>
+              <p className="text-warning-500 text-xs text-center mb-2">⚡ Running in Pi Browser Compatibility Mode</p>
             )}
-            <div className="bg-black rounded-xl overflow-hidden border border-purple-500">
+            <div className="bg-black rounded-xl overflow-hidden border border-primary-500">
               <div id="pi-scanner-region" className="w-full h-64" />
             </div>
-            <div className="flex items-center justify-center gap-2 text-purple-300">
+            <div className="flex items-center justify-center gap-2 text-primary-300">
               <Loader2 className="w-5 h-5 animate-spin" />
               <span>Starting camera...</span>
             </div>
@@ -165,7 +170,7 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
                 await stopScanner();
                 setScanning(false);
               }}
-              className="w-full py-2 rounded-lg bg-red-600 text-white text-sm font-semibold hover:bg-red-700"
+              className="w-full py-2 rounded-lg bg-error-600 text-white text-sm font-semibold hover:bg-error-700"
             >
               Cancel & Try File Upload
             </button>
@@ -176,13 +181,13 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
             {cameraFailed ? (
               <>
                 <div className="bg-yellow-900/30 border border-yellow-600 rounded-lg p-3 text-center">
-                  <p className="text-yellow-200 text-sm font-semibold mb-2">📷 Camera Not Available</p>
-                  <p className="text-yellow-300 text-xs">Use file upload to scan barcodes from images</p>
+                  <p className="text-warning-200 text-sm font-semibold mb-2">📷 Camera Not Available</p>
+                  <p className="text-warning-300 text-xs">Use file upload to scan barcodes from images</p>
                 </div>
 
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full px-4 py-6 rounded-xl bg-green-700 border border-dashed border-green-500 text-white text-sm text-center hover:bg-green-600 hover:border-green-400 transition-colors flex flex-col items-center gap-2"
+                  className="w-full px-4 py-6 rounded-xl bg-success-700 border border-dashed border-green-500 text-white text-sm text-center hover:bg-success-600 hover:border-green-400 transition-colors flex flex-col items-center gap-2"
                 >
                   <Camera className="w-6 h-6" />
                   📷 Upload Barcode Image (Recommended)
@@ -204,7 +209,7 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
                 <button
                   onClick={openNativeScanner}
                   disabled={scanning || !cameraSupported}
-                  className="w-full px-4 py-6 rounded-xl bg-green-700 border border-dashed border-green-500 text-white text-sm text-center hover:bg-green-600 hover:border-green-400 transition-colors flex flex-col items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full px-4 py-6 rounded-xl bg-success-700 border border-dashed border-green-500 text-white text-sm text-center hover:bg-success-600 hover:border-green-400 transition-colors flex flex-col items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Camera className="w-6 h-6" />
                   {scanning ? 'Starting Scanner...' :
@@ -212,13 +217,13 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
                    '📱 Live Scanner (Recommended)'}
                 </button>
 
-                <div className="text-center text-purple-300 text-sm">
+                <div className="text-center text-primary-300 text-sm">
                   or
                 </div>
 
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full px-4 py-6 rounded-xl bg-purple-800 border border-dashed border-purple-600 text-purple-200 text-sm text-center hover:border-purple-400 hover:text-purple-300 transition-colors flex flex-col items-center gap-2"
+                  className="w-full px-4 py-6 rounded-xl bg-primary-800 border border-dashed border-primary-600 text-primary-200 text-sm text-center hover:border-primary-400 hover:text-primary-300 transition-colors flex flex-col items-center gap-2"
                 >
                   <Camera className="w-6 h-6" />
                   📷 Upload Barcode Image
@@ -228,13 +233,24 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
           </div>
         )}
 
-        <div className="mt-4 p-3 bg-purple-800/50 border border-purple-600 rounded-lg text-sm">
-          <p className="font-semibold mb-1 text-purple-200">💡 Scanning Tips:</p>
-          <ul className="text-xs space-y-1 text-purple-300">
-            <li>• For camera: Allow permissions and use HTTPS/localhost</li>
-            <li>• For file upload: Take clear photo of barcode</li>
-            <li>• Works with standard UPC, EAN, and QR codes</li>
-            <li>• Ensure good lighting and hold camera steady</li>
+        <div className="mt-4 p-3 bg-primary-800/50 border border-primary-600 rounded-lg text-sm">
+          <p className="font-semibold mb-1 text-primary-200">💡 {isCustomerMode ? 'Customer Scanning Tips:' : 'Scanning Tips:'}</p>
+          <ul className="text-xs space-y-1 text-primary-300">
+            {isCustomerMode ? (
+              <>
+                <li>• Scan customer's Pi Network QR code from their app</li>
+                <li>• QR code contains their Pi username for identification</li>
+                <li>• Customer will be linked to this sale</li>
+                <li>• Ensure good lighting for clear QR code detection</li>
+              </>
+            ) : (
+              <>
+                <li>• For camera: Allow permissions and use HTTPS/localhost</li>
+                <li>• For file upload: Take clear photo of barcode</li>
+                <li>• Works with standard UPC, EAN, and QR codes</li>
+                <li>• Ensure good lighting and hold camera steady</li>
+              </>
+            )}
           </ul>
         </div>
       </div>
