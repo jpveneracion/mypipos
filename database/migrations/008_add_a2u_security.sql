@@ -533,8 +533,6 @@ SET search_path = public
 SECURITY DEFINER
 LANGUAGE SQL
 AS $$
-BEGIN
-    RETURN QUERY
     SELECT
         s.id as sale_id,
         s.transaction_number,
@@ -551,7 +549,6 @@ BEGIN
       AND s.merchant_payout > 0
     ORDER BY s.created_at ASC
     LIMIT p_limit;
-END;
 $$;
 
 -- Function to get A2U payment audit trail
@@ -568,8 +565,6 @@ SET search_path = public
 SECURITY DEFINER
 LANGUAGE SQL
 AS $$
-BEGIN
-    RETURN QUERY
     SELECT
         'CREATED' as action,
         NULL as old_status,
@@ -591,7 +586,6 @@ BEGIN
         ap.error_message
     FROM a2u_payments ap
     WHERE ap.id = p_payment_id AND ap.updated_at > ap.created_at;
-END;
 $$;
 
 -- ============================================================================
