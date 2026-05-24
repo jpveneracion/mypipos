@@ -70,7 +70,7 @@ export default function Home() {
   };
 
   return (
-    <div className="relative min-h-[100dvh] overflow-hidden pb-[env(safe-area-inset-bottom)]">
+    <div className="relative min-h-[100dvh] bg-[#0D0F16] overflow-hidden pb-[env(safe-area-inset-bottom)]">
 
       {/* Navbar */}
       <nav className="relative z-20 px-2 sm:px-4 md:px-8 py-8">
