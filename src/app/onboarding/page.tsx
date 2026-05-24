@@ -36,7 +36,7 @@ export default function OnboardingPage() {
           piUsername: user.pi_username,
           role: user.user_role,
           userType: user.user_type,
-          onboardingComplete: user.onboardingComplete,
+          onboardingComplete: user.onboarding_complete,
           merchantId: user.merchant_id,
           createdAt: new Date()
         }, user.merchant_id);
