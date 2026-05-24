@@ -160,7 +160,7 @@ export default function POSPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-neutral-50 flex flex-col">
       {/* Scanner Modal */}
       {showScanner && (
         <BarcodeScanner
@@ -170,12 +170,12 @@ export default function POSPage() {
       )}
 
       {/* Header */}
-      <header className="bg-linear-to-r from-purple-600 to-indigo-600 text-white p-4 shadow-lg">
+      <header className="bg-linear-to-r from-primary-600 to-secondary-600 text-white p-4 shadow-medium">
         <div className="container mx-auto">
           <div className="flex items-center justify-between mb-2">
             <div>
               <h1 className="text-2xl font-bold">📱 POS Terminal</h1>
-              <p className="text-purple-100 text-sm">Point of Sale</p>
+              <p className="text-primary-100 text-sm">Point of Sale</p>
             </div>
             <button
               onClick={() => router.push('/ims')}
@@ -196,7 +196,7 @@ export default function POSPage() {
               <input
                 type="text"
                 placeholder="Search products or enter barcode..."
-                className="w-full px-4 py-3 pr-24 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-3 pr-24 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleManualBarcode()}
@@ -205,7 +205,7 @@ export default function POSPage() {
                 {searchQuery.trim() && (
                   <button
                     onClick={handleManualBarcode}
-                    className="bg-purple-600 text-white px-3 py-1 rounded-md text-sm hover:bg-purple-700"
+                    className="bg-primary-600 text-white px-3 py-1 rounded-md text-sm hover:bg-primary-700"
                   >
                     Go
                   </button>
@@ -226,8 +226,8 @@ export default function POSPage() {
                   onClick={() => setSelectedCategory(category)}
                   className={`px-4 py-2 rounded-full whitespace-nowrap transition-colors ${
                     selectedCategory === category
-                      ? 'bg-purple-600 text-white'
-                      : 'bg-white text-gray-700 hover:bg-gray-100'
+                      ? 'bg-primary-600 text-white'
+                      : 'bg-white text-neutral-700 hover:bg-neutral-100'
                   }`}
                 >
                   {category}
@@ -261,17 +261,17 @@ export default function POSPage() {
                   className="bg-white rounded-lg shadow-md p-3 cursor-pointer hover:shadow-lg transition-shadow"
                   onClick={() => addItem(product)}
                 >
-                  <div className="aspect-square bg-gray-100 rounded-lg mb-2 flex items-center justify-center">
+                  <div className="aspect-square bg-neutral-100 rounded-lg mb-2 flex items-center justify-center">
                     <span className="text-3xl">🛍️</span>
                   </div>
-                  <h3 className="font-semibold text-gray-800 text-sm truncate">{product.name}</h3>
-                  <p className="text-purple-600 font-bold">${product.price.toFixed(2)}</p>
+                  <h3 className="font-semibold text-neutral-800 text-sm truncate">{product.name}</h3>
+                  <p className="text-primary-600 font-bold">${product.price.toFixed(2)}</p>
                   {quantity > 0 && (
-                    <div className="mt-2 bg-purple-100 text-purple-700 rounded-full px-2 py-1 text-center text-sm font-semibold">
+                    <div className="mt-2 bg-primary-100 text-primary-700 rounded-full px-2 py-1 text-center text-sm font-semibold">
                       ×{quantity}
                     </div>
                   )}
-                  <p className="text-xs text-gray-500 mt-1">Stock: {product.stock}</p>
+                  <p className="text-xs text-neutral-500 mt-1">Stock: {product.stock}</p>
                 </div>
               );
             })}
@@ -279,15 +279,15 @@ export default function POSPage() {
         </div>
 
         {/* Cart Section */}
-        <div className="lg:w-96 bg-white border-l border-gray-200 flex flex-col h-full lg:h-auto">
-          <div className="p-4 border-b border-gray-200">
-            <h2 className="text-xl font-bold text-gray-800">Cart</h2>
-            <p className="text-sm text-gray-600">{items.reduce((sum, item) => sum + item.quantity, 0)} items</p>
+        <div className="lg:w-96 bg-white border-l border-neutral-200 flex flex-col h-full lg:h-auto">
+          <div className="p-4 border-b border-neutral-200">
+            <h2 className="text-xl font-bold text-neutral-800">Cart</h2>
+            <p className="text-sm text-neutral-600">{items.reduce((sum, item) => sum + item.quantity, 0)} items</p>
           </div>
 
           <div className="flex-1 overflow-y-auto p-4">
             {items.length === 0 ? (
-              <div className="text-center text-gray-500 py-8">
+              <div className="text-center text-neutral-500 py-8">
                 <div className="text-4xl mb-2">🛒</div>
                 <p>Cart is empty</p>
                 <p className="text-sm">Add products to get started</p>
@@ -295,10 +295,10 @@ export default function POSPage() {
             ) : (
               <div className="space-y-3">
                 {items.map((item) => (
-                  <div key={item.product.id} className="flex items-center gap-3 bg-gray-50 rounded-lg p-3">
+                  <div key={item.product.id} className="flex items-center gap-3 bg-neutral-50 rounded-lg p-3">
                     <div className="flex-1">
-                      <h4 className="font-semibold text-gray-800 text-sm">{item.product.name}</h4>
-                      <p className="text-purple-600 font-semibold">${item.product.price.toFixed(2)}</p>
+                      <h4 className="font-semibold text-neutral-800 text-sm">{item.product.name}</h4>
+                      <p className="text-primary-600 font-semibold">${item.product.price.toFixed(2)}</p>
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -310,14 +310,14 @@ export default function POSPage() {
                             removeItem(item.product.id);
                           }
                         }}
-                        className="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center"
+                        className="w-8 h-8 rounded-full bg-neutral-200 hover:bg-neutral-300 flex items-center justify-center"
                       >
                         -
                       </button>
                       <span className="w-8 text-center font-semibold">{item.quantity}</span>
                       <button
                         onClick={() => addItem(item.product)}
-                        className="w-8 h-8 rounded-full bg-purple-600 text-white hover:bg-purple-700 flex items-center justify-center"
+                        className="w-8 h-8 rounded-full bg-primary-600 text-white hover:bg-primary-700 flex items-center justify-center"
                       >
                         +
                       </button>
@@ -329,23 +329,23 @@ export default function POSPage() {
           </div>
 
           {items.length > 0 && (
-            <div className="border-t border-gray-200 p-4 space-y-2 bg-gray-50">
-              <div className="flex justify-between text-gray-600">
+            <div className="border-t border-neutral-200 p-4 space-y-2 bg-neutral-50">
+              <div className="flex justify-between text-neutral-600">
                 <span>Subtotal</span>
                 <span>${getSubtotal().toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-gray-600">
+              <div className="flex justify-between text-neutral-600">
                 <span>Tax (8%)</span>
                 <span>${getTax().toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-xl font-bold text-gray-800">
+              <div className="flex justify-between text-xl font-bold text-neutral-800">
                 <span>Total</span>
-                <span className="text-purple-600">${getTotal().toFixed(2)}</span>
+                <span className="text-primary-600">${getTotal().toFixed(2)}</span>
               </div>
 
               <button
                 onClick={handleCheckout}
-                className="w-full bg-linear-to-r from-purple-600 to-indigo-600 text-white py-4 rounded-lg font-bold text-lg hover:from-purple-700 hover:to-indigo-700 transition-colors shadow-lg"
+                className="w-full bg-linear-to-r from-primary-600 to-secondary-600 text-white py-4 rounded-lg font-bold text-lg hover:from-primary-700 hover:to-secondary-700 transition-colors shadow-medium"
               >
                 🥧 Pay with Pi
               </button>
