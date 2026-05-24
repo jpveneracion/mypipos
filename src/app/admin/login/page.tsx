@@ -78,37 +78,37 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-oceanic-50 via-white to-sky-50 dark:from-oceanic-950 dark:via-gray-900 dark:to-sky-950 flex items-center justify-center p-4">
       <div className="max-w-md w-full">
-        <div className="bg-gradient-to-br from-purple-900 to-indigo-900 rounded-2xl shadow-2xl p-8 border-2 border-purple-500">
+        <div className="glassmorphism bg-white/70 dark:bg-oceanic-900/70 rounded-3xl shadow-glass-2xl p-8 border-2 border-oceanic-200 dark:border-oceanic-800 backdrop-blur-xl">
           <div className="text-center mb-8">
-            <div className="w-20 h-20 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center mx-auto mb-4">
+            <div className="w-20 h-20 bg-gradient-to-br from-oceanic-500 to-sky-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-glass">
               <span className="text-4xl">🔧</span>
             </div>
-            <h1 className="text-2xl font-bold text-white mb-2">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-oceanic-600 to-sky-600 bg-clip-text text-transparent mb-2">
               Admin Login
             </h1>
-            <p className="text-sm text-purple-200">
+            <p className="text-sm text-oceanic-600 dark:text-oceanic-400">
               Development & Testing Access
             </p>
           </div>
 
-          <div className="bg-yellow-500 bg-opacity-20 border-l-4 border-yellow-400 p-4 mb-6">
-            <p className="text-sm text-yellow-200">
+          <div className="glassmorphism bg-linear-to-r from-warning-50 to-amber-50 dark:from-warning-900/20 dark:to-amber-900/20 border-l-4 border-warning-400 p-4 mb-6 rounded-lg">
+            <p className="text-sm text-warning-700 dark:text-warning-300">
               <strong>Development Mode:</strong> This admin login bypasses Pi Network authentication for testing purposes only.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-purple-200 mb-2">
+              <label className="block text-sm font-medium text-oceanic-700 dark:text-oceanic-300 mb-2">
                 Username
               </label>
               <input
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-4 py-3 border border-purple-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-purple-800 text-white"
+                className="w-full px-4 py-3 border border-oceanic-300 dark:border-oceanic-600 rounded-xl focus:ring-2 focus:ring-oceanic-500 focus:border-transparent bg-white dark:bg-oceanic-800 text-oceanic-900 dark:text-oceanic-100 placeholder-oceanic-400 dark:placeholder-oceanic-500"
                 placeholder="Enter admin username"
                 required
                 autoComplete="username"
@@ -116,14 +116,14 @@ export default function AdminLoginPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-purple-200 mb-2">
+              <label className="block text-sm font-medium text-oceanic-700 dark:text-oceanic-300 mb-2">
                 Password
               </label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 border border-purple-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-purple-800 text-white"
+                className="w-full px-4 py-3 border border-oceanic-300 dark:border-oceanic-600 rounded-xl focus:ring-2 focus:ring-oceanic-500 focus:border-transparent bg-white dark:bg-oceanic-800 text-oceanic-900 dark:text-oceanic-100 placeholder-oceanic-400 dark:placeholder-oceanic-500"
                 placeholder="Enter admin password"
                 required
                 autoComplete="current-password"
@@ -131,13 +131,13 @@ export default function AdminLoginPage() {
             </div>
 
             {error && (
-              <div className="bg-red-900 bg-opacity-50 border border-red-500 text-red-200 px-4 py-3 rounded-lg text-sm">
+              <div className="bg-error-50 dark:bg-error-900/30 border border-error-500 text-error-700 dark:text-error-300 px-4 py-3 rounded-xl text-sm">
                 {error}
               </div>
             )}
 
             {debugInfo && (
-              <div className="bg-blue-900 bg-opacity-50 border border-blue-500 text-blue-200 px-4 py-2 rounded-lg text-xs">
+              <div className="bg-sky-50 dark:bg-sky-900/30 border border-sky-500 text-sky-700 dark:text-sky-300 px-4 py-2 rounded-xl text-xs">
                 {debugInfo}
               </div>
             )}
@@ -145,7 +145,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-3 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full bg-linear-to-r from-oceanic-600 to-sky-600 hover:from-oceanic-700 hover:to-sky-700 text-white font-bold py-3 px-4 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-glass hover:shadow-glass-lg"
             >
               {isLoading ? 'Logging in...' : '🔧 Admin Login'}
             </button>
@@ -154,51 +154,51 @@ export default function AdminLoginPage() {
           <div className="mt-6 text-center">
             <button
               onClick={() => router.push('/')}
-              className="text-sm text-purple-300 hover:text-white"
+              className="text-sm text-oceanic-600 dark:text-oceanic-400 hover:text-oceanic-900 dark:hover:text-oceanic-100"
             >
               ← Back to main page
             </button>
           </div>
 
-          <div className="mt-4 pt-6 border-t border-purple-700">
-            <h3 className="text-sm font-semibold text-white mb-3">
+          <div className="mt-6 pt-6 border-t border-oceanic-200 dark:border-oceanic-700">
+            <h3 className="text-sm font-semibold text-oceanic-900 dark:text-oceanic-100 mb-3">
               Pi Browser Users - Quick Access
             </h3>
-            <p className="text-xs text-purple-300 mb-3">
+            <p className="text-xs text-oceanic-600 dark:text-oceanic-400 mb-3">
               If normal login doesn't work in Pi Browser, use these direct access links:
             </p>
             <div className="space-y-2">
               <a
                 href="/admin/dashboard?auth=dev_pi_browser"
-                className="block w-full text-left px-4 py-3 bg-green-800 hover:bg-green-700 text-green-200 rounded-lg text-sm transition-colors no-underline border border-green-600"
+                className="block w-full text-left px-4 py-3 bg-linear-to-r from-emerald-50 to-teal-50 hover:from-emerald-100 hover:to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 dark:hover:from-emerald-800/30 dark:hover:to-teal-800/30 text-emerald-700 dark:text-emerald-300 rounded-xl text-sm transition-all no-underline border border-emerald-300 dark:border-emerald-700 hover:border-emerald-500"
               >
                 🛠️ Admin Dashboard (Direct Link)
               </a>
               <a
                 href="/pos"
-                className="block w-full text-left px-4 py-3 bg-purple-800 hover:bg-purple-700 text-purple-200 rounded-lg text-sm transition-colors no-underline border border-purple-600"
+                className="block w-full text-left px-4 py-3 bg-linear-to-r from-oceanic-50 to-sky-50 hover:from-oceanic-100 hover:to-sky-100 dark:from-oceanic-900/30 dark:to-sky-900/30 dark:hover:from-oceanic-800/30 dark:hover:to-sky-800/30 text-oceanic-700 dark:text-oceanic-300 rounded-xl text-sm transition-all no-underline border border-oceanic-300 dark:border-oceanic-700 hover:border-oceanic-500"
               >
                 📱 Test POS Interface
               </a>
               <a
                 href="/ims"
-                className="block w-full text-left px-4 py-3 bg-indigo-800 hover:bg-indigo-700 text-purple-200 rounded-lg text-sm transition-colors no-underline border border-purple-600"
+                className="block w-full text-left px-4 py-3 bg-linear-to-r from-sky-50 to-blue-50 hover:from-sky-100 hover:to-blue-100 dark:from-sky-900/30 dark:to-blue-900/30 dark:hover:from-sky-800/30 dark:hover:to-blue-800/30 text-sky-700 dark:text-sky-300 rounded-xl text-sm transition-all no-underline border border-sky-300 dark:border-sky-700 hover:border-sky-500"
               >
                 📊 Test IMS Interface
               </a>
             </div>
           </div>
 
-          <div className="mt-4 p-3 bg-purple-800 bg-opacity-50 rounded-lg border border-purple-600">
-            <p className="text-xs text-purple-300 text-center">
-              <strong className="text-white">Default Credentials:</strong><br/>
-              Username: <code className="bg-purple-700 px-1 rounded text-purple-200">admin</code><br/>
-              Password: <code className="bg-purple-700 px-1 rounded text-purple-200">admin123</code>
+          <div className="mt-4 p-3 glassmorphism bg-oceanic-50 dark:bg-oceanic-900/30 rounded-xl border border-oceanic-200 dark:border-oceanic-700">
+            <p className="text-xs text-oceanic-700 dark:text-oceanic-300 text-center">
+              <strong className="text-oceanic-900 dark:text-oceanic-100">Default Credentials:</strong><br/>
+              Username: <code className="bg-oceanic-200 dark:bg-oceanic-700 px-2 py-0.5 rounded text-oceanic-800 dark:text-oceanic-200">admin</code><br/>
+              Password: <code className="bg-oceanic-200 dark:bg-oceanic-700 px-2 py-0.5 rounded text-oceanic-800 dark:text-oceanic-200">admin123</code>
             </p>
           </div>
 
-          <div className="mt-4 p-3 bg-blue-900 bg-opacity-50 border border-blue-500 rounded-lg">
-            <p className="text-xs text-blue-300 text-center">
+          <div className="mt-4 p-3 glassmorphism bg-sky-50 dark:bg-sky-900/30 border border-sky-300 dark:border-sky-700 rounded-xl">
+            <p className="text-xs text-sky-700 dark:text-sky-300 text-center">
               <strong>💡 Pi Browser Users:</strong> If login doesn't work, try the "Admin Dashboard (Direct)" link below.
             </p>
           </div>
