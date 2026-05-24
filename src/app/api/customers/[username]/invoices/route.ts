@@ -1,95 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { db } from '@/lib/db';
 
-// Mock data for development - In production, this would come from a database
-let mockInvoices = [
-  {
-    id: 'INV-2025-001',
-    customerId: 'customer_123',
-    merchantId: 'merchant_123',
-    merchantName: 'Corner Store',
-    posTerminalId: 'pos_001',
-    items: [
-      {
-        id: 'item_1',
-        invoiceId: 'INV-2025-001',
-        productId: 'prod_001',
-        productName: 'Heinz Tomato Ketchup',
-        quantity: 2,
-        unitPrice: 3.1415926,
-        totalPrice: 6.2831852
-      }
-    ],
-    subtotal: 6.2831852,
-    tax: 0.5026548,
-    total: 6.7858400,
-    status: 'pending',
-    paymentMethod: 'pi',
-    paymentStatus: 'pending',
-    piPaymentId: null,
-    piTransactionId: null,
-    createdAt: '2025-01-22T10:00:00Z',
-    updatedAt: '2025-01-22T10:00:00Z',
-    dueDate: '2025-01-29T10:00:00Z'
-  },
-  {
-    id: 'INV-2025-002',
-    customerId: 'customer_123',
-    merchantId: 'merchant_456',
-    merchantName: 'Fresh Mart',
-    posTerminalId: 'pos_002',
-    items: [
-      {
-        id: 'item_2',
-        invoiceId: 'INV-2025-002',
-        productId: 'prod_002',
-        productName: 'Fresh Bread',
-        quantity: 1,
-        unitPrice: 2.0000000,
-        totalPrice: 2.0000000
-      }
-    ],
-    subtotal: 2.0000000,
-    tax: 0.1600000,
-    total: 2.1600000,
-    status: 'completed',
-    paymentMethod: 'pi',
-    paymentStatus: 'paid',
-    piPaymentId: 'pi_payment_123',
-    piTransactionId: 'tx_abc123',
-    createdAt: '2025-01-20T14:30:00Z',
-    updatedAt: '2025-01-20T14:35:00Z',
-    dueDate: '2025-01-27T14:30:00Z'
-  },
-  {
-    id: 'INV-2025-003',
-    customerId: 'customer_123',
-    merchantId: 'merchant_789',
-    merchantName: 'Quick Stop',
-    posTerminalId: 'pos_003',
-    items: [
-      {
-        id: 'item_3',
-        invoiceId: 'INV-2025-003',
-        productId: 'prod_003',
-        productName: 'Coffee',
-        quantity: 3,
-        unitPrice: 1.5000000,
-        totalPrice: 4.5000000
-      }
-    ],
-    subtotal: 4.5000000,
-    tax: 0.3600000,
-    total: 4.8600000,
-    status: 'pending',
-    paymentMethod: 'pi',
-    paymentStatus: 'pending',
-    piPaymentId: null,
-    piTransactionId: null,
-    createdAt: '2025-01-21T09:15:00Z',
-    updatedAt: '2025-01-21T09:15:00Z',
-    dueDate: '2025-01-28T09:15:00Z'
-  }
-];
+/**
+ * Get Customer Invoices API
+ * GET /api/customers/[username]/invoices
+ *
+ * Fetches all sales for a customer and formats them as invoices
+ * THIS IS WHERE ITEMS COME FROM THE DATABASE
+ */
 
 export async function GET(
   request: NextRequest,
@@ -99,30 +17,70 @@ export async function GET(
     const { username } = await params;
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '20');
+    const status = searchParams.get('status'); // optional: 'pending', 'paid', 'failed'
 
-    // In production, you would fetch invoices for this specific customer from your database
-    // For now, we'll return mock data filtered by a mock customer
-    let customerInvoices = mockInvoices.filter(invoice =>
-      invoice.customerId === 'customer_123' // Mock customer ID
+    // Step 1: Get customer by username
+    const customer = await db.users.findFirst({
+      where: { username }
+    });
+
+    if (!customer) {
+      return NextResponse.json(
+        { success: false, error: 'Customer not found' },
+        { status: 404 }
+      );
+    }
+
+    // Step 2: Use SECURITY DEFINER function to get customer invoices
+    // **THIS IS MORE EFFICIENT** - Single query with joins
+    const invoices = await db.query(
+      'SELECT * FROM get_customer_invoices($1, $2, $3)',
+      [customer.id, limit, status || null]
     );
 
-    // Sort by date (newest first) and limit
-    customerInvoices.sort((a, b) =>
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    // Step 3: Get items for each invoice using SECURITY DEFINER function
+    const invoicesWithItems = await Promise.all(
+      invoices.map(async (invoice: any) => {
+        const items = await db.query(
+          'SELECT * FROM get_invoice_items($1)',
+          [invoice.sale_id]
+        );
+
+        return {
+          ...invoice,
+          items: items.map((item: any) => ({
+            id: item.item_id,
+            invoiceId: invoice.invoice_id,
+            productId: item.product_id,
+            productName: item.product_name,
+            quantity: item.quantity,
+            unitPrice: parseFloat(item.unit_price),
+            taxAmount: parseFloat(item.tax_amount),
+            totalPrice: parseFloat(item.total_price),
+            sku: item.sku
+          }))
+        };
+      })
     );
-    customerInvoices = customerInvoices.slice(0, limit);
 
     return NextResponse.json({
       success: true,
-      invoices: customerInvoices,
-      count: customerInvoices.length
+      invoices: invoicesWithItems,
+      count: invoicesWithItems.length,
+      customer: {
+        id: customer.id,
+        username: customer.username,
+        name: customer.username
+      }
     });
+
   } catch (error) {
     console.error('Customer invoices GET error:', error);
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to fetch customer invoices'
+        error: 'Failed to fetch customer invoices',
+        details: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
     );

@@ -80,15 +80,36 @@ export function U2ACheckoutFlow({ cartItems, customer, merchantId, onComplete, o
     setError('');
 
     try {
+      // Step 0: Create transaction number first
+      const txnNumber = generateTransactionNumber();
+      setTransactionNumber(txnNumber);
+
+      // Step 1: Create sale record with items in database FIRST
+      // **THIS IS WHERE ITEMS GET STORED IN DATABASE**
+      const saleResponse = await fetch('/api/sales/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cartItems: cartItems,
+          customer: customer,
+          merchantId: merchantId,
+          transactionNumber: txnNumber
+        })
+      });
+
+      if (!saleResponse.ok) {
+        const errorData = await saleResponse.json();
+        throw new Error(errorData.error || 'Failed to create sale record');
+      }
+
+      const saleResult = await saleResponse.json();
+      console.log('Sale created with items:', saleResult.sale.id);
+
       const Pi = (window as any).Pi;
 
       if (!Pi) {
         throw new Error('Pi Network SDK not available. Please ensure you are using the Pi Browser.');
       }
-
-      // Create transaction number
-      const txnNumber = generateTransactionNumber();
-      setTransactionNumber(txnNumber);
 
       // Prepare payment metadata
       const paymentMetadata = {
