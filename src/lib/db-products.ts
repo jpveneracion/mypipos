@@ -16,6 +16,7 @@ export interface DbProduct {
   status: string;
   created_at: Date;
   updated_at: Date;
+  created_by: string | null;
   metadata: any;
 }
 
@@ -111,25 +112,25 @@ export async function createProductForMerchant(params: {
         // Use existing universal product
         productResult = existingProduct;
       } else {
-        // Create new universal product
+        // Create new universal product with attribution
         productResult = await client.query(
           `INSERT INTO products (
             name, description, barcode, universal_sku,
-            category_id, main_image_url, status, metadata
-          ) VALUES ($1, $2, $3, $4, $5, $6, 'active', '{}')
+            category_id, main_image_url, status, created_by, metadata
+          ) VALUES ($1, $2, $3, $4, $5, $6, 'active', $7, '{}')
           RETURNING *`,
-          [name, description, barcode, sku, category, image]
+          [name, description, barcode, sku, category, image, userId]
         );
       }
     } else {
-      // No barcode, create new universal product
+      // No barcode, create new universal product with attribution
       productResult = await client.query(
         `INSERT INTO products (
           name, description, universal_sku,
-          category_id, main_image_url, status, metadata
-        ) VALUES ($1, $2, $3, $4, $5, 'active', '{}')
+          category_id, main_image_url, status, created_by, metadata
+        ) VALUES ($1, $2, $3, $4, $5, 'active', $6, '{}')
         RETURNING *`,
-        [name, description, sku, category, image]
+        [name, description, sku, category, image, userId]
       );
     }
 
@@ -221,6 +222,7 @@ export async function getMerchantProducts(merchantId: string): Promise<ProductWi
       status: row.status,
       created_at: row.created_at,
       updated_at: row.updated_at,
+      created_by: row.created_by,
       metadata: row.metadata,
     },
     merchantProduct: {
@@ -327,6 +329,7 @@ export async function getProductByBarcode(merchantId: string, barcode: string): 
       status: row.status,
       created_at: row.created_at,
       updated_at: row.updated_at,
+      created_by: row.created_by,
       metadata: row.metadata,
     },
     merchantProduct: {
@@ -517,6 +520,7 @@ export async function searchMerchantProducts(params: {
       status: row.status,
       created_at: row.created_at,
       updated_at: row.updated_at,
+      created_by: row.created_by,
       metadata: row.metadata,
     },
     merchantProduct: {

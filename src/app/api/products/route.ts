@@ -216,9 +216,10 @@ function formatProductForResponse(data: any): any {
     image: product.main_image_url || merchantProduct.display_image_url,
     createdAt: product.created_at,
     updatedAt: product.updated_at,
-    // Extra fields for tracking
+    // Attribution tracking - distinguish between universal creator and merchant adder
+    universal_product_creator: product.created_by,  // Who created the universal product
+    merchant_catalog_adder: merchantProduct.created_by,  // Who added it to this merchant's catalog
     merchantProductId: merchantProduct.id,
-    created_by: merchantProduct.created_by,
     merchant_id: merchantProduct.merchant_id,
     // Inventory details
     available_stock: inventory?.available_stock || 0,
