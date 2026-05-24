@@ -73,7 +73,7 @@ export default function CustomerPage() {
                   🛍️
                 </div>
                 <div>
-                  <p className="text-oceanic-600 dark:text-oceanic-400 text-sm font-medium">Total Purchases</p>
+                  <p className="text-oceanic-700 dark:text-oceanic-300 text-sm font-medium">Total Purchases</p>
                   <p className="text-2xl font-bold text-oceanic-900 dark:text-oceanic-100">--</p>
                 </div>
               </div>
@@ -85,7 +85,7 @@ export default function CustomerPage() {
                   💰
                 </div>
                 <div>
-                  <p className="text-oceanic-600 dark:text-oceanic-400 text-sm font-medium">Total Spent</p>
+                  <p className="text-oceanic-700 dark:text-oceanic-300 text-sm font-medium">Total Spent</p>
                   <p className="text-2xl font-bold text-oceanic-900 dark:text-oceanic-100">-- π</p>
                 </div>
               </div>
@@ -97,7 +97,7 @@ export default function CustomerPage() {
                   🏪
                 </div>
                 <div>
-                  <p className="text-oceanic-600 dark:text-oceanic-400 text-sm font-medium">Merchants Used</p>
+                  <p className="text-oceanic-700 dark:text-oceanic-300 text-sm font-medium">Merchants Used</p>
                   <p className="text-2xl font-bold text-oceanic-900 dark:text-oceanic-100">--</p>
                 </div>
               </div>
@@ -115,7 +115,7 @@ export default function CustomerPage() {
                   <h3 className="text-2xl font-bold text-oceanic-900 dark:text-oceanic-100">
                     Your Customer QR Code
                   </h3>
-                  <p className="text-oceanic-600 dark:text-oceanic-400 text-sm">
+                  <p className="text-oceanic-700 dark:text-oceanic-300 text-sm">
                     Scan this at checkout for faster payment and loyalty rewards
                   </p>
                 </div>
@@ -142,7 +142,7 @@ export default function CustomerPage() {
                 <h3 className="text-2xl font-bold text-oceanic-900 dark:text-oceanic-100">
                   My Invoices
                 </h3>
-                <p className="text-oceanic-600 dark:text-oceanic-400 text-sm">
+                <p className="text-oceanic-700 dark:text-oceanic-300 text-sm">
                   View and manage your purchase history
                 </p>
               </div>
@@ -167,7 +167,7 @@ export default function CustomerPage() {
                     </div>
                     <div>
                       <h4 className="font-bold text-oceanic-900 dark:text-oceanic-100">Find Merchants</h4>
-                      <p className="text-sm text-oceanic-600 dark:text-oceanic-400">Discover nearby stores</p>
+                      <p className="text-sm text-oceanic-700 dark:text-oceanic-300">Discover nearby stores</p>
                     </div>
                   </div>
                 </div>
@@ -181,7 +181,7 @@ export default function CustomerPage() {
                     </div>
                     <div>
                       <h4 className="font-bold text-oceanic-900 dark:text-oceanic-100">Payment History</h4>
-                      <p className="text-sm text-oceanic-600 dark:text-oceanic-400">View all transactions</p>
+                      <p className="text-sm text-oceanic-700 dark:text-oceanic-300">View all transactions</p>
                     </div>
                   </div>
                 </div>
@@ -195,7 +195,7 @@ export default function CustomerPage() {
                     </div>
                     <div>
                       <h4 className="font-bold text-oceanic-900 dark:text-oceanic-100">Account Settings</h4>
-                      <p className="text-sm text-oceanic-600 dark:text-oceanic-400">Manage preferences</p>
+                      <p className="text-sm text-oceanic-700 dark:text-oceanic-300">Manage preferences</p>
                     </div>
                   </div>
                 </div>

@@ -23,7 +23,7 @@ export default function CustomerDashboardExample() {
           <h1 className="text-3xl font-bold text-oceanic-900 dark:text-oceanic-100 mb-2">
             Customer Dashboard
           </h1>
-          <p className="text-oceanic-600 dark:text-oceanic-400">
+          <p className="text-oceanic-700 dark:text-oceanic-300">
             Manage your payments and view purchase history
           </p>
         </div>
@@ -40,7 +40,7 @@ export default function CustomerDashboardExample() {
             <h2 className="text-xl font-bold text-oceanic-900 dark:text-oceanic-100 mb-4">
               Recent Purchases
             </h2>
-            <p className="text-oceanic-600 dark:text-oceanic-400 text-sm">
+            <p className="text-oceanic-700 dark:text-oceanic-300 text-sm">
               Your recent purchases will appear here
             </p>
           </div>
@@ -50,7 +50,7 @@ export default function CustomerDashboardExample() {
             <h2 className="text-xl font-bold text-oceanic-900 dark:text-oceanic-100 mb-4">
               Payment Methods
             </h2>
-            <p className="text-oceanic-600 dark:text-oceanic-400 text-sm">
+            <p className="text-oceanic-700 dark:text-oceanic-300 text-sm">
               Manage your linked payment methods
             </p>
           </div>

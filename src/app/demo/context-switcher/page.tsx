@@ -90,7 +90,7 @@ export default function ContextSwitcherDemo() {
                       <h3 className="font-semibold text-success-800 dark:text-success-300 mb-1">
                         Context Switcher is Active
                       </h3>
-                      <p className="text-sm text-success-700 dark:text-success-400">
+                      <p className="text-sm text-success-900 dark:text-success-200">
                         You have a Merchant ID, so the Context Switcher should be visible in the header above.
                         Try switching between Merchant and Customer modes!
                       </p>
@@ -107,7 +107,7 @@ export default function ContextSwitcherDemo() {
                       <h3 className="font-semibold text-warning-800 dark:text-warning-300 mb-1">
                         Context Switcher is Hidden
                       </h3>
-                      <p className="text-sm text-warning-700 dark:text-warning-400">
+                      <p className="text-sm text-warning-900 dark:text-warning-200">
                         You don't have a Merchant ID, so the Context Switcher is not displayed.
                         Only merchant users can switch between modes.
                       </p>
@@ -181,7 +181,7 @@ export default function ContextSwitcherDemo() {
                     <h3 className="font-semibold text-sky-800 dark:text-sky-300 mb-1">
                       Resize Your Browser
                     </h3>
-                    <p className="text-sm text-sky-700 dark:text-sky-400">
+                    <p className="text-sm text-sky-900 dark:text-sky-200">
                       Try resizing your browser window to see the responsive behavior:
                       <strong className="block mt-2">
                         • Desktop (≥768px): Inline toggle buttons

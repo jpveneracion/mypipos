@@ -86,7 +86,7 @@ export default function CustomerQRCode({ user }: CustomerQRCodeProps) {
           <h2 className="text-2xl font-bold text-oceanic-900 dark:text-oceanic-100 mb-2">
             Your Payment QR Code
           </h2>
-          <p className="text-oceanic-600 dark:text-oceanic-400 text-sm">
+          <p className="text-oceanic-700 dark:text-oceanic-300 text-sm">
             Show this QR code at checkout for faster payment
           </p>
         </div>
@@ -172,7 +172,7 @@ export default function CustomerQRCode({ user }: CustomerQRCodeProps) {
           <div className="space-y-3 text-sm">
             <div className="flex items-start gap-3">
               <div className="w-6 h-6 bg-linear-to-br from-oceanic-100 to-sky-100 dark:from-oceanic-900/30 dark:to-sky-900/30 rounded-lg flex items-center justify-center shrink-0 mt-0.5">
-                <svg className="w-3 h-3 text-oceanic-600 dark:text-oceanic-400" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-3 h-3 text-oceanic-700 dark:text-oceanic-300" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                 </svg>
               </div>

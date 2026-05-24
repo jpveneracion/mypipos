@@ -108,7 +108,7 @@ export default function InvoiceList({ username }: InvoiceListProps) {
     return (
       <div className="bg-error-50 dark:bg-error-900/20 border border-error-200 dark:border-error-800 rounded-2xl p-8 text-center">
         <div className="text-error-600 dark:text-error-400 mb-2 text-4xl">⚠️</div>
-        <p className="text-error-700 dark:text-error-300 font-semibold mb-2">Error loading invoices</p>
+        <p className="text-error-900 dark:text-error-100 font-semibold mb-2">Error loading invoices</p>
         <p className="text-error-600 dark:text-error-400 text-sm mb-4">{error}</p>
         <Button
           variant="destructive"
@@ -139,7 +139,7 @@ export default function InvoiceList({ username }: InvoiceListProps) {
           </div>
           <Link
             href={`/customer/invoices?status=pending`}
-            className="text-oceanic-600 dark:text-oceanic-400 hover:text-oceanic-900 dark:hover:text-oceanic-100 font-medium text-sm transition-colors"
+            className="text-oceanic-700 dark:text-oceanic-300 hover:text-oceanic-900 dark:hover:text-oceanic-100 font-medium text-sm transition-colors"
           >
             View All →
           </Link>
@@ -149,7 +149,7 @@ export default function InvoiceList({ username }: InvoiceListProps) {
           <div className="glassmorphism rounded-2xl p-12 text-center">
             <div className="text-6xl mb-4">💳</div>
             <h3 className="text-xl font-bold text-oceanic-900 dark:text-oceanic-100 mb-2">No pending invoices</h3>
-            <p className="text-oceanic-600 dark:text-oceanic-400">
+            <p className="text-oceanic-700 dark:text-oceanic-300">
               You don't have any unpaid invoices at the moment.
             </p>
           </div>
@@ -183,7 +183,7 @@ export default function InvoiceList({ username }: InvoiceListProps) {
           </div>
           <Link
             href={`/customer/invoices?status=paid`}
-            className="text-oceanic-600 dark:text-oceanic-400 hover:text-oceanic-900 dark:hover:text-oceanic-100 font-medium text-sm transition-colors"
+            className="text-oceanic-700 dark:text-oceanic-300 hover:text-oceanic-900 dark:hover:text-oceanic-100 font-medium text-sm transition-colors"
           >
             View All →
           </Link>
@@ -193,7 +193,7 @@ export default function InvoiceList({ username }: InvoiceListProps) {
           <div className="glassmorphism rounded-2xl p-12 text-center">
             <div className="text-6xl mb-4">📋</div>
             <h3 className="text-xl font-bold text-oceanic-900 dark:text-oceanic-100 mb-2">No paid invoices yet</h3>
-            <p className="text-oceanic-600 dark:text-oceanic-400">
+            <p className="text-oceanic-700 dark:text-oceanic-300">
               Your paid invoices will appear here.
             </p>
           </div>
@@ -245,7 +245,7 @@ function InvoiceCard({ invoice, isPaid, formatDate }: InvoiceCardProps) {
             </div>
           </div>
 
-          <div className="flex items-center gap-4 text-sm text-oceanic-600 dark:text-oceanic-400 mb-4">
+          <div className="flex items-center gap-4 text-sm text-oceanic-700 dark:text-oceanic-300 mb-4">
             <div className="flex items-center gap-2">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -281,7 +281,7 @@ function InvoiceCard({ invoice, isPaid, formatDate }: InvoiceCardProps) {
           </div>
 
           {invoice.dueDate && !isPaid && (
-            <div className="mt-3 text-xs text-oceanic-600 dark:text-oceanic-400 font-medium">
+            <div className="mt-3 text-xs text-oceanic-700 dark:text-oceanic-300 font-medium">
               Due: {formatDate(invoice.dueDate)}
             </div>
           )}

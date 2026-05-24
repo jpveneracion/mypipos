@@ -237,18 +237,18 @@ export default function IMSPage() {
 
         {/* Low Stock Alerts */}
         {(lowStockProducts.length > 0 || outOfStockProducts.length > 0) && (
-          <Card className="mb-6 bg-linear-to-r from-warning-50 to-amber-50 dark:from-warning-900/20 dark:to-amber-900/20 border-warning-200 dark:border-warning-800">
+          <Card className="mb-6 glassmorphism bg-linear-to-r from-warning-50 to-amber-50 dark:from-warning-900/20 dark:to-amber-900/20 border-warning-200 dark:border-warning-800">
             <div className="flex items-start gap-4">
               <div className="shrink-0">
                 <span className="text-3xl">⚠️</span>
               </div>
               <div className="flex-1">
-                <h3 className="text-lg font-bold text-warning-800 dark:text-warning-200 mb-2">Stock Alerts</h3>
+                <h3 className="text-lg font-bold text-warning-900 dark:text-warning-100 mb-2">Stock Alerts</h3>
                 <div className="space-y-2 text-sm">
                   {outOfStockProducts.length > 0 && (
-                    <div className="bg-white/50 dark:bg-warning-950/30 rounded-lg p-3">
-                      <p className="font-semibold text-error-700 dark:text-error-300 mb-1">Out of Stock:</p>
-                      <ul className="list-disc list-inside text-warning-700 dark:text-warning-300">
+                    <div className="glassmorphism bg-error-50 dark:bg-error-900/30 border border-error-200 dark:border-error-700 rounded-xl p-3">
+                      <p className="font-semibold text-error-900 dark:text-error-100 mb-1">Out of Stock:</p>
+                      <ul className="list-disc list-inside text-error-800 dark:text-error-200">
                         {outOfStockProducts.map(product => (
                           <li key={product.id}>{product.name}</li>
                         ))}
@@ -256,9 +256,9 @@ export default function IMSPage() {
                     </div>
                   )}
                   {lowStockProducts.filter(p => p.stock > 0).length > 0 && (
-                    <div className="bg-white/50 dark:bg-warning-950/30 rounded-lg p-3">
-                      <p className="font-semibold text-warning-700 dark:text-warning-300 mb-1">Low Stock:</p>
-                      <ul className="list-disc list-inside text-warning-700 dark:text-warning-300">
+                    <div className="glassmorphism bg-warning-50 dark:bg-warning-900/30 border border-warning-200 dark:border-warning-700 rounded-xl p-3">
+                      <p className="font-semibold text-warning-900 dark:text-warning-100 mb-1">Low Stock:</p>
+                      <ul className="list-disc list-inside text-warning-800 dark:text-warning-200">
                         {lowStockProducts.filter(p => p.stock > 0).map(product => (
                           <li key={product.id}>
                             {product.name} - {product.stock} units left
@@ -476,7 +476,7 @@ export default function IMSPage() {
       {/* Add Product Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-oceanic-900 rounded-2xl shadow-glass-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto border border-oceanic-200 dark:border-oceanic-800">
+          <div className="glassmorphism bg-linear-to-br from-oceanic-50 to-sky-50 dark:from-oceanic-900 dark:to-sky-900 rounded-2xl shadow-glass-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto border border-oceanic-200 dark:border-oceanic-800">
             <div className="sticky top-0 bg-linear-to-r from-oceanic-600 to-sky-600 dark:from-oceanic-700 dark:to-sky-700 border-b border-oceanic-200 dark:border-oceanic-800 p-6 rounded-t-2xl">
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-bold text-white">Add New Product</h2>
@@ -509,16 +509,16 @@ export default function IMSPage() {
                     setShowAddModal(false);
                     setScanningBarcode(true);
                   }}
-                  className="w-full py-6 border-2 border-dashed border-oceanic-300 dark:border-oceanic-700 hover:border-oceanic-500 flex flex-col items-center gap-2"
+                  className="w-full py-6 border-2 border-dashed border-oceanic-300 dark:border-oceanic-600 hover:border-oceanic-500 bg-white dark:bg-oceanic-800/50 flex flex-col items-center gap-2"
                 >
                   <span className="text-3xl">📷</span>
-                  <span className="font-semibold">Scan Barcode with Camera</span>
+                  <span className="font-semibold text-oceanic-700 dark:text-oceanic-300">Scan Barcode with Camera</span>
                 </Button>
 
                 <div className="relative flex py-2 items-center">
-                  <div className="grow border-t border-oceanic-200 dark:border-oceanic-700"></div>
-                  <span className="shrink-0 mx-4 text-oceanic-600 dark:text-oceanic-400 font-medium">or enter manually</span>
-                  <div className="grow border-t border-oceanic-200 dark:border-oceanic-700"></div>
+                  <div className="grow border-t border-oceanic-300 dark:border-oceanic-600"></div>
+                  <span className="shrink-0 mx-4 text-oceanic-700 dark:text-oceanic-300 font-medium">or enter manually</span>
+                  <div className="grow border-t border-oceanic-300 dark:border-oceanic-600"></div>
                 </div>
 
                 <div>
@@ -550,7 +550,7 @@ export default function IMSPage() {
 
                 <div>
                   <label className="block text-sm font-bold text-oceanic-900 dark:text-oceanic-100 mb-2">
-                    Barcode {scannedBarcode && <span className="text-success-600">✓ Scanned</span>}
+                    Barcode {scannedBarcode && <span className="text-success-700 dark:text-success-300">✓ Scanned</span>}
                   </label>
                   <Input
                     type="text"
@@ -560,13 +560,13 @@ export default function IMSPage() {
                     className="w-full"
                   />
                   {scannedBarcode && (
-                    <p className="text-xs text-success-600 mt-1">Barcode "{scannedBarcode}" ready to use</p>
+                    <p className="text-xs text-success-700 dark:text-success-300 mt-1">Barcode "{scannedBarcode}" ready to use</p>
                   )}
                 </div>
 
                 <div>
                   <label className="block text-sm font-bold text-oceanic-900 dark:text-oceanic-100 mb-2">Category</label>
-                  <select className="w-full px-4 py-3 border border-oceanic-200 dark:border-oceanic-700 rounded-xl focus:ring-2 focus:ring-oceanic-500 bg-white dark:bg-oceanic-900 text-oceanic-900 dark:text-oceanic-100">
+                  <select className="w-full px-4 py-3 border border-oceanic-300 dark:border-oceanic-600 rounded-xl focus:ring-2 focus:ring-oceanic-500 bg-white dark:bg-oceanic-800 text-oceanic-900 dark:text-oceanic-100">
                     <option value="">Select category</option>
                     {categories.filter(c => c !== 'All').map(cat => (
                       <option key={cat} value={cat}>{cat}</option>
@@ -576,7 +576,7 @@ export default function IMSPage() {
 
                 <div>
                   <label className="block text-sm font-bold text-oceanic-900 dark:text-oceanic-100 mb-2">Description</label>
-                  <textarea className="w-full px-4 py-3 border border-oceanic-200 dark:border-oceanic-700 rounded-xl focus:ring-2 focus:ring-oceanic-500 bg-white dark:bg-oceanic-900 text-oceanic-900 dark:text-oceanic-100" rows={3} placeholder="Optional" />
+                  <textarea className="w-full px-4 py-3 border border-oceanic-300 dark:border-oceanic-600 rounded-xl focus:ring-2 focus:ring-oceanic-500 bg-white dark:bg-oceanic-800 text-oceanic-900 dark:text-oceanic-100" rows={3} placeholder="Optional" />
                 </div>
 
                 <div className="flex gap-3 pt-4">
@@ -587,7 +587,7 @@ export default function IMSPage() {
                       setShowAddModal(false);
                       setScannedBarcode('');
                     }}
-                    className="flex-1"
+                    className="flex-1 border-oceanic-300 dark:border-oceanic-600"
                   >
                     Cancel
                   </Button>

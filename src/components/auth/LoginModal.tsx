@@ -89,7 +89,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
               <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
                 Welcome to myPiPOS
               </h2>
-              <p className="text-gray-600 dark:text-gray-300">
+              <p className="text-gray-700 dark:text-gray-200">
                 Choose your authentication method
               </p>
             </div>
@@ -132,7 +132,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
               <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
                 Pi Network Authentication
               </h2>
-              <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
+              <p className="text-gray-700 dark:text-gray-200 text-sm mb-4">
                 Secure authentication using your Pi Network account
               </p>
               <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 text-xs text-blue-800 dark:text-blue-300">
@@ -166,7 +166,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
               <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
                 IMS Login
               </h2>
-              <p className="text-gray-600 dark:text-gray-300 text-sm">
+              <p className="text-gray-700 dark:text-gray-200 text-sm">
                 For desktop inventory management access
               </p>
             </div>
