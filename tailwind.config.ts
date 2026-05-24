@@ -187,6 +187,9 @@ const config: Config = {
         'cyan-shimmer': 'linear-gradient(135deg, #14D3C5 0%, #11a79e 40%, #25ede1 60%, #0d8b84 100%)',
         'brand-gradient': 'linear-gradient(135deg, #14D3C5, #11a79e)',
       },
+      backgroundSize: {
+        '200%': '200%',
+      },
       boxShadow: {
         'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.3)',
         'glass-lg': '0 12px 48px 0 rgba(0, 0, 0, 0.4)',
