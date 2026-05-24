@@ -172,8 +172,18 @@ export default function POSPage() {
       {/* Header */}
       <header className="bg-linear-to-r from-purple-600 to-indigo-600 text-white p-4 shadow-lg">
         <div className="container mx-auto">
-          <h1 className="text-2xl font-bold">📱 POS Terminal</h1>
-          <p className="text-purple-100 text-sm">Point of Sale</p>
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <h1 className="text-2xl font-bold">📱 POS Terminal</h1>
+              <p className="text-purple-100 text-sm">Point of Sale</p>
+            </div>
+            <button
+              onClick={() => router.push('/ims')}
+              className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            >
+              📦 Inventory Management
+            </button>
+          </div>
         </div>
       </header>
 
