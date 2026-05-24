@@ -12,6 +12,30 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- ============================================================================
+-- DROP IF EXISTS (for idempotent migration)
+-- ============================================================================
+
+-- Drop ENUM types first (they can't use IF NOT EXISTS)
+DROP TYPE IF EXISTS a2u_transaction_type CASCADE;
+DROP TYPE IF EXISTS a2u_payment_status CASCADE;
+
+-- Drop views
+DROP VIEW IF EXISTS a2u_payment_stats CASCADE;
+DROP VIEW IF EXISTS customer_refunds_pending CASCADE;
+DROP VIEW IF EXISTS merchant_payouts_pending CASCADE;
+
+-- Drop functions
+DROP FUNCTION IF EXISTS create_a2u_payment(UUID, VARCHAR(50), DECIMAL(15,7), TEXT, VARCHAR(50), JSONB, UUID);
+DROP FUNCTION IF EXISTS generate_a2u_transaction_number();
+DROP FUNCTION IF EXISTS update_a2u_payments_updated_at();
+
+-- Drop triggers
+DROP TRIGGER IF EXISTS trigger_update_a2u_payments_updated_at ON a2u_payments;
+
+-- Drop table
+DROP TABLE IF EXISTS a2u_payments CASCADE;
+
+-- ============================================================================
 -- A2U PAYMENTS TABLE
 -- ============================================================================
 -- Tracks all A2U transactions from platform to users (merchants, customers, staff)
@@ -104,7 +128,30 @@ CHECK (status IN ('pending', 'creating', 'submitting', 'completing', 'completed'
 -- ============================================================================
 -- UPDATE SALES TABLE FOR A2U SUPPORT
 -- ============================================================================
--- Add A2U-specific columns to existing sales table
+-- Drop columns if they exist (for idempotent migration)
+DO $$
+BEGIN
+    -- Drop A2U merchant payout columns
+    ALTER TABLE sales DROP COLUMN IF EXISTS a2u_merchant_payout_id;
+    ALTER TABLE sales DROP COLUMN IF EXISTS a2u_merchant_payout_txid;
+    ALTER TABLE sales DROP COLUMN IF EXISTS a2u_merchant_payout_status;
+    ALTER TABLE sales DROP COLUMN IF EXISTS a2u_merchant_payout_amount;
+    ALTER TABLE sales DROP COLUMN IF EXISTS a2u_merchant_payout_completed_at;
+
+    -- Drop A2U refund columns
+    ALTER TABLE sales DROP COLUMN IF EXISTS a2u_refund_id;
+    ALTER TABLE sales DROP COLUMN IF EXISTS a2u_refund_txid;
+    ALTER TABLE sales DROP COLUMN IF EXISTS a2u_refund_status;
+    ALTER TABLE sales DROP COLUMN IF EXISTS a2u_refund_amount;
+    ALTER TABLE sales DROP COLUMN IF EXISTS a2u_refund_completed_at;
+
+    -- Drop platform fee columns
+    ALTER TABLE sales DROP COLUMN IF EXISTS platform_fee;
+    ALTER TABLE sales DROP COLUMN IF EXISTS merchant_payout;
+    ALTER TABLE sales DROP COLUMN IF EXISTS direction;
+END $$;
+
+-- Now add A2U-specific columns to existing sales table
 
 ALTER TABLE sales
 ADD COLUMN IF NOT EXISTS a2u_merchant_payout_id VARCHAR(255),
@@ -126,6 +173,14 @@ ADD COLUMN IF NOT EXISTS direction VARCHAR(50) DEFAULT 'customer_to_platform'; -
 -- ============================================================================
 -- UPDATE USERS TABLE FOR WALLET ADDRESSES
 -- ============================================================================
+-- Drop wallet address columns if they exist (for idempotent migration)
+DO $$
+BEGIN
+    ALTER TABLE users DROP COLUMN IF EXISTS pi_wallet_address;
+    ALTER TABLE users DROP COLUMN IF EXISTS wallet_address_verified;
+    ALTER TABLE users DROP COLUMN IF EXISTS wallet_address_verified_at;
+END $$;
+
 -- Add wallet address to users table for A2U payments
 
 ALTER TABLE users
@@ -136,6 +191,22 @@ ADD COLUMN IF NOT EXISTS wallet_address_verified_at TIMESTAMP WITH TIME ZONE;
 -- ============================================================================
 -- CREATE INDEXES FOR PERFORMANCE
 -- ============================================================================
+
+-- Drop indexes if they exist (for idempotent migration)
+DROP INDEX IF EXISTS idx_a2u_payments_to_user;
+DROP INDEX IF EXISTS idx_a2u_payments_payment_id;
+DROP INDEX IF EXISTS idx_a2u_payments_txid;
+DROP INDEX IF EXISTS idx_a2u_payments_status;
+DROP INDEX IF EXISTS idx_a2u_payments_type;
+DROP INDEX IF EXISTS idx_a2u_payments_to_user_type;
+DROP INDEX IF EXISTS idx_a2u_payments_created_at;
+DROP INDEX IF EXISTS idx_a2u_payments_related_sale;
+
+DROP INDEX IF EXISTS idx_sales_a2u_merchant_payout_status;
+DROP INDEX IF EXISTS idx_sales_a2u_refund_status;
+DROP INDEX IF EXISTS idx_sales_direction;
+
+DROP INDEX IF EXISTS idx_users_pi_wallet_address;
 
 -- A2U payments indexes
 CREATE INDEX IF NOT EXISTS idx_a2u_payments_to_user ON a2u_payments(to_user_id);
