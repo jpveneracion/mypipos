@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import { Product } from '@/types';
+import { useAuthStore } from '@/lib/store';
 import BarcodeScanner from '@/components/pos/BarcodeScanner';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -23,95 +25,74 @@ import {
   Box,
   AlertCircle,
   CheckCircle,
-  Clock
+  Clock,
+  Loader2
 } from 'lucide-react';
 
-// Sample inventory data
-const sampleInventory: Product[] = [
-  {
-    id: '1',
-    name: 'Heinz Tomato Ketchup',
-    description: 'Classic tomato ketchup 500ml bottle',
-    price: 3.99,
-    cost: 2.50,
-    sku: 'COF001',
-    barcode: '011110021113',
-    category: 'Condiments',
-    stock: 45,
-    minStock: 10,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '2',
-    name: 'Coca-Cola 500ml',
-    description: 'Refreshing cola drink',
-    price: 1.99,
-    cost: 1.20,
-    sku: 'SND001',
-    barcode: '054490000131',
-    category: 'Beverages',
-    stock: 8,
-    minStock: 12,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '3',
-    name: 'Lays Classic Chips',
-    description: 'Classic salted potato chips 150g',
-    price: 2.49,
-    cost: 1.50,
-    sku: 'SAL001',
-    barcode: '028400486048',
-    category: 'Snacks',
-    stock: 67,
-    minStock: 15,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '4',
-    name: 'Bottled Water 1L',
-    description: 'Spring water 1 liter bottle',
-    price: 0.99,
-    cost: 0.40,
-    sku: 'WAT001',
-    barcode: '012345678901',
-    category: 'Beverages',
-    stock: 120,
-    minStock: 20,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '5',
-    name: 'Chocolate Bar',
-    description: 'Milk chocolate bar 100g',
-    price: 1.49,
-    cost: 0.80,
-    sku: 'CHO001',
-    barcode: '012345678902',
-    category: 'Confectionery',
-    stock: 3,
-    minStock: 10,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-];
+interface ApiProduct extends Product {
+  created_by?: string;
+  merchant_id?: string;
+  available_stock?: number;
+  is_low_stock?: boolean;
+}
 
 export default function IMSPage() {
-  const [products, setProducts] = useState<Product[]>(sampleInventory);
+  const router = useRouter();
+  const { user, merchantId, isAuthenticated } = useAuthStore();
+
+  const [products, setProducts] = useState<ApiProduct[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [showAddModal, setShowAddModal] = useState(false);
   const [scanningBarcode, setScanningBarcode] = useState(false);
   const [scannedBarcode, setScannedBarcode] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/mode-selection');
+      return;
+    }
+
     (window as any).openScanner = () => setScanningBarcode(true);
+    loadProducts();
     return () => { delete (window as any).openScanner; };
-  }, []);
+  }, [isAuthenticated, merchantId]);
+
+  async function loadProducts() {
+    if (!merchantId) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const params = new URLSearchParams({
+        merchant_id: merchantId,
+        ...(searchQuery && { search: searchQuery }),
+        ...(selectedCategory !== 'All' && { category: selectedCategory }),
+      });
+
+      const response = await fetch(`/api/products?${params}`);
+      const data = await response.json();
+
+      if (data.success) {
+        setProducts(data.products);
+      } else {
+        setError(data.error || 'Failed to load products');
+      }
+    } catch (err) {
+      console.error('Error loading products:', err);
+      setError('Failed to connect to server');
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadProducts();
+  }, [searchQuery, selectedCategory, merchantId]);
 
   const categories = ['All', 'Beverages', 'Food', 'Snacks', 'Condiments', 'Confectionery'];
 
@@ -127,6 +108,7 @@ export default function IMSPage() {
   const outOfStockProducts = products.filter(product => product.stock === 0);
 
   const handleBarcodeScanned = (barcode: string) => {
+    // Check if product exists with this barcode
     const existingProduct = products.find(p => p.barcode === barcode);
     if (existingProduct) {
       alert(`Product with barcode "${barcode}" already exists: ${existingProduct.name}`);
@@ -135,6 +117,84 @@ export default function IMSPage() {
       setShowAddModal(true);
     }
     setScanningBarcode(false);
+  };
+
+  const handleProductSubmit = async (formData: {
+    name: string;
+    price: string;
+    sku: string;
+    stock: string;
+    minStock: string;
+    barcode?: string;
+    category?: string;
+    description?: string;
+  }) => {
+    if (!merchantId || !user?.id) {
+      alert('Authentication required');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          merchant_id: merchantId,
+          user_id: user.id,
+          name: formData.name,
+          price: parseFloat(formData.price),
+          sku: formData.sku,
+          barcode: formData.barcode || scannedBarcode || undefined,
+          stock: parseInt(formData.stock),
+          minStock: parseInt(formData.minStock),
+          category: formData.category || undefined,
+          description: formData.description || undefined,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setShowAddModal(false);
+        setScannedBarcode('');
+        loadProducts();
+      } else {
+        setError(data.error || 'Failed to create product');
+      }
+    } catch (err) {
+      console.error('Error creating product:', err);
+      setError('Failed to connect to server');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteProduct = async (productId: string) => {
+    if (!merchantId) return;
+
+    if (!confirm('Are you sure you want to delete this product?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/products?merchant_id=${merchantId}&product_id=${productId}`, {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        loadProducts();
+      } else {
+        setError(data.error || 'Failed to delete product');
+      }
+    } catch (err) {
+      console.error('Error deleting product:', err);
+      setError('Failed to connect to server');
+    }
   };
 
   const getStockStatus = (product: Product) => {
@@ -215,6 +275,18 @@ export default function IMSPage() {
       </header>
 
       <div className="container mx-auto px-6 py-6 flex-1 overflow-y-auto">
+        {error && (
+          <div className="mb-6 p-4 bg-error-900/30 border border-error-700 rounded-lg text-error-200">
+            {error}
+          </div>
+        )}
+
+        {isLoading ? (
+          <div className="flex items-center justify-center py-16">
+            <Loader2 className="w-8 h-8 text-brand-cyan-400 animate-spin" />
+          </div>
+        ) : (
+          <>
         {/* Dashboard Stats */}
         <motion.div
           initial="hidden"
@@ -438,7 +510,10 @@ export default function IMSPage() {
                           <button className="text-brand-cyan-400 hover:text-brand-cyan-300 mr-3 transition-colors">
                             <Edit className="w-4 h-4 inline" />
                           </button>
-                          <button className="text-brand-magenta-400 hover:text-brand-magenta-300 transition-colors">
+                          <button
+                            onClick={() => handleDeleteProduct(product.id)}
+                            className="text-brand-magenta-400 hover:text-brand-magenta-300 transition-colors"
+                          >
                             <Trash2 className="w-4 h-4 inline" />
                           </button>
                         </td>
@@ -510,6 +585,7 @@ export default function IMSPage() {
                   <Button
                     size="sm"
                     variant="outline"
+                    onClick={() => handleDeleteProduct(product.id)}
                     className="flex-1 border-brand-magenta-800/50 text-brand-magenta-400"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -546,6 +622,8 @@ export default function IMSPage() {
             </Button>
           </motion.div>
         )}
+        </>
+      )}
       </div>
 
       {/* Add Product Modal */}
@@ -568,13 +646,27 @@ export default function IMSPage() {
             </div>
 
             <div className="p-6">
+              {error && (
+                <div className="mb-4 p-4 bg-error-900/30 border border-error-700 rounded-lg text-error-200 text-sm">
+                  {error}
+                </div>
+              )}
+
               <form
                 className="space-y-4"
                 onSubmit={(e) => {
                   e.preventDefault();
-                  alert('Product form submitted! Barcode: ' + scannedBarcode);
-                  setShowAddModal(false);
-                  setScannedBarcode('');
+                  const formData = new FormData(e.currentTarget);
+                  handleProductSubmit({
+                    name: formData.get('name') as string,
+                    price: formData.get('price') as string,
+                    sku: formData.get('sku') as string,
+                    stock: formData.get('stock') as string,
+                    minStock: formData.get('minStock') as string,
+                    barcode: formData.get('barcode') as string,
+                    category: formData.get('category') as string,
+                    description: formData.get('description') as string,
+                  });
                 }}
               >
                 <Button
@@ -598,28 +690,56 @@ export default function IMSPage() {
 
                 <div>
                   <label className="block text-sm font-bold text-brand-indigo-300 mb-2">Product Name</label>
-                  <Input type="text" className="w-full bg-brand-indigo-950/50 border-brand-indigo-700 text-brand-indigo-200 placeholder-brand-indigo-500 focus:border-brand-cyan-500 focus:ring-2 focus:ring-brand-cyan-500/20" required />
+                  <Input
+                    type="text"
+                    name="name"
+                    className="w-full bg-brand-indigo-950/50 border-brand-indigo-700 text-brand-indigo-200 placeholder-brand-indigo-500 focus:border-brand-cyan-500 focus:ring-2 focus:ring-brand-cyan-500/20"
+                    required
+                  />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-bold text-brand-indigo-300 mb-2">Price</label>
-                    <Input type="number" step="0.01" className="w-full bg-brand-indigo-950/50 border-brand-indigo-700 text-brand-indigo-200 placeholder-brand-indigo-500 focus:border-brand-cyan-500 focus:ring-2 focus:ring-brand-cyan-500/20" required />
+                    <Input
+                      type="number"
+                      step="0.01"
+                      name="price"
+                      className="w-full bg-brand-indigo-950/50 border-brand-indigo-700 text-brand-indigo-200 placeholder-brand-indigo-500 focus:border-brand-cyan-500 focus:ring-2 focus:ring-brand-cyan-500/20"
+                      required
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-brand-indigo-300 mb-2">SKU</label>
-                    <Input type="text" className="w-full bg-brand-indigo-950/50 border-brand-indigo-700 text-brand-indigo-200 placeholder-brand-indigo-500 focus:border-brand-cyan-500 focus:ring-2 focus:ring-brand-cyan-500/20" required />
+                    <Input
+                      type="text"
+                      name="sku"
+                      className="w-full bg-brand-indigo-950/50 border-brand-indigo-700 text-brand-indigo-200 placeholder-brand-indigo-500 focus:border-brand-cyan-500 focus:ring-2 focus:ring-brand-cyan-500/20"
+                      required
+                    />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-bold text-brand-indigo-300 mb-2">Stock</label>
-                    <Input type="number" className="w-full bg-brand-indigo-950/50 border-brand-indigo-700 text-brand-indigo-200 placeholder-brand-indigo-500 focus:border-brand-cyan-500 focus:ring-2 focus:ring-brand-cyan-500/20" required />
+                    <Input
+                      type="number"
+                      name="stock"
+                      defaultValue="0"
+                      className="w-full bg-brand-indigo-950/50 border-brand-indigo-700 text-brand-indigo-200 placeholder-brand-indigo-500 focus:border-brand-cyan-500 focus:ring-2 focus:ring-brand-cyan-500/20"
+                      required
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-brand-indigo-300 mb-2">Min Stock</label>
-                    <Input type="number" className="w-full bg-brand-indigo-950/50 border-brand-indigo-700 text-brand-indigo-200 placeholder-brand-indigo-500 focus:border-brand-cyan-500 focus:ring-2 focus:ring-brand-cyan-500/20" required />
+                    <Input
+                      type="number"
+                      name="minStock"
+                      defaultValue="10"
+                      className="w-full bg-brand-indigo-950/50 border-brand-indigo-700 text-brand-indigo-200 placeholder-brand-indigo-500 focus:border-brand-cyan-500 focus:ring-2 focus:ring-brand-cyan-500/20"
+                      required
+                    />
                   </div>
                 </div>
 
@@ -629,6 +749,7 @@ export default function IMSPage() {
                   </label>
                   <Input
                     type="text"
+                    name="barcode"
                     value={scannedBarcode}
                     onChange={(e) => setScannedBarcode(e.target.value)}
                     placeholder="Optional"
@@ -641,7 +762,10 @@ export default function IMSPage() {
 
                 <div>
                   <label className="block text-sm font-bold text-brand-indigo-300 mb-2">Category</label>
-                  <select className="w-full px-4 py-3 border border-brand-indigo-700 rounded-xl focus:ring-2 focus:ring-brand-cyan-500 bg-brand-indigo-950/50 text-brand-indigo-200 focus:border-brand-cyan-500">
+                  <select
+                    name="category"
+                    className="w-full px-4 py-3 border border-brand-indigo-700 rounded-xl focus:ring-2 focus:ring-brand-cyan-500 bg-brand-indigo-950/50 text-brand-indigo-200 focus:border-brand-cyan-500"
+                  >
                     <option value="">Select category</option>
                     {categories.filter(c => c !== 'All').map(cat => (
                       <option key={cat} value={cat}>{cat}</option>
@@ -651,16 +775,23 @@ export default function IMSPage() {
 
                 <div>
                   <label className="block text-sm font-bold text-brand-indigo-300 mb-2">Description</label>
-                  <textarea className="w-full px-4 py-3 border border-brand-indigo-700 rounded-xl focus:ring-2 focus:ring-brand-cyan-500 bg-brand-indigo-950/50 text-brand-indigo-200 focus:border-brand-cyan-500" rows={3} placeholder="Optional" />
+                  <textarea
+                    name="description"
+                    className="w-full px-4 py-3 border border-brand-indigo-700 rounded-xl focus:ring-2 focus:ring-brand-cyan-500 bg-brand-indigo-950/50 text-brand-indigo-200 focus:border-brand-cyan-500"
+                    rows={3}
+                    placeholder="Optional"
+                  />
                 </div>
 
                 <div className="flex gap-3 pt-4">
                   <Button
                     type="button"
                     variant="outline"
+                    disabled={isSubmitting}
                     onClick={() => {
                       setShowAddModal(false);
                       setScannedBarcode('');
+                      setError(null);
                     }}
                     className="flex-1 border-brand-indigo-700 text-brand-indigo-400 hover:bg-brand-indigo-900/50"
                   >
@@ -668,9 +799,17 @@ export default function IMSPage() {
                   </Button>
                   <Button
                     type="submit"
+                    disabled={isSubmitting}
                     className="flex-1 bg-linear-to-r from-brand-cyan-400 to-brand-cyan-600 text-brand-dark-950 hover:from-brand-cyan-500 hover:to-brand-cyan-700 font-semibold shadow-glow"
                   >
-                    Add Product
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Adding...
+                      </>
+                    ) : (
+                      'Add Product'
+                    )}
                   </Button>
                 </div>
               </form>

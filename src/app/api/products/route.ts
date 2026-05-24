@@ -1,95 +1,227 @@
 import { NextRequest, NextResponse } from 'next/server';
+import {
+  getMerchantProducts,
+  getProductByBarcode,
+  searchMerchantProducts,
+  createProductForMerchant,
+  deleteProductFromMerchant,
+} from '@/lib/db-products';
 
-// Mock data for development - replace with actual database queries
-const mockProducts = [
-  {
-    id: '123e4567-e89b-12d3-a456-426614174000',
-    name: 'Heinz Tomato Ketchup',
-    description: 'Classic tomato ketchup 500ml bottle',
-    barcode: '011110021113',
-    category: 'condiments',
-    image: '/products/ketchup.jpg',
-    created_at: new Date().toISOString()
-  },
-  {
-    id: '123e4567-e89b-12d3-a456-426614174001',
-    name: 'Coca-Cola 500ml',
-    description: 'Refreshing cola drink 500ml bottle',
-    barcode: '054490000131',
-    category: 'beverages',
-    image: '/products/coca-cola.jpg',
-    created_at: new Date().toISOString()
-  },
-  {
-    id: '123e4567-e89b-12d3-a456-426614174002',
-    name: 'Lays Classic Chips',
-    description: 'Classic salted potato chips 150g',
-    barcode: '028400486048',
-    category: 'snacks',
-    image: '/products/lays.jpg',
-    created_at: new Date().toISOString()
-  },
-  {
-    id: '123e4567-e89b-12d3-a456-426614174003',
-    name: 'Bottled Water 1L',
-    description: 'Spring water 1 liter bottle',
-    barcode: '012345678901',
-    category: 'beverages',
-    image: '/products/water.jpg',
-    created_at: new Date().toISOString()
-  },
-  {
-    id: '123e4567-e89b-12d3-a456-426614174004',
-    name: 'Chocolate Bar',
-    description: 'Milk chocolate bar 100g',
-    barcode: '012345678902',
-    category: 'confectionery',
-    image: '/products/chocolate.jpg',
-    created_at: new Date().toISOString()
-  }
-];
-
+/**
+ * GET /api/products
+ * Fetch products for a merchant
+ */
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
+    const merchantId = searchParams.get('merchant_id');
     const barcode = searchParams.get('barcode');
     const category = searchParams.get('category');
     const search = searchParams.get('search');
+    const lowStock = searchParams.get('low_stock') === 'true';
 
-    let filteredProducts = [...mockProducts];
-
-    // Filter by barcode
+    // For barcode lookup, we don't need merchant_id
     if (barcode) {
-      filteredProducts = filteredProducts.filter(p => p.barcode === barcode);
+      const merchantIdToUse = merchantId || 'default-merchant';
+      const product = await getProductByBarcode(merchantIdToUse, barcode);
+
+      if (!product) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Product not found'
+          },
+          { status: 404 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        product: formatProductForResponse(product),
+        count: 1
+      });
     }
 
-    // Filter by category
-    if (category) {
-      filteredProducts = filteredProducts.filter(p => p.category === category);
-    }
-
-    // Search by name or description
-    if (search) {
-      const searchLower = search.toLowerCase();
-      filteredProducts = filteredProducts.filter(p =>
-        p.name.toLowerCase().includes(searchLower) ||
-        p.description.toLowerCase().includes(searchLower)
+    // Validate merchant_id for other queries
+    if (!merchantId) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'merchant_id is required'
+        },
+        { status: 400 }
       );
     }
 
+    // Search products
+    const products = await searchMerchantProducts({
+      merchantId,
+      searchQuery: search || undefined,
+      category: category || undefined,
+      lowStock,
+    });
+
     return NextResponse.json({
       success: true,
-      products: filteredProducts,
-      count: filteredProducts.length
+      products: products.map(formatProductForResponse),
+      count: products.length
     });
   } catch (error) {
     console.error('Products API error:', error);
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to fetch products'
+        error: 'Failed to fetch products',
+        details: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
     );
   }
+}
+
+/**
+ * POST /api/products
+ * Create a new product for a merchant
+ */
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const {
+      merchant_id,
+      user_id,
+      name,
+      description,
+      barcode,
+      sku,
+      price,
+      cost,
+      category,
+      stock,
+      minStock,
+      image,
+    } = body;
+
+    // Validate required fields
+    if (!merchant_id || !user_id || !name || !sku || price === undefined) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Missing required fields: merchant_id, user_id, name, sku, price'
+        },
+        { status: 400 }
+      );
+    }
+
+    // Create product
+    const result = await createProductForMerchant({
+      merchantId: merchant_id,
+      userId: user_id,
+      name,
+      description,
+      barcode,
+      sku,
+      price: parseFloat(price),
+      cost: cost ? parseFloat(cost) : undefined,
+      category,
+      stock: stock ? parseInt(stock) : 0,
+      minStock: minStock ? parseInt(minStock) : 10,
+      image,
+    });
+
+    return NextResponse.json({
+      success: true,
+      product: formatProductForResponse(result),
+      message: 'Product created successfully'
+    });
+  } catch (error) {
+    console.error('Product creation error:', error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Failed to create product',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * DELETE /api/products
+ * Delete a product from merchant catalog
+ */
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const merchantId = searchParams.get('merchant_id');
+    const productId = searchParams.get('product_id');
+
+    if (!merchantId || !productId) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'merchant_id and product_id are required'
+        },
+        { status: 400 }
+      );
+    }
+
+    const deleted = await deleteProductFromMerchant(merchantId, productId);
+
+    if (!deleted) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Product not found'
+        },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: 'Product deleted successfully'
+    });
+  } catch (error) {
+    console.error('Product deletion error:', error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Failed to delete product',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * Format product data for API response
+ * Converts the complex product/merchant/inventory structure into a flat format
+ */
+function formatProductForResponse(data: any): any {
+  const { product, merchantProduct, inventory } = data;
+
+  return {
+    id: product.id,
+    name: product.name,
+    description: product.description,
+    sku: merchantProduct.merchant_sku,
+    barcode: product.barcode || merchantProduct.merchant_barcode,
+    category: product.category_id,
+    price: parseFloat(merchantProduct.price),
+    cost: merchantProduct.cost ? parseFloat(merchantProduct.cost) : null,
+    stock: inventory?.current_stock || 0,
+    minStock: inventory?.low_stock_threshold || 10,
+    image: product.main_image_url || merchantProduct.display_image_url,
+    createdAt: product.created_at,
+    updatedAt: product.updated_at,
+    // Extra fields for tracking
+    merchantProductId: merchantProduct.id,
+    created_by: merchantProduct.created_by,
+    merchant_id: merchantProduct.merchant_id,
+    // Inventory details
+    available_stock: inventory?.available_stock || 0,
+    is_low_stock: inventory ? inventory.current_stock <= inventory.low_stock_threshold : false,
+  };
 }
