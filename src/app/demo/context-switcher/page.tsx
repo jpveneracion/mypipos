@@ -29,7 +29,7 @@ export default function ContextSwitcherDemo() {
   }, [isAuthenticated, router]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900">
+    <div className="min-h-screen bg-linear-to-br from-oceanic-50 via-white to-sky-50 dark:from-oceanic-950 dark:via-gray-900 dark:to-sky-950">
       <Header
         title="Context Switcher Demo"
         subtitle="Test page for the Context Switcher component"
@@ -38,35 +38,35 @@ export default function ContextSwitcherDemo() {
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           {/* Current State Display */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
+          <div className="glassmorphism bg-white/70 dark:bg-oceanic-900/70 rounded-2xl shadow-glass p-6 mb-8 backdrop-blur-xl border border-oceanic-200 dark:border-oceanic-800">
+            <h2 className="text-2xl font-bold text-oceanic-900 dark:text-oceanic-100 mb-4">
               Current State
             </h2>
             <div className="space-y-3">
-              <div className="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-                <span className="text-gray-600 dark:text-gray-400">Authenticated:</span>
-                <span className={`font-medium ${isAuthenticated ? 'text-green-600' : 'text-red-600'}`}>
+              <div className="flex items-center justify-between py-2 border-b border-oceanic-200 dark:border-oceanic-700">
+                <span className="text-oceanic-600 dark:text-oceanic-400">Authenticated:</span>
+                <span className={`font-medium ${isAuthenticated ? 'text-success-600' : 'text-error-600'}`}>
                   {isAuthenticated ? 'Yes' : 'No'}
                 </span>
               </div>
-              <div className="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-                <span className="text-gray-600 dark:text-gray-400">User:</span>
-                <span className="font-medium text-gray-800 dark:text-white">
+              <div className="flex items-center justify-between py-2 border-b border-oceanic-200 dark:border-oceanic-700">
+                <span className="text-oceanic-600 dark:text-oceanic-400">User:</span>
+                <span className="font-medium text-oceanic-900 dark:text-oceanic-100">
                   {user?.piUsername || 'N/A'}
                 </span>
               </div>
-              <div className="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-                <span className="text-gray-600 dark:text-gray-400">Merchant ID:</span>
-                <span className={`font-medium ${merchantId ? 'text-green-600' : 'text-gray-400'}`}>
+              <div className="flex items-center justify-between py-2 border-b border-oceanic-200 dark:border-oceanic-700">
+                <span className="text-oceanic-600 dark:text-oceanic-400">Merchant ID:</span>
+                <span className={`font-medium ${merchantId ? 'text-success-600' : 'text-neutral-400'}`}>
                   {merchantId || 'Not a merchant'}
                 </span>
               </div>
-              <div className="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-                <span className="text-gray-600 dark:text-gray-400">Current Context:</span>
+              <div className="flex items-center justify-between py-2 border-b border-oceanic-200 dark:border-oceanic-700">
+                <span className="text-oceanic-600 dark:text-oceanic-400">Current Context:</span>
                 <span className={`font-medium px-3 py-1 rounded-full ${
                   currentContext === 'merchant'
-                    ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
-                    : 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300'
+                    ? 'bg-oceanic-100 text-oceanic-700 dark:bg-oceanic-900/30 dark:text-oceanic-300'
+                    : 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300'
                 }`}>
                   {currentContext === 'merchant' ? '🏪 Merchant' : '👤 Customer'}
                 </span>
@@ -75,22 +75,22 @@ export default function ContextSwitcherDemo() {
           </div>
 
           {/* Context Switcher Display Info */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
+          <div className="glassmorphism bg-white/70 dark:bg-oceanic-900/70 rounded-2xl shadow-glass p-6 mb-8 backdrop-blur-xl border border-oceanic-200 dark:border-oceanic-800">
+            <h2 className="text-2xl font-bold text-oceanic-900 dark:text-oceanic-100 mb-4">
               Context Switcher Status
             </h2>
             <div className="space-y-4">
               {merchantId ? (
-                <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                <div className="glassmorphism bg-success-50 dark:bg-success-900/20 border border-success-200 dark:border-success-800 rounded-xl p-4">
                   <div className="flex items-start gap-3">
-                    <svg className="w-6 h-6 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-6 h-6 text-success-600 dark:text-success-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
                     <div>
-                      <h3 className="font-semibold text-green-800 dark:text-green-300 mb-1">
+                      <h3 className="font-semibold text-success-800 dark:text-success-300 mb-1">
                         Context Switcher is Active
                       </h3>
-                      <p className="text-sm text-green-700 dark:text-green-400">
+                      <p className="text-sm text-success-700 dark:text-success-400">
                         You have a Merchant ID, so the Context Switcher should be visible in the header above.
                         Try switching between Merchant and Customer modes!
                       </p>
@@ -98,16 +98,16 @@ export default function ContextSwitcherDemo() {
                   </div>
                 </div>
               ) : (
-                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                <div className="glassmorphism bg-warning-50 dark:bg-warning-900/20 border border-warning-200 dark:border-warning-800 rounded-xl p-4">
                   <div className="flex items-start gap-3">
-                    <svg className="w-6 h-6 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-6 h-6 text-warning-600 dark:text-warning-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                     </svg>
                     <div>
-                      <h3 className="font-semibold text-yellow-800 dark:text-yellow-300 mb-1">
+                      <h3 className="font-semibold text-warning-800 dark:text-warning-300 mb-1">
                         Context Switcher is Hidden
                       </h3>
-                      <p className="text-sm text-yellow-700 dark:text-yellow-400">
+                      <p className="text-sm text-warning-700 dark:text-warning-400">
                         You don't have a Merchant ID, so the Context Switcher is not displayed.
                         Only merchant users can switch between modes.
                       </p>
@@ -119,46 +119,46 @@ export default function ContextSwitcherDemo() {
           </div>
 
           {/* Usage Instructions */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
+          <div className="glassmorphism bg-white/70 dark:bg-oceanic-900/70 rounded-2xl shadow-glass p-6 mb-8 backdrop-blur-xl border border-oceanic-200 dark:border-oceanic-800">
+            <h2 className="text-2xl font-bold text-oceanic-900 dark:text-oceanic-100 mb-4">
               How to Use
             </h2>
             <div className="space-y-4">
               <div className="flex items-start gap-3">
-                <div className="flex-shrink-0 w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center text-purple-600 dark:text-purple-400 font-bold">
+                <div className="flex-shrink-0 w-8 h-8 bg-oceanic-100 dark:bg-oceanic-900/30 rounded-full flex items-center justify-center text-oceanic-600 dark:text-oceanic-400 font-bold">
                   1
                 </div>
                 <div>
-                  <h3 className="font-medium text-gray-800 dark:text-white mb-1">
+                  <h3 className="font-medium text-oceanic-900 dark:text-oceanic-100 mb-1">
                     Look at the Header
                   </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm text-oceanic-600 dark:text-oceanic-400">
                     The Context Switcher appears in the header (top-right) if you're a merchant user.
                   </p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <div className="flex-shrink-0 w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center text-purple-600 dark:text-purple-400 font-bold">
+                <div className="flex-shrink-0 w-8 h-8 bg-oceanic-100 dark:bg-oceanic-900/30 rounded-full flex items-center justify-center text-oceanic-600 dark:text-oceanic-400 font-bold">
                   2
                 </div>
                 <div>
-                  <h3 className="font-medium text-gray-800 dark:text-white mb-1">
+                  <h3 className="font-medium text-oceanic-900 dark:text-oceanic-100 mb-1">
                     Switch Modes
                   </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Click on "Merchant" or "Customer" to switch modes. The active mode is highlighted in purple.
+                  <p className="text-sm text-oceanic-600 dark:text-oceanic-400">
+                    Click on "Merchant" or "Customer" to switch modes. The active mode is highlighted in oceanic blue.
                   </p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <div className="flex-shrink-0 w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center text-purple-600 dark:text-purple-400 font-bold">
+                <div className="flex-shrink-0 w-8 h-8 bg-oceanic-100 dark:bg-oceanic-900/30 rounded-full flex items-center justify-center text-oceanic-600 dark:text-oceanic-400 font-bold">
                   3
                 </div>
                 <div>
-                  <h3 className="font-medium text-gray-800 dark:text-white mb-1">
+                  <h3 className="font-medium text-oceanic-900 dark:text-oceanic-100 mb-1">
                     Automatic Redirect
                   </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm text-oceanic-600 dark:text-oceanic-400">
                     After switching, you'll be automatically redirected to the appropriate dashboard.
                   </p>
                 </div>
@@ -167,21 +167,21 @@ export default function ContextSwitcherDemo() {
           </div>
 
           {/* Responsive Design Test */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
+          <div className="glassmorphism bg-white/70 dark:bg-oceanic-900/70 rounded-2xl shadow-glass p-6 backdrop-blur-xl border border-oceanic-200 dark:border-oceanic-800">
+            <h2 className="text-2xl font-bold text-oceanic-900 dark:text-oceanic-100 mb-4">
               Responsive Design Test
             </h2>
             <div className="space-y-4">
-              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+              <div className="glassmorphism bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800 rounded-xl p-4">
                 <div className="flex items-start gap-3">
-                  <svg className="w-6 h-6 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-6 h-6 text-sky-600 dark:text-sky-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                   </svg>
                   <div>
-                    <h3 className="font-semibold text-blue-800 dark:text-blue-300 mb-1">
+                    <h3 className="font-semibold text-sky-800 dark:text-sky-300 mb-1">
                       Resize Your Browser
                     </h3>
-                    <p className="text-sm text-blue-700 dark:text-blue-400">
+                    <p className="text-sm text-sky-700 dark:text-sky-400">
                       Try resizing your browser window to see the responsive behavior:
                       <strong className="block mt-2">
                         • Desktop (≥768px): Inline toggle buttons

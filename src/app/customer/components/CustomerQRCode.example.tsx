@@ -16,14 +16,14 @@ export default function CustomerDashboardExample() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50 py-8 px-4">
+    <div className="min-h-screen bg-linear-to-br from-oceanic-50 via-white to-sky-50 py-8 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Dashboard Header */}
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+          <h1 className="text-3xl font-bold text-oceanic-900 dark:text-oceanic-100 mb-2">
             Customer Dashboard
           </h1>
-          <p className="text-gray-600">
+          <p className="text-oceanic-600 dark:text-oceanic-400">
             Manage your payments and view purchase history
           </p>
         </div>
@@ -36,21 +36,21 @@ export default function CustomerDashboardExample() {
         {/* Additional Dashboard Sections */}
         <div className="grid md:grid-cols-2 gap-6">
           {/* Recent Purchases */}
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">
+          <div className="glassmorphism bg-white/70 dark:bg-oceanic-900/70 rounded-2xl shadow-glass p-6 backdrop-blur-xl border border-oceanic-200 dark:border-oceanic-800">
+            <h2 className="text-xl font-bold text-oceanic-900 dark:text-oceanic-100 mb-4">
               Recent Purchases
             </h2>
-            <p className="text-gray-600 text-sm">
+            <p className="text-oceanic-600 dark:text-oceanic-400 text-sm">
               Your recent purchases will appear here
             </p>
           </div>
 
           {/* Payment Methods */}
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">
+          <div className="glassmorphism bg-white/70 dark:bg-oceanic-900/70 rounded-2xl shadow-glass p-6 backdrop-blur-xl border border-oceanic-200 dark:border-oceanic-800">
+            <h2 className="text-xl font-bold text-oceanic-900 dark:text-oceanic-100 mb-4">
               Payment Methods
             </h2>
-            <p className="text-gray-600 text-sm">
+            <p className="text-oceanic-600 dark:text-oceanic-400 text-sm">
               Manage your linked payment methods
             </p>
           </div>

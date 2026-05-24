@@ -175,7 +175,7 @@ export default function POSPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-oceanic-50 via-white to-sky-50 dark:from-oceanic-950 dark:via-gray-900 dark:to-sky-950 flex flex-col">
+    <div className="min-h-screen bg-linear-to-br from-oceanic-50 via-white to-sky-50 dark:from-oceanic-950 dark:via-gray-900 dark:to-sky-950 flex flex-col">
       {/* Scanner Modal */}
       {showScanner && (
         <BarcodeScanner
@@ -197,11 +197,11 @@ export default function POSPage() {
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-oceanic-500 to-sky-600 rounded-xl flex items-center justify-center shadow-glass">
+                <div className="w-10 h-10 bg-linear-to-br from-oceanic-500 to-sky-600 rounded-xl flex items-center justify-center shadow-glass">
                   <span className="text-xl">📱</span>
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold bg-gradient-to-r from-oceanic-600 to-sky-600 bg-clip-text text-transparent">
+                  <h1 className="text-2xl font-bold bg-linear-to-r from-oceanic-600 to-sky-600 bg-clip-text text-transparent">
                     POS Terminal
                   </h1>
                   <p className="text-xs text-oceanic-600 dark:text-oceanic-400 font-medium">
@@ -271,7 +271,7 @@ export default function POSPage() {
                   onClick={() => setSelectedCategory(category)}
                   className={`px-6 py-2 rounded-full whitespace-nowrap transition-all duration-300 font-medium ${
                     selectedCategory === category
-                      ? 'bg-gradient-to-r from-oceanic-500 to-sky-600 text-white shadow-glass'
+                      ? 'bg-linear-to-r from-oceanic-500 to-sky-600 text-white shadow-glass'
                       : 'bg-white dark:bg-oceanic-900 text-oceanic-700 dark:text-oceanic-300 hover:bg-oceanic-50 dark:hover:bg-oceanic-800 border border-oceanic-200 dark:border-oceanic-700'
                   }`}
                 >
@@ -293,10 +293,10 @@ export default function POSPage() {
                   className="glassmorphism rounded-2xl p-4 cursor-pointer hover:shadow-glass-lg transition-all duration-300 transform hover:-translate-y-1 group"
                   onClick={() => addItem(product)}
                 >
-                  <div className="aspect-square bg-gradient-to-br from-oceanic-50 to-sky-50 dark:from-oceanic-900/30 dark:to-sky-900/30 rounded-xl mb-3 flex items-center justify-center relative overflow-hidden">
+                  <div className="aspect-square bg-linear-to-br from-oceanic-50 to-sky-50 dark:from-oceanic-900/30 dark:to-sky-900/30 rounded-xl mb-3 flex items-center justify-center relative overflow-hidden">
                     <span className="text-4xl group-hover:scale-110 transition-transform duration-300">🛍️</span>
                     {quantity > 0 && (
-                      <div className="absolute top-2 right-2 w-8 h-8 bg-gradient-to-br from-oceanic-500 to-sky-600 rounded-full flex items-center justify-center shadow-glass">
+                      <div className="absolute top-2 right-2 w-8 h-8 bg-linear-to-br from-oceanic-500 to-sky-600 rounded-full flex items-center justify-center shadow-glass">
                         <span className="text-white text-sm font-bold">{quantity}</span>
                       </div>
                     )}
@@ -310,7 +310,7 @@ export default function POSPage() {
                     <p className="text-oceanic-600 dark:text-oceanic-400 font-bold text-lg">
                       ${product.price.toFixed(2)}
                     </p>
-                    <div className="w-8 h-8 bg-gradient-to-br from-oceanic-100 to-sky-100 dark:from-oceanic-800 dark:to-sky-800 rounded-full flex items-center justify-center group-hover:from-oceanic-500 group-hover:to-sky-600 group-hover:text-white transition-all duration-300">
+                    <div className="w-8 h-8 bg-linear-to-br from-oceanic-100 to-sky-100 dark:from-oceanic-800 dark:to-sky-800 rounded-full flex items-center justify-center group-hover:from-oceanic-500 group-hover:to-sky-600 group-hover:text-white transition-all duration-300">
                       <span className="text-oceanic-600 dark:text-oceanic-400 group-hover:text-white font-bold">+</span>
                     </div>
                   </div>
@@ -339,7 +339,7 @@ export default function POSPage() {
         {/* Cart Section */}
         <div className="lg:w-96 bg-white/50 dark:bg-oceanic-950/50 border-l border-oceanic-100 dark:border-oceanic-800 flex flex-col backdrop-blur-xl">
           {/* Customer Section */}
-          <div className="p-6 border-b border-oceanic-100 dark:border-oceanic-800 bg-gradient-to-r from-oceanic-50 to-sky-50 dark:from-oceanic-900/30 dark:to-sky-900/30">
+          <div className="p-6 border-b border-oceanic-100 dark:border-oceanic-800 bg-linear-to-r from-oceanic-50 to-sky-50 dark:from-oceanic-900/30 dark:to-sky-900/30">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-bold text-oceanic-900 dark:text-oceanic-100 uppercase tracking-wide">
                 Customer
@@ -359,16 +359,16 @@ export default function POSPage() {
             </div>
 
             {selectedCustomer ? (
-              <div className="glassmorphism rounded-xl p-4 bg-white dark:bg-oceanic-900/50">
+              <div className="glassmorphism rounded-xl p-4 bg-linear-to-r from-oceanic-50 to-sky-50 dark:from-oceanic-900/50 dark:to-sky-900/50 border border-oceanic-200 dark:border-oceanic-700 shadow-glass">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-oceanic-500 to-sky-600 rounded-full flex items-center justify-center text-white font-bold shadow-glass">
+                  <div className="w-10 h-10 bg-linear-to-br from-oceanic-500 to-sky-600 rounded-full flex items-center justify-center text-white font-bold shadow-glass">
                     {selectedCustomer.name?.charAt(0).toUpperCase() || 'C'}
                   </div>
                   <div className="flex-1">
                     <div className="font-semibold text-oceanic-900 dark:text-oceanic-100 text-sm">
                       {selectedCustomer.name || 'Customer'}
                     </div>
-                    <div className="text-xs text-oceanic-600 dark:text-oceanic-400">
+                    <div className="text-xs text-oceanic-700 dark:text-oceanic-300">
                       @{selectedCustomer.piUsername || 'unknown'}
                     </div>
                   </div>
@@ -383,7 +383,7 @@ export default function POSPage() {
                 </Button>
               </div>
             ) : (
-              <div className="text-center text-oceanic-500 dark:text-oceanic-400 text-sm py-4 glassmorphism rounded-xl">
+              <div className="text-center text-oceanic-600 dark:text-oceanic-400 text-sm py-4 glassmorphism rounded-xl bg-oceanic-50/50 dark:bg-oceanic-900/30 border border-oceanic-200 dark:border-oceanic-700">
                 <div className="text-2xl mb-1">👤</div>
                 <p>No customer selected</p>
               </div>
@@ -394,7 +394,7 @@ export default function POSPage() {
           <div className="p-6 border-b border-oceanic-100 dark:border-oceanic-800">
             <div className="flex items-center justify-between mb-1">
               <h2 className="text-xl font-bold text-oceanic-900 dark:text-oceanic-100">Cart</h2>
-              <div className="w-8 h-8 bg-gradient-to-br from-oceanic-500 to-sky-600 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-glass">
+              <div className="w-8 h-8 bg-linear-to-br from-oceanic-500 to-sky-600 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-glass">
                 {items.reduce((sum, item) => sum + item.quantity, 0)}
               </div>
             </div>
@@ -452,7 +452,7 @@ export default function POSPage() {
                           size="sm"
                           variant="primary"
                           onClick={() => addItem(item.product)}
-                          className="w-8 h-8 p-0 rounded-full bg-gradient-to-r from-oceanic-500 to-sky-600 hover:from-oceanic-600 hover:to-sky-700"
+                          className="w-8 h-8 p-0 rounded-full bg-linear-to-r from-oceanic-500 to-sky-600 hover:from-oceanic-600 hover:to-sky-700"
                         >
                           +
                         </Button>
@@ -472,7 +472,7 @@ export default function POSPage() {
 
           {/* Cart Footer */}
           {items.length > 0 && (
-            <div className="border-t border-oceanic-100 dark:border-oceanic-800 p-6 space-y-3 bg-gradient-to-t from-oceanic-50 to-white dark:from-oceanic-900/30 dark:to-oceanic-950/50">
+            <div className="border-t border-oceanic-100 dark:border-oceanic-800 p-6 space-y-3 bg-linear-to-t from-oceanic-50 to-white dark:from-oceanic-900/30 dark:to-oceanic-950/50">
               <div className="flex justify-between text-oceanic-600 dark:text-oceanic-400">
                 <span>Subtotal</span>
                 <span className="font-semibold">${getSubtotal().toFixed(2)}</span>
@@ -483,7 +483,7 @@ export default function POSPage() {
               </div>
               <div className="flex justify-between text-xl font-bold text-oceanic-900 dark:text-oceanic-100 pt-2 border-t border-oceanic-200 dark:border-oceanic-700">
                 <span>Total</span>
-                <span className="bg-gradient-to-r from-oceanic-600 to-sky-600 bg-clip-text text-transparent">
+                <span className="bg-linear-to-r from-oceanic-600 to-sky-600 bg-clip-text text-transparent">
                   ${getTotal().toFixed(2)}
                 </span>
               </div>
@@ -492,7 +492,7 @@ export default function POSPage() {
                 variant="primary"
                 size="lg"
                 onClick={handleCheckout}
-                className="w-full bg-gradient-to-r from-oceanic-600 to-sky-600 hover:from-oceanic-700 hover:to-sky-700 shadow-glass-lg hover:shadow-glass-xl transform hover:scale-[1.02] transition-all duration-300"
+                className="w-full bg-linear-to-r from-oceanic-600 to-sky-600 hover:from-oceanic-700 hover:to-sky-700 shadow-glass-lg hover:shadow-glass-xl transform hover:scale-[1.02] transition-all duration-300"
               >
                 <span className="mr-2">🥧</span>
                 Pay with Pi
