@@ -47,7 +47,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 flex flex-col">
+    <div className="min-h-screen bg-linear-to-br from-primary-50 via-white to-secondary-50 flex flex-col text-neutral-800">
       {/* Splash Screen Content */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
