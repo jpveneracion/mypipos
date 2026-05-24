@@ -161,14 +161,86 @@ export function QRCodeInvoiceWorkflow({ merchantId, registerId }: { merchantId: 
         throw new Error(data.error);
       }
 
-      setWorkflow('completed');
-      setCurrentInvoice({
-        ...currentInvoice,
-        ...data.invoice,
-        status: 'pending'
-      });
+      // **TRIGGER IMMEDIATE PAYMENT** since customer is present
+      setSuccessMessage('✅ Invoice finalized! Pushing to dashboard & initiating payment...');
 
-      setSuccessMessage(`✅ ${data.invoice.message}`);
+      // **STEP 4: INVOICE NOW IN CUSTOMER DASHBOARD AS "PENDING"**
+      // Customer can see it, but we also trigger immediate payment
+      console.log('Invoice pushed to dashboard as PENDING:', data.invoice.invoiceNumber);
+      console.log('Customer can see invoice with "Pay Now" button');
+
+      // **STEP 5: TRIGGER IMMEDIATE PAYMENT** (customer is physically present)
+      const Pi = (window as any).Pi;
+
+      if (!Pi) {
+        throw new Error('Pi Network SDK not available');
+      }
+
+      // Create payment - customer approves immediately on their phone
+      const payment = await Pi.createPayment({
+        amount: data.invoice.payment.amount.toFixed(7),
+        memo: data.invoice.payment.memo,
+        metadata: data.invoice.payment.metadata
+      }, {
+        onReadyForServerApproval: async (paymentId: string) => {
+          console.log('Payment ready for approval:', paymentId);
+          setSuccessMessage('📱 Customer: Please approve payment on your phone...');
+
+          // Approve payment on backend
+          await fetch('/api/payments/approve', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              paymentId,
+              transactionNumber: data.invoice.invoiceNumber
+            })
+          });
+        },
+
+        onApproved: async (paymentId: string, txid: string) => {
+          console.log('Payment approved:', paymentId, txid);
+          setSuccessMessage('✅ Payment approved! Finalizing...');
+
+          // Complete payment
+          await fetch('/api/payments/complete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              paymentId,
+              txid,
+              transactionNumber: data.invoice.invoiceNumber
+            })
+          });
+        },
+
+        onComplete: (paymentId: string, txid: string) => {
+          console.log('Payment complete!', paymentId, txid);
+
+          // **STEP 6: INVOICE NOW SHOWS AS "PAID" IN CUSTOMER DASHBOARD**
+          setWorkflow('completed');
+          setCurrentInvoice({
+            ...currentInvoice,
+            ...data.invoice,
+            status: 'completed',
+            paymentStatus: 'paid'
+          });
+
+          setSuccessMessage(`✅ ${data.invoice.message}`);
+        },
+
+        onCancelled: (paymentId: string) => {
+          setError('Payment cancelled by customer');
+          setSuccessMessage('Invoice is pending in customer dashboard');
+          setWorkflow('completed');
+        },
+
+        onError: (error: any) => {
+          console.error('Payment error:', error);
+          setError(error.message || 'Payment failed');
+          setSuccessMessage('Invoice is pending in customer dashboard');
+          setWorkflow('completed');
+        }
+      });
 
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to finalize invoice');
@@ -222,7 +294,7 @@ export function QRCodeInvoiceWorkflow({ merchantId, registerId }: { merchantId: 
                   `}>
                     <stepInfo.icon className="h-6 w-6" />
                   </div>
-                  <div className="text-xs text-center mt-2 max-w-[100px]">
+                  <div className="text-xs text-center mt-2 max-w-25">
                     {stepInfo.label}
                   </div>
                   {index < 3 && (

@@ -47,20 +47,19 @@ export async function POST(request: NextRequest) {
     );
     const finalTotal = finalSubtotal + finalTax;
 
-    // Step 4: **PUSH TO CUSTOMER DASHBOARD**
-    // Update invoice from "draft" to "pending" - this makes it visible to customer
+    // Step 4: **PUSH TO DASHBOARD AS PENDING + TRIGGER IMMEDIATE PAYMENT**
+    // Update invoice to "pending" - makes it visible in customer dashboard
     const finalizedInvoice = await db.sales.update({
       where: { id: invoiceId },
       data: {
-        status: 'pending', // **CHANGED FROM 'draft' TO 'pending'**
+        status: 'pending', // **PENDING - visible in dashboard with "Pay Now"**
         payment_status: 'pending',
+        u2a_payment_status: 'pending',
         subtotal: finalSubtotal,
         tax_amount: finalTax,
         total_amount: finalTotal,
-        completed_at: new Date(), // When invoice was finalized
-        updated_at: new Date(),
-        // Set payment expiration (30 days from now)
-        u2a_payment_expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+        completed_at: new Date(), // Invoice finalized
+        updated_at: new Date()
       }
     });
 
@@ -100,17 +99,36 @@ export async function POST(request: NextRequest) {
         subtotal: finalSubtotal,
         tax: finalTax,
         total: finalTotal,
-        status: 'pending', // **NOW VISIBLE IN CUSTOMER DASHBOARD**
-        paymentStatus: 'pending',
+        status: 'pending', // **PENDING - visible in customer dashboard**
+        paymentStatus: 'pending', // **PENDING - "Pay Now" button visible**
         finalizedAt: new Date(),
-        dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
-        message: `✅ Invoice finalized! Pushed to ${customer.username}'s dashboard for payment`
+        message: `✅ Invoice finalized! ${finalTotal.toFixed(7)} Pi - Pushed to ${customer.username}'s dashboard`,
+        // **PAYMENT DETAILS** - Frontend triggers immediate Pi payment
+        payment: {
+          amount: finalTotal,
+          memo: `Purchase at ${merchant.business_name} - ${invoice.sale_items.length} items`,
+          customer_pi_uid: customer.pi_uid,
+          customer_id: customer.id,
+          metadata: {
+            invoice_id: finalizedInvoice.id,
+            invoice_number: finalizedInvoice.transaction_number,
+            items: invoice.sale_items.map(item => ({
+              product_id: item.product_id,
+              product_name: item.product_name,
+              quantity: item.quantity,
+              unit_price: item.unit_price,
+              total_price: item.total_price
+            }))
+          }
+        }
       },
-      pushNotification: {
-        sent: true,
+      nextStep: 'TRIGGER_IMMEDIATE_PAYMENT', // **KEY: Trigger payment right now**
+      dashboard: {
+        pushed: true,
+        status: 'pending',
         customerUsername: customer.username,
-        message: `New invoice from ${merchant.business_name}: ${finalTotal.toFixed(7)} Pi`,
-        channel: 'customer_dashboard'
+        message: `New invoice ${finalizedInvoice.transaction_number}: ${finalTotal.toFixed(7)} Pi (Pay Now)`,
+        actionRequired: 'customer_must_approve_payment'
       }
     });
 
