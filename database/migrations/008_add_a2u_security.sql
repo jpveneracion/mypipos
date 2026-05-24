@@ -485,7 +485,18 @@ CREATE OR REPLACE FUNCTION get_a2u_payment_stats(
     p_start_date TIMESTAMP WITH TIME ZONE DEFAULT NOW() - INTERVAL '30 days',
     p_end_date TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 )
-RETURNS SETOF a2u_payments
+RETURNS TABLE (
+    to_user_type VARCHAR(50),
+    transaction_type VARCHAR(50),
+    status VARCHAR(50),
+    payment_count BIGINT,
+    total_amount DECIMAL(20,7),
+    average_amount DECIMAL(20,7),
+    min_amount DECIMAL(15,7),
+    max_amount DECIMAL(15,7),
+    first_payment TIMESTAMP WITH TIME ZONE,
+    last_payment TIMESTAMP WITH TIME ZONE
+)
 SET search_path = public
 SECURITY DEFINER
 LANGUAGE SQL
