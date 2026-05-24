@@ -12,6 +12,7 @@ export interface Product {
   stock: number;
   minStock: number;
   image?: string;
+  imageUrl?: string;
   createdAt: Date;
   updatedAt: Date;
 }
