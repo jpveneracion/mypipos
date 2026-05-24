@@ -2,9 +2,25 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import { useAuthStore } from '@/lib/store';
 import { Button } from '@/components/ui/Button';
 import LoginModal from '@/components/auth/LoginModal';
+import {
+  Globe,
+  Link as LinkIcon,
+  TrendingUp,
+  Diamond,
+  Store,
+  Rocket,
+  ShoppingBag,
+  Check,
+} from 'lucide-react';
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  show: { opacity: 1, y: 0 }
+};
 
 export default function Home() {
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -12,7 +28,6 @@ export default function Home() {
   const [isRouting, setIsRouting] = useState(false);
   const router = useRouter();
 
-  // Handle post-login routing
   useEffect(() => {
     if (isAuthenticated && user && !isRouting) {
       if (!user.onboardingComplete) {
@@ -38,30 +53,34 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-oceanic-50 via-white to-sky-50 dark:from-oceanic-950 dark:via-gray-900 dark:to-sky-950 flex flex-col">
-      {/* Premium Glassmorphic Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/70 dark:bg-oceanic-900/70 border-b border-oceanic-100 dark:border-oceanic-800">
+    <div className="min-h-screen bg-[#0D0F16] flex flex-col">
+      <header className="sticky top-0 z-50 backdrop-blur-xl bg-[#1A1B29]/70 border-b border-[#363c4f]/50">
         <div className="container mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-linear-to-br from-oceanic-500 to-sky-600 rounded-xl flex items-center justify-center shadow-glass-lg">
-                <span className="text-2xl">🥧</span>
+            <motion.div
+              initial={{ y: -10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.6 }}
+              className="flex items-center gap-3"
+            >
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #14D3C5, #11a79e)' }}>
+                <ShoppingBag className="w-6 h-6 text-[#0D0F16]" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold bg-linear-to-r from-oceanic-600 to-sky-600 bg-clip-text text-transparent">
+                <h1 className="text-2xl font-bold" style={{ background: 'linear-gradient(135deg, #14D3C5, #11a79e)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                   myPiPOS
                 </h1>
-                <p className="text-xs text-oceanic-700 dark:text-oceanic-300 font-medium tracking-wide">
+                <p className="text-xs text-[#9ea4b5] font-medium tracking-wide">
                   UNIVERSAL COMMERCE NETWORK
                 </p>
               </div>
-            </div>
+            </motion.div>
 
             <Button
-              variant="ghost"
+              variant="outline"
               size="lg"
               onClick={() => setShowLoginModal(true)}
-              className="glassmorphism hover:bg-oceanic-50 dark:hover:bg-oceanic-900/50"
+              className="border-[#363c4f] text-[#c5c9d4] hover:bg-[#1A1B29]/50"
             >
               Login
             </Button>
@@ -69,39 +88,61 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden py-20 px-6">
-        {/* Background Elements */}
+      <section className="relative overflow-hidden py-12 md:py-20 px-6">
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-oceanic-400/20 dark:bg-oceanic-600/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-sky-400/20 dark:bg-sky-600/10 rounded-full blur-3xl animate-pulse delay-700"></div>
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#14D3C5]/5 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-[#14D3C5]/5 rounded-full blur-3xl animate-pulse delay-700"></div>
         </div>
 
         <div className="container mx-auto max-w-6xl relative z-10">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-oceanic-100 dark:bg-oceanic-900/50 text-oceanic-800 dark:text-oceanic-200 px-6 py-2 rounded-full text-sm font-semibold mb-6 shadow-glass">
-              <span className="w-2 h-2 bg-success-500 rounded-full animate-pulse"></span>
+          <motion.div
+            initial="hidden"
+            animate="show"
+            variants={fadeUp}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-12"
+          >
+            <div className="inline-flex items-center gap-2 bg-[#14D3C5]/10 text-[#14D3C5] px-6 py-2 rounded-full text-sm font-semibold mb-6 border border-[#14D3C5]/30">
+              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
               Live on Pi Network
             </div>
 
-            <h2 className="text-5xl md:text-7xl font-bold mb-6 bg-linear-to-r from-oceanic-600 via-sky-600 to-oceanic-600 bg-clip-text text-transparent leading-tight">
+            <motion.h2
+              initial="hidden"
+              animate="show"
+              variants={fadeUp}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="text-4xl md:text-6xl font-bold mb-6 text-[#e8eaf0] leading-tight break-words"
+            >
               One Pi Account
               <br />
-              <span className="text-oceanic-800 dark:text-oceanic-200">Every Merchant</span>
-            </h2>
+              <span style={{ background: 'linear-gradient(135deg, #14D3C5, #11a79e)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Every Merchant</span>
+            </motion.h2>
 
-            <p className="text-xl md:text-2xl text-oceanic-700 dark:text-oceanic-300 max-w-3xl mx-auto mb-12 leading-relaxed">
+            <motion.p
+              initial="hidden"
+              animate="show"
+              variants={fadeUp}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-lg md:text-xl text-[#9ea4b5] max-w-3xl mx-auto mb-8 leading-relaxed break-words"
+            >
               Join the universal commerce network where Pioneers connect once and shop at every myPiPOS merchant worldwide — no re-registration, ever.
-            </p>
+            </motion.p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <motion.div
+              initial="hidden"
+              animate="show"
+              variants={fadeUp}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+            >
               <Button
-                variant="primary"
                 size="lg"
                 onClick={() => setShowLoginModal(true)}
-                className="px-8 py-4 text-lg shadow-glass-lg hover:shadow-glass-xl transform hover:scale-105 transition-all duration-300"
+                className="text-[#0D0F16] hover:opacity-90 font-semibold shadow-lg"
+                style={{ background: 'linear-gradient(135deg, #14D3C5, #11a79e)' }}
               >
-                <span className="mr-2">🥧</span>
+                <ShoppingBag className="w-5 h-5 mr-2" />
                 Connect with Pi
               </Button>
 
@@ -109,229 +150,255 @@ export default function Home() {
                 variant="outline"
                 size="lg"
                 onClick={() => setShowLoginModal(true)}
-                className="px-8 py-4 text-lg border-2 border-oceanic-200 dark:border-oceanic-700 hover:bg-oceanic-50 dark:hover:bg-oceanic-900/30"
+                className="border-[#363c4f] text-[#c5c9d4] hover:bg-[#1A1B29]/50"
               >
-                <span className="mr-2">🔐</span>
+                <Check className="w-5 h-5 mr-2" />
                 Desktop Login
               </Button>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+          <motion.div
+            initial="hidden"
+            animate="show"
+            variants={fadeUp}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-4xl mx-auto"
+          >
             {[
-              { icon: '🌍', label: 'Global Reach', value: 'Millions' },
-              { icon: '🔗', label: 'One Connection', value: 'Unlimited' },
-              { icon: '📈', label: 'Network Effect', value: 'Growing' },
-              { icon: '💎', label: 'Premium Users', value: 'Pi Pioneers' },
+              { icon: Globe, label: 'Global Reach', value: 'Millions' },
+              { icon: LinkIcon, label: 'One Connection', value: 'Unlimited' },
+              { icon: TrendingUp, label: 'Network Effect', value: 'Growing' },
+              { icon: Diamond, label: 'Premium Users', value: 'Pi Pioneers' },
             ].map((stat, index) => (
               <div
                 key={index}
-                className="glassmorphism rounded-2xl p-6 text-center hover:shadow-glass-lg transition-all duration-300 transform hover:-translate-y-1"
+                className="bg-[#1A1B29]/50 backdrop-blur-xl border border-[#363c4f]/50 rounded-2xl p-4 md:p-6 text-center hover:shadow-lg transition-all"
               >
-                <div className="text-4xl mb-3">{stat.icon}</div>
-                <div className="text-2xl font-bold text-oceanic-800 dark:text-oceanic-100 mb-1">
+                <stat.icon className="w-8 h-8 md:w-10 md:h-10 mx-auto mb-2 md:mb-3 text-[#14D3C5]" />
+                <div className="text-xl md:text-2xl font-bold text-[#e8eaf0] mb-1">
                   {stat.value}
                 </div>
-                <div className="text-sm text-oceanic-600 dark:text-oceanic-400 font-medium">
+                <div className="text-xs md:text-sm text-[#768096] font-medium">
                   {stat.label}
                 </div>
               </div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* Value Proposition Section */}
-      <section className="py-20 px-6 bg-white/50 dark:bg-oceanic-950/50">
+      <section className="py-12 md:py-20 px-6 bg-[#1A1B29]/30">
         <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-16">
-            <h3 className="text-4xl md:text-5xl font-bold mb-4 text-oceanic-900 dark:text-oceanic-100">
+          <motion.div
+            initial="hidden"
+            animate="show"
+            variants={fadeUp}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-12"
+          >
+            <h3 className="text-3xl md:text-5xl font-bold mb-4 text-[#e8eaf0]">
               The Power of Universal Access
             </h3>
-            <p className="text-xl text-oceanic-700 dark:text-oceanic-300 max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl text-[#9ea4b5] max-w-2xl mx-auto">
               Stop forcing customers to create new accounts. Join the network where one Pi account opens every door.
             </p>
-          </div>
+          </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-6 md:gap-8">
             {[
               {
-                icon: '🥧',
+                icon: ShoppingBag,
                 title: 'Pioneers Connect Once',
                 description: 'Customers create their Pi account once and instantly access every myPiPOS merchant — no more signup forms.',
-                color: 'from-oceanic-500 to-sky-500',
               },
               {
-                icon: '🏪',
+                icon: Store,
                 title: 'Merchants Grow Together',
                 description: 'Every new merchant expands the customer base for everyone. Network effects work in your favor from day one.',
-                color: 'from-sky-500 to-oceanic-500',
               },
               {
-                icon: '🚀',
+                icon: Rocket,
                 title: 'Instant Market Access',
                 description: 'Join myPiPOS and immediately tap into millions of Pi Pioneers worldwide — your customers are already here.',
-                color: 'from-oceanic-600 to-sky-600',
               },
             ].map((benefit, index) => (
-              <div
+              <motion.div
                 key={index}
-                className="glassmorphism rounded-2xl p-8 hover:shadow-glass-lg transition-all duration-300 transform hover:-translate-y-2"
+                initial="hidden"
+                animate="show"
+                variants={fadeUp}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                className="bg-[#1A1B29]/50 backdrop-blur-xl border border-[#363c4f]/50 rounded-2xl p-6 md:p-8 hover:shadow-lg transition-all"
               >
-                <div className={`w-16 h-16 bg-gradient-to-br ${benefit.color} rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-glass`}>
-                  {benefit.icon}
+                <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center mb-4 md:mb-6 shadow-lg" style={{ background: 'linear-gradient(135deg, #14D3C5, #11a79e)' }}>
+                  <benefit.icon className="w-7 h-7 md:w-8 md:h-8 text-[#0D0F16]" />
                 </div>
-                <h4 className="text-2xl font-bold mb-3 text-oceanic-900 dark:text-oceanic-100">
+                <h4 className="text-xl md:text-2xl font-bold mb-3 text-[#e8eaf0]">
                   {benefit.title}
                 </h4>
-                <p className="text-oceanic-700 dark:text-oceanic-300 leading-relaxed">
+                <p className="text-[#9ea4b5] leading-relaxed text-sm md:text-base">
                   {benefit.description}
                 </p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Customer Journey Section */}
-      <section className="py-20 px-6">
+      <section className="py-12 md:py-20 px-6">
         <div className="container mx-auto max-w-5xl">
-          <div className="glassmorphism rounded-3xl p-12 bg-linear-to-br from-oceanic-50 to-sky-50 dark:from-oceanic-900/30 dark:to-sky-900/30">
-            <div className="text-center mb-12">
-              <h3 className="text-4xl font-bold mb-4 text-oceanic-900 dark:text-oceanic-100">
+          <motion.div
+            initial="hidden"
+            animate="show"
+            variants={fadeUp}
+            transition={{ duration: 0.6 }}
+            className="bg-[#1A1B29]/50 backdrop-blur-xl border border-[#363c4f]/50 rounded-3xl p-8 md:p-12"
+          >
+            <div className="text-center mb-8 md:mb-12">
+              <h3 className="text-3xl md:text-4xl font-bold mb-4 text-[#e8eaf0]">
                 The Pioneer Experience
               </h3>
-              <p className="text-xl text-oceanic-700 dark:text-oceanic-300">
+              <p className="text-lg md:text-xl text-[#9ea4b5]">
                 One account. Endless possibilities. Zero friction.
               </p>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-4 md:space-y-6">
               {[
                 {
                   day: 'Monday',
                   merchant: 'Coffee Shop',
                   action: 'Create Pi account → Buy coffee → Profile created',
-                  color: 'oceanic',
                   step: '1',
                 },
                 {
                   day: 'Tuesday',
                   merchant: 'Restaurant',
                   action: 'Same Pi login → Order lunch → No new account needed',
-                  color: 'sky',
                   step: '2',
                 },
                 {
                   day: 'Wednesday',
                   merchant: 'Retail Store',
                   action: 'Same Pi login → Go shopping → Instant recognition',
-                  color: 'oceanic',
                   step: '3',
                 },
               ].map((journey, index) => (
-                <div
+                <motion.div
                   key={index}
-                  className="flex items-start gap-6 p-6 bg-white dark:bg-oceanic-900/50 rounded-2xl shadow-glass hover:shadow-glass-lg transition-all"
+                  initial="hidden"
+                  animate="show"
+                  variants={fadeUp}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  className="flex items-start gap-4 md:gap-6 p-4 md:p-6 bg-[#0D0F16]/50 rounded-2xl border border-[#363c4f]/50 hover:border-[#14D3C5]/50 transition-all"
                 >
-                  <div className={`w-12 h-12 bg-gradient-to-br from-${journey.color}-500 to-${journey.color}-600 rounded-full flex items-center justify-center text-white font-bold text-lg shrink-0 shadow-glass`}>
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-[#0D0F16] font-bold text-base md:text-lg shrink-0 shadow-lg" style={{ background: 'linear-gradient(135deg, #14D3C5, #11a79e)' }}>
                     {journey.step}
                   </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="text-sm font-semibold text-oceanic-600 dark:text-oceanic-400 uppercase tracking-wide">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <span className="text-xs md:text-sm font-semibold text-[#14D3C5] uppercase tracking-wide">
                         {journey.day}
                       </span>
-                      <span className="text-oceanic-300 dark:text-oceanic-600">→</span>
-                      <span className="font-semibold text-oceanic-900 dark:text-oceanic-100">
+                      <span className="text-[#5a6378]">→</span>
+                      <span className="font-semibold text-[#e8eaf0] truncate">
                         {journey.merchant}
                       </span>
                     </div>
-                    <p className="text-oceanic-700 dark:text-oceanic-300">
+                    <p className="text-[#9ea4b5] text-sm md:text-base break-words">
                       {journey.action}
                     </p>
                   </div>
-                </div>
+                </motion.div>
               ))}
 
-              <div className="flex items-start gap-6 p-6 bg-gradient-to-r from-success-50 to-emerald-50 dark:from-success-900/20 dark:to-emerald-900/20 rounded-2xl border-2 border-success-200 dark:border-success-800">
-                <div className="w-12 h-12 bg-gradient-to-br from-success-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-bold text-lg shrink-0 shadow-glass">
-                  ✓
+              <motion.div
+                initial="hidden"
+                animate="show"
+                variants={fadeUp}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="flex items-start gap-4 md:gap-6 p-4 md:p-6 bg-green-900/20 backdrop-blur-xl rounded-2xl border-2 border-green-700/50"
+              >
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-[#0D0F16] font-bold text-base md:text-lg shrink-0 shadow-lg" style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)' }}>
+                  <Check className="w-5 h-5 md:w-6 md:h-6" />
                 </div>
                 <div className="flex-1">
-                  <div className="font-semibold text-oceanic-900 dark:text-oceanic-100 mb-2">
+                  <div className="font-semibold text-[#e8eaf0] mb-2">
                     Result: Seamless Universal Experience
                   </div>
-                  <p className="text-oceanic-700 dark:text-oceanic-300">
+                  <p className="text-[#9ea4b5] text-sm md:text-base">
                     One account works at EVERY myPiPOS merchant, forever!
                   </p>
                 </div>
-              </div>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 px-6 bg-linear-to-br from-oceanic-600 via-sky-600 to-oceanic-700 relative overflow-hidden">
+      <section className="py-12 md:py-20 px-6 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #14D3C5, #11a79e)' }}>
         <div className="absolute inset-0">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
           <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
         </div>
 
-        <div className="container mx-auto max-w-4xl relative z-10">
+        <motion.div
+          initial="hidden"
+          animate="show"
+          variants={fadeUp}
+          transition={{ duration: 0.6 }}
+          className="container mx-auto max-w-4xl relative z-10"
+        >
           <div className="text-center">
-            <h3 className="text-5xl font-bold mb-6 text-white">
+            <h3 className="text-4xl md:text-5xl font-bold mb-4 md:mb-6 text-[#0D0F16]">
               Ready to Join the Network?
             </h3>
-            <p className="text-2xl text-oceanic-100 mb-12 max-w-2xl mx-auto">
+            <p className="text-xl md:text-2xl text-[#0D0F16]/80 mb-8 md:mb-12 max-w-2xl mx-auto">
               Connect with millions of Pi Pioneers and transform how you do business.
             </p>
 
             <Button
-              variant="primary"
               size="lg"
               onClick={() => setShowLoginModal(true)}
-              className="px-12 py-5 text-xl shadow-glass-xl hover:shadow-glass-2xl transform hover:scale-105 transition-all duration-300"
+              className="bg-[#0D0F16] text-[#14D3C5] hover:bg-[#0D0F16]/90 px-10 md:px-12 py-4 md:py-5 text-lg md:text-xl shadow-lg"
             >
-              <span className="mr-3">🥧</span>
+              <Rocket className="w-5 h-5 md:w-6 md:h-6 mr-2 md:mr-3" />
               Get Started Now
             </Button>
 
-            <div className="flex flex-wrap justify-center gap-8 mt-12 text-oceanic-100">
+            <div className="flex flex-wrap justify-center gap-4 md:gap-8 mt-8 md:mt-12 text-[#0D0F16]">
               {['Free to Start', 'Instant Access', 'Universal Base', 'Growing Network'].map((item) => (
-                <div key={item} className="flex items-center gap-2">
-                  <span className="text-success-300">✓</span>
+                <div key={item} className="flex items-center gap-2 text-sm md:text-base">
+                  <Check className="w-4 h-4 md:w-5 md:h-5" />
                   <span>{item}</span>
                 </div>
               ))}
             </div>
           </div>
-        </div>
+        </motion.div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-8 px-6 border-t border-oceanic-100 dark:border-oceanic-800 bg-white/50 dark:bg-oceanic-950/50">
+      <footer className="py-6 md:py-8 px-6 border-t border-[#363c4f]/50 bg-[#1A1B29]/30">
         <div className="container mx-auto max-w-6xl">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="flex items-center gap-2 text-oceanic-700 dark:text-oceanic-300">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 md:gap-6">
+            <div className="flex items-center gap-2 text-[#9ea4b5] text-sm md:text-base">
               <span>Powered by</span>
-              <span className="font-semibold">Pi Network</span>
-              <span className="text-oceanic-600">🥧</span>
+              <span className="font-semibold text-[#c5c9d4]">Pi Network</span>
+              <ShoppingBag className="w-4 h-4 md:w-5 md:h-5 text-[#14D3C5]" />
             </div>
 
-            <div className="flex gap-8 text-sm text-oceanic-600 dark:text-oceanic-400">
-              <a href="#" className="hover:text-oceanic-900 dark:hover:text-oceanic-200 transition-colors font-medium">
+            <div className="flex gap-6 md:gap-8 text-sm text-[#9ea4b5]">
+              <a href="#" className="hover:text-[#14D3C5] transition-colors font-medium">
                 Privacy
               </a>
-              <a href="#" className="hover:text-oceanic-900 dark:hover:text-oceanic-200 transition-colors font-medium">
+              <a href="#" className="hover:text-[#14D3C5] transition-colors font-medium">
                 Terms
               </a>
-              <a href="#" className="hover:text-oceanic-900 dark:hover:text-oceanic-200 transition-colors font-medium">
+              <a href="#" className="hover:text-[#14D3C5] transition-colors font-medium">
                 Support
               </a>
-              <a href="#" className="hover:text-oceanic-900 dark:hover:text-oceanic-200 transition-colors font-medium">
+              <a href="#" className="hover:text-[#14D3C5] transition-colors font-medium">
                 About
               </a>
             </div>
@@ -339,7 +406,6 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* Login Modal */}
       <LoginModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}

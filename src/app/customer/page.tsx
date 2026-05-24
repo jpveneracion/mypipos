@@ -2,12 +2,32 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import { useAuthStore } from '@/lib/store';
 import Header from '@/components/Header';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import InvoiceList from './components/InvoiceList';
 import CustomerQRCode from './components/CustomerQRCode';
+import {
+  User,
+  ShoppingBag,
+  DollarSign,
+  Store,
+  Smartphone,
+  FileText,
+  Search,
+  CreditCard,
+  Settings,
+  Package,
+  TrendingUp,
+  Award
+} from 'lucide-react';
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  show: { opacity: 1, y: 0 }
+};
 
 export default function CustomerPage() {
   const router = useRouter();
@@ -30,17 +50,17 @@ export default function CustomerPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-oceanic-50 via-white to-sky-50 dark:from-oceanic-950 dark:via-gray-900 dark:to-sky-950 flex items-center justify-center">
+      <div className="min-h-screen bg-[#0D0F16] flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-oceanic-200 border-t-oceanic-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-oceanic-900 dark:text-oceanic-100 font-semibold">Loading...</p>
+          <div className="w-16 h-16 border-4 border-brand-indigo-800 border-t-brand-cyan-500 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-brand-indigo-300 font-semibold">Loading...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-oceanic-50 via-white to-sky-50 dark:from-oceanic-950 dark:via-gray-900 dark:to-sky-950 flex flex-col">
+    <div className="min-h-screen bg-[#0D0F16] flex flex-col">
       <Header
         title="myPiPOS Customer"
         subtitle={`Welcome, ${user?.piUsername}`}
@@ -49,100 +69,150 @@ export default function CustomerPage() {
       <main className="container mx-auto px-6 py-8 flex-1">
         <div className="max-w-6xl mx-auto">
           {/* Welcome Section */}
-          <div className="mb-8">
+          <motion.div
+            initial="hidden"
+            animate="show"
+            variants={fadeUp}
+            transition={{ duration: 0.6 }}
+            className="mb-8"
+          >
             <div className="flex items-center gap-4 mb-4">
-              <div className="w-16 h-16 bg-linear-to-br from-oceanic-500 to-sky-600 rounded-2xl flex items-center justify-center shadow-glass text-3xl">
-                👤
+              <div className="w-16 h-16 bg-linear-to-br from-brand-cyan-400 to-brand-cyan-600 rounded-2xl flex items-center justify-center shadow-glow">
+                <User className="w-8 h-8 text-brand-dark-950" />
               </div>
               <div>
-                <h2 className="text-4xl font-bold bg-linear-to-r from-oceanic-600 to-sky-600 bg-clip-text text-transparent">
+                <h2 className="text-4xl font-display font-bold bg-linear-to-r from-brand-cyan-400 to-brand-cyan-600 bg-clip-text text-transparent">
                   Customer Dashboard
                 </h2>
-                <p className="text-oceanic-700 dark:text-oceanic-300 mt-1">
+                <p className="text-brand-indigo-400 mt-1">
                   Manage your invoices, payments, and account settings
                 </p>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Stats Overview */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <Card className="glassmorphism hover:shadow-glass transition-all duration-300">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-linear-to-br from-oceanic-100 to-sky-100 dark:from-oceanic-900/30 dark:to-sky-900/30 rounded-xl flex items-center justify-center text-2xl">
-                  🛍️
+            <motion.div
+              initial="hidden"
+              animate="show"
+              variants={fadeUp}
+              transition={{ duration: 0.6, delay: 0.1 }}
+            >
+              <Card className="relative overflow-hidden bg-brand-indigo-900/30 backdrop-blur-xl border border-brand-indigo-800/50 hover:shadow-glass transition-all duration-300 group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-brand-cyan-400/5 rounded-full blur-3xl group-hover:bg-brand-cyan-400/10 transition-all"></div>
+                <div className="relative">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-linear-to-br from-brand-cyan-400/10 to-brand-cyan-600/10 rounded-xl flex items-center justify-center border border-brand-cyan-700/30">
+                      <ShoppingBag className="w-6 h-6 text-brand-cyan-400" />
+                    </div>
+                    <div>
+                      <p className="text-brand-indigo-400 text-sm font-medium">Total Purchases</p>
+                      <p className="text-2xl font-display font-bold text-brand-indigo-200">--</p>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-oceanic-700 dark:text-oceanic-300 text-sm font-medium">Total Purchases</p>
-                  <p className="text-2xl font-bold text-oceanic-900 dark:text-oceanic-100">--</p>
-                </div>
-              </div>
-            </Card>
+              </Card>
+            </motion.div>
 
-            <Card className="glassmorphism hover:shadow-glass transition-all duration-300">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-linear-to-br from-emerald-100 to-success-100 dark:from-emerald-900/30 dark:to-success-900/30 rounded-xl flex items-center justify-center text-2xl">
-                  💰
+            <motion.div
+              initial="hidden"
+              animate="show"
+              variants={fadeUp}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              <Card className="relative overflow-hidden bg-brand-indigo-900/30 backdrop-blur-xl border border-brand-indigo-800/50 hover:shadow-glass transition-all duration-300 group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-brand-cyan-400/5 rounded-full blur-3xl group-hover:bg-brand-cyan-400/10 transition-all"></div>
+                <div className="relative">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-linear-to-br from-brand-cyan-400/10 to-brand-cyan-600/10 rounded-xl flex items-center justify-center border border-brand-cyan-700/30">
+                      <DollarSign className="w-6 h-6 text-brand-cyan-400" />
+                    </div>
+                    <div>
+                      <p className="text-brand-indigo-400 text-sm font-medium">Total Spent</p>
+                      <p className="text-2xl font-display font-bold text-brand-indigo-200">-- π</p>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-oceanic-700 dark:text-oceanic-300 text-sm font-medium">Total Spent</p>
-                  <p className="text-2xl font-bold text-oceanic-900 dark:text-oceanic-100">-- π</p>
-                </div>
-              </div>
-            </Card>
+              </Card>
+            </motion.div>
 
-            <Card className="glassmorphism hover:shadow-glass transition-all duration-300">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-linear-to-br from-warning-100 to-amber-100 dark:from-warning-900/30 dark:to-amber-900/30 rounded-xl flex items-center justify-center text-2xl">
-                  🏪
+            <motion.div
+              initial="hidden"
+              animate="show"
+              variants={fadeUp}
+              transition={{ duration: 0.6, delay: 0.3 }}
+            >
+              <Card className="relative overflow-hidden bg-brand-indigo-900/30 backdrop-blur-xl border border-brand-indigo-800/50 hover:shadow-glass transition-all duration-300 group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-brand-cyan-400/5 rounded-full blur-3xl group-hover:bg-brand-cyan-400/10 transition-all"></div>
+                <div className="relative">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-linear-to-br from-brand-cyan-400/10 to-brand-cyan-600/10 rounded-xl flex items-center justify-center border border-brand-cyan-700/30">
+                      <Store className="w-6 h-6 text-brand-cyan-400" />
+                    </div>
+                    <div>
+                      <p className="text-brand-indigo-400 text-sm font-medium">Merchants Used</p>
+                      <p className="text-2xl font-display font-bold text-brand-indigo-200">--</p>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-oceanic-700 dark:text-oceanic-300 text-sm font-medium">Merchants Used</p>
-                  <p className="text-2xl font-bold text-oceanic-900 dark:text-oceanic-100">--</p>
-                </div>
-              </div>
-            </Card>
+              </Card>
+            </motion.div>
           </div>
 
           {/* Customer QR Code Section */}
-          <Card className="mb-12 glassmorphism">
-            <div className="mb-6">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 bg-linear-to-br from-oceanic-500 to-sky-600 rounded-xl flex items-center justify-center text-lg">
-                  📱
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold text-oceanic-900 dark:text-oceanic-100">
-                    Your Customer QR Code
-                  </h3>
-                  <p className="text-oceanic-700 dark:text-oceanic-300 text-sm">
-                    Scan this at checkout for faster payment and loyalty rewards
-                  </p>
+          <motion.div
+            initial="hidden"
+            animate="show"
+            variants={fadeUp}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="mb-12"
+          >
+            <Card className="bg-brand-indigo-900/30 backdrop-blur-xl border border-brand-indigo-800/50">
+              <div className="mb-6">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 bg-linear-to-br from-brand-cyan-400 to-brand-cyan-600 rounded-xl flex items-center justify-center">
+                    <Smartphone className="w-5 h-5 text-brand-dark-950" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-display font-bold text-brand-indigo-100">
+                      Your Customer QR Code
+                    </h3>
+                    <p className="text-brand-indigo-400 text-sm">
+                      Scan this at checkout for faster payment and loyalty rewards
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {user && (
-              <CustomerQRCode
-                user={{
-                  id: user.id,
-                  username: user.piUsername
-                }}
-              />
-            )}
-          </Card>
+              {user && (
+                <CustomerQRCode
+                  user={{
+                    id: user.id,
+                    username: user.piUsername
+                  }}
+                />
+              )}
+            </Card>
+          </motion.div>
 
           {/* Invoices Section */}
-          <div>
+          <motion.div
+            initial="hidden"
+            animate="show"
+            variants={fadeUp}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="mb-12"
+          >
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-linear-to-br from-oceanic-500 to-sky-600 rounded-xl flex items-center justify-center text-lg">
-                📋
+              <div className="w-10 h-10 bg-linear-to-br from-brand-cyan-400 to-brand-cyan-600 rounded-xl flex items-center justify-center">
+                <FileText className="w-5 h-5 text-brand-dark-950" />
               </div>
               <div>
-                <h3 className="text-2xl font-bold text-oceanic-900 dark:text-oceanic-100">
+                <h3 className="text-2xl font-display font-bold text-brand-indigo-100">
                   My Invoices
                 </h3>
-                <p className="text-oceanic-700 dark:text-oceanic-300 text-sm">
+                <p className="text-brand-indigo-400 text-sm">
                   View and manage your purchase history
                 </p>
               </div>
@@ -151,57 +221,62 @@ export default function CustomerPage() {
             {user?.piUsername && (
               <InvoiceList username={user.piUsername} />
             )}
-          </div>
+          </motion.div>
 
           {/* Quick Actions */}
-          <div className="mt-12">
-            <h3 className="text-xl font-bold text-oceanic-900 dark:text-oceanic-100 mb-4">
+          <motion.div
+            initial="hidden"
+            animate="show"
+            variants={fadeUp}
+            transition={{ duration: 0.6, delay: 0.6 }}
+          >
+            <h3 className="text-xl font-display font-bold text-brand-indigo-100 mb-4">
               Quick Actions
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card className="glassmorphism hover:shadow-glass transition-all duration-300 cursor-pointer group">
+              <Card className="bg-brand-indigo-900/30 backdrop-blur-xl border border-brand-indigo-800/50 hover:shadow-glass transition-all duration-300 cursor-pointer group">
                 <div className="p-6">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-linear-to-br from-oceanic-100 to-sky-100 dark:from-oceanic-900/30 dark:to-sky-900/30 rounded-xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-                      🔍
+                    <div className="w-12 h-12 bg-linear-to-br from-brand-cyan-400/10 to-brand-cyan-600/10 rounded-xl flex items-center justify-center border border-brand-cyan-700/30 group-hover:scale-110 transition-transform">
+                      <Search className="w-6 h-6 text-brand-cyan-400" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-oceanic-900 dark:text-oceanic-100">Find Merchants</h4>
-                      <p className="text-sm text-oceanic-700 dark:text-oceanic-300">Discover nearby stores</p>
+                      <h4 className="font-bold text-brand-indigo-200">Find Merchants</h4>
+                      <p className="text-sm text-brand-indigo-400">Discover nearby stores</p>
                     </div>
                   </div>
                 </div>
               </Card>
 
-              <Card className="glassmorphism hover:shadow-glass transition-all duration-300 cursor-pointer group">
+              <Card className="bg-brand-indigo-900/30 backdrop-blur-xl border border-brand-indigo-800/50 hover:shadow-glass transition-all duration-300 cursor-pointer group">
                 <div className="p-6">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-linear-to-br from-emerald-100 to-success-100 dark:from-emerald-900/30 dark:to-success-900/30 rounded-xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-                      💳
+                    <div className="w-12 h-12 bg-linear-to-br from-brand-cyan-400/10 to-brand-cyan-600/10 rounded-xl flex items-center justify-center border border-brand-cyan-700/30 group-hover:scale-110 transition-transform">
+                      <CreditCard className="w-6 h-6 text-brand-cyan-400" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-oceanic-900 dark:text-oceanic-100">Payment History</h4>
-                      <p className="text-sm text-oceanic-700 dark:text-oceanic-300">View all transactions</p>
+                      <h4 className="font-bold text-brand-indigo-200">Payment History</h4>
+                      <p className="text-sm text-brand-indigo-400">View all transactions</p>
                     </div>
                   </div>
                 </div>
               </Card>
 
-              <Card className="glassmorphism hover:shadow-glass transition-all duration-300 cursor-pointer group">
+              <Card className="bg-brand-indigo-900/30 backdrop-blur-xl border border-brand-indigo-800/50 hover:shadow-glass transition-all duration-300 cursor-pointer group">
                 <div className="p-6">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-linear-to-br from-warning-100 to-amber-100 dark:from-warning-900/30 dark:to-amber-900/30 rounded-xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-                      ⚙️
+                    <div className="w-12 h-12 bg-linear-to-br from-brand-cyan-400/10 to-brand-cyan-600/10 rounded-xl flex items-center justify-center border border-brand-cyan-700/30 group-hover:scale-110 transition-transform">
+                      <Settings className="w-6 h-6 text-brand-cyan-400" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-oceanic-900 dark:text-oceanic-100">Account Settings</h4>
-                      <p className="text-sm text-oceanic-700 dark:text-oceanic-300">Manage preferences</p>
+                      <h4 className="font-bold text-brand-indigo-200">Account Settings</h4>
+                      <p className="text-sm text-brand-indigo-400">Manage preferences</p>
                     </div>
                   </div>
                 </div>
               </Card>
             </div>
-          </div>
+          </motion.div>
         </div>
       </main>
     </div>
