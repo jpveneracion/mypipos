@@ -77,7 +77,13 @@ export default function POSPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [showScanner, setShowScanner] = useState(false);
+  const [scannerMode, setScannerMode] = useState<'product' | 'customer'>('product');
   const [scannedProduct, setScannedProduct] = useState<Product | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<{
+    id: string;
+    name?: string;
+    piUsername?: string;
+  } | null>(null);
 
   // Auth check
   useEffect(() => {
@@ -138,6 +144,30 @@ export default function POSPage() {
     }
   };
 
+  const handleCustomerQRScanned = async (customerData: string) => {
+    // customerData could be a Pi username, customer ID, or QR code content
+    try {
+      // For now, simulate customer lookup - in production this would call an API
+      console.log('Scanned customer data:', customerData);
+
+      // Mock customer identification
+      const mockCustomer = {
+        id: customerData,
+        name: customerData.includes('@') ? customerData.split('@')[0] : 'Customer',
+        piUsername: customerData.includes('@') ? customerData : `@${customerData}`,
+      };
+
+      setSelectedCustomer(mockCustomer);
+      setShowScanner(false);
+
+      // Show feedback
+      alert(`Customer identified: ${mockCustomer.name}`);
+    } catch (error) {
+      console.error('Customer scan error:', error);
+      alert('Failed to identify customer');
+    }
+  };
+
   const handleCheckout = () => {
     // Implement checkout with Pi payment
     const total = getTotal();
@@ -164,8 +194,15 @@ export default function POSPage() {
       {/* Scanner Modal */}
       {showScanner && (
         <BarcodeScanner
-          onScan={handleBarcodeScanned}
+          onScan={(barcode) => {
+            if (scannerMode === 'product') {
+              handleBarcodeScanned(barcode);
+            } else {
+              handleCustomerQRScanned(barcode);
+            }
+          }}
           onClose={() => setShowScanner(false)}
+          mode={scannerMode}
         />
       )}
 
@@ -212,7 +249,10 @@ export default function POSPage() {
                 )}
                 <button
                   id="camera-button"
-                  onClick={() => setShowScanner(true)}
+                  onClick={() => {
+                    setScannerMode('product');
+                    setShowScanner(true);
+                  }}
                 >
                   📷
                 </button>
@@ -280,6 +320,45 @@ export default function POSPage() {
 
         {/* Cart Section */}
         <div className="lg:w-96 bg-white border-l border-neutral-200 flex flex-col h-full lg:h-auto">
+          {/* Customer Info Section */}
+          <div className="p-4 border-b border-neutral-200 bg-primary-50">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-semibold text-neutral-800">Customer</h3>
+              <button
+                onClick={() => {
+                  setScannerMode('customer');
+                  setShowScanner(true);
+                }}
+                className="bg-primary-600 hover:bg-primary-700 text-white px-3 py-1 rounded-lg text-xs font-medium transition-colors"
+              >
+                Scan QR
+              </button>
+            </div>
+            {selectedCustomer ? (
+              <div className="bg-white rounded-lg p-3 border border-primary-200">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-8 h-8 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center font-bold">
+                    {selectedCustomer.name?.charAt(0).toUpperCase() || 'C'}
+                  </div>
+                  <div>
+                    <div className="font-semibold text-sm text-neutral-800">{selectedCustomer.name || 'Customer'}</div>
+                    <div className="text-xs text-neutral-600">@{selectedCustomer.piUsername || 'unknown'}</div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedCustomer(null)}
+                  className="text-xs text-error-600 hover:text-error-700 mt-1"
+                >
+                  Clear Customer
+                </button>
+              </div>
+            ) : (
+              <div className="text-center text-neutral-500 text-sm py-2">
+                No customer selected
+              </div>
+            )}
+          </div>
+
           <div className="p-4 border-b border-neutral-200">
             <h2 className="text-xl font-bold text-neutral-800">Cart</h2>
             <p className="text-sm text-neutral-600">{items.reduce((sum, item) => sum + item.quantity, 0)} items</p>
