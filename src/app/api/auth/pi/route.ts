@@ -85,11 +85,14 @@ export async function POST(request: NextRequest) {
     }
 
     // 3. Create or update user using enhanced SECURITY DEFINER function
+    // IMPORTANT: Pass NULL for onboarding_complete to preserve existing value
+    // If it's a new user, the function will default to false
+    // If it's an existing user who completed onboarding, it stays true
     console.log('🧠 [PI AUTH] Using enhanced SECURITY DEFINER function: create_or_update_user()');
 
     const result = await query(
       'SELECT * FROM create_or_update_user($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
-      [user.uid, user.username, 'pioneer', 'customer', false, null, null, null, null, null]
+      [user.uid, user.username, 'pioneer', 'customer', null, null, null, null, null, null]
     );
 
     if (!result.rows || result.rows.length === 0) {
