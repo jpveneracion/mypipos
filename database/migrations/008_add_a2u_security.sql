@@ -296,7 +296,6 @@ BEGIN
         v_sale.merchant_pi_uid,
         p_payout_amount,
         'Merchant payout for sale #' || v_sale.transaction_number,
-        p_payout_amount,
         'merchant_payout',
         jsonb_build_object(
             'sale_id', v_sale.id,
@@ -401,7 +400,6 @@ BEGIN
         v_sale.customer_pi_uid,
         p_refund_amount,
         'Refund for sale #' || v_sale.transaction_number || ': ' || p_refund_reason,
-        p_refund_amount,
         'customer_refund',
         jsonb_build_object(
             'sale_id', v_sale.id,
@@ -487,24 +485,11 @@ CREATE OR REPLACE FUNCTION get_a2u_payment_stats(
     p_start_date TIMESTAMP WITH TIME ZONE DEFAULT NOW() - INTERVAL '30 days',
     p_end_date TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 )
-RETURNS TABLE (
-    to_user_type VARCHAR(50),
-    transaction_type VARCHAR(50),
-    status VARCHAR(50),
-    payment_count BIGINT,
-    total_amount DECIMAL(20,7),
-    average_amount DECIMAL(20,7),
-    min_amount DECIMAL(15,7),
-    max_amount DECIMAL(15,7),
-    first_payment TIMESTAMP WITH TIME ZONE,
-    last_payment TIMESTAMP WITH TIME ZONE
-)
+RETURNS SETOF a2u_payments
 SET search_path = public
 SECURITY DEFINER
 LANGUAGE SQL
 AS $$
-BEGIN
-    RETURN QUERY
     SELECT
         to_user_type,
         transaction_type,
@@ -520,7 +505,6 @@ BEGIN
     WHERE created_at >= p_start_date AND created_at <= p_end_date
     GROUP BY to_user_type, transaction_type, status
     ORDER BY total_amount DESC;
-END;
 $$;
 
 -- Function to get pending merchant payouts
