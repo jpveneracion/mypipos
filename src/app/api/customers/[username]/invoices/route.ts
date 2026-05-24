@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { query } from '@/lib/db';
 
 /**
  * Get Customer Invoices API
@@ -19,36 +19,39 @@ export async function GET(
     const limit = parseInt(searchParams.get('limit') || '20');
     const status = searchParams.get('status'); // optional: 'pending', 'paid', 'failed'
 
-    // Step 1: Get customer by username
-    const customer = await db.users.findFirst({
-      where: { username }
-    });
+    // Step 1: Get customer by username using parameterized query
+    const customerResult = await query(
+      'SELECT * FROM users WHERE username = $1',
+      [username]
+    );
 
-    if (!customer) {
+    if (!customerResult.rows[0]) {
       return NextResponse.json(
         { success: false, error: 'Customer not found' },
         { status: 404 }
       );
     }
 
+    const customer = customerResult.rows[0];
+
     // Step 2: Use SECURITY DEFINER function to get customer invoices
     // **THIS IS MORE EFFICIENT** - Single query with joins
-    const invoices = await db.query(
+    const invoicesResult = await query(
       'SELECT * FROM get_customer_invoices($1, $2, $3)',
       [customer.id, limit, status || null]
     );
 
     // Step 3: Get items for each invoice using SECURITY DEFINER function
     const invoicesWithItems = await Promise.all(
-      invoices.map(async (invoice: any) => {
-        const items = await db.query(
+      invoicesResult.rows.map(async (invoice: any) => {
+        const itemsResult = await query(
           'SELECT * FROM get_invoice_items($1)',
           [invoice.sale_id]
         );
 
         return {
           ...invoice,
-          items: items.map((item: any) => ({
+          items: itemsResult.rows.map((item: any) => ({
             id: item.item_id,
             invoiceId: invoice.invoice_id,
             productId: item.product_id,

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import {
-  QRCode,
+  QrCode,
   ShoppingCart,
   Scan,
   CheckCircle,
@@ -35,6 +35,7 @@ interface DraftInvoice {
   invoiceNumber: string;
   customer: Customer;
   items: InvoiceItem[];
+  itemCount: number;
   subtotal: number;
   tax: number;
   total: number;
@@ -73,6 +74,7 @@ export function QRCodeInvoiceWorkflow({ merchantId, registerId }: { merchantId: 
       setCurrentInvoice({
         ...data.invoice,
         items: [],
+        itemCount: 0,
         subtotal: 0,
         tax: 0,
         total: 0
@@ -278,12 +280,13 @@ export function QRCodeInvoiceWorkflow({ merchantId, registerId }: { merchantId: 
             ].map((stepInfo, index) => {
               const isActive = workflow === stepInfo.step;
               const isCompleted = workflow === 'completed';
-              const isCurrentStep = Object.values({
+              const stepOrder: Record<string, number> = {
                 scanning_qr: 0,
                 scanning_items: 1,
                 finalizing: 2,
                 completed: 3
-              })[workflow] === index;
+              };
+              const isCurrentStep = stepOrder[workflow] === index;
 
               return (
                 <div key={stepInfo.step} className="flex flex-col items-center">
@@ -381,7 +384,7 @@ export function QRCodeInvoiceWorkflow({ merchantId, registerId }: { merchantId: 
               }}
               className="w-full"
             >
-              <QRCode className="mr-2 h-4 w-4" />
+              <QrCode className="mr-2 h-4 w-4" />
               Scan Customer QR Code
             </Button>
           </CardContent>

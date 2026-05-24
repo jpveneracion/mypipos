@@ -6,45 +6,67 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { query } from '@/lib/db';
 
 export async function POST(request: NextRequest) {
   try {
     const { customerPiUid, merchantId, registerId } = await request.json();
 
     // Step 1: Find customer by Pi UID
-    const customer = await db.users.findFirst({
-      where: { pi_uid: customerPiUid }
-    });
+    const customerResult = await query(
+      `SELECT * FROM users WHERE pi_uid = $1`,
+      [customerPiUid]
+    );
 
-    if (!customer) {
+    if (!customerResult.rows[0]) {
       return NextResponse.json(
         { success: false, error: 'Customer not found' },
         { status: 404 }
       );
     }
 
+    const customer = customerResult.rows[0];
+
     // Step 2: Create "draft" invoice linked to this customer
     const invoiceNumber = `INV-${Date.now().toString(36).toUpperCase()}`;
 
-    const draftInvoice = await db.sales.create({
-      data: {
-        transaction_number: invoiceNumber,
-        merchant_id: merchantId,
-        customer_id: customer.id, // **LINK TO CUSTOMER**
-        cashier_id: registerId,
-        subtotal: 0,
-        tax_amount: 0,
-        total_amount: 0,
-        payment_method: 'pi',
-        payment_status: 'pending',
-        u2a_payment_type: 'customer_purchase',
-        u2a_payment_status: 'pending',
-        status: 'draft', // **DRAFT STATUS - building invoice**
-        register_id: registerId,
-        created_at: new Date()
-      }
-    });
+    const draftResult = await query(
+      `INSERT INTO sales (
+        transaction_number,
+        merchant_id,
+        customer_id,
+        cashier_id,
+        subtotal,
+        tax_amount,
+        total_amount,
+        payment_method,
+        payment_status,
+        u2a_payment_type,
+        u2a_payment_status,
+        status,
+        register_id,
+        created_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+      RETURNING id`,
+      [
+        invoiceNumber,
+        merchantId,
+        customer.id, // **LINK TO CUSTOMER**
+        registerId,
+        0,
+        0,
+        0,
+        'pi',
+        'pending',
+        'customer_purchase',
+        'pending',
+        'draft', // **DRAFT STATUS - building invoice**
+        registerId,
+        new Date()
+      ]
+    );
+
+    const draftInvoice = draftResult.rows[0];
 
     return NextResponse.json({
       success: true,

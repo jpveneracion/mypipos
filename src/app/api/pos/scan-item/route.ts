@@ -6,76 +6,104 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { query, transaction } from '@/lib/db';
 
 export async function POST(request: NextRequest) {
   try {
     const { invoiceId, productId, productName, quantity, price, merchantId } = await request.json();
 
     // Step 1: Get current invoice
-    const invoice = await db.sales.findFirst({
-      where: {
-        id: invoiceId,
-        status: 'draft' // Only allow adding items to draft invoices
-      }
-    });
+    const invoiceResult = await query(
+      `SELECT * FROM sales WHERE id = $1 AND status = 'draft'`,
+      [invoiceId]
+    );
 
-    if (!invoice) {
+    if (!invoiceResult.rows[0]) {
       return NextResponse.json(
         { success: false, error: 'Draft invoice not found or already finalized' },
         { status: 404 }
       );
     }
 
-    // Step 2: Add item to invoice (create sale_item record)
+    const invoice = invoiceResult.rows[0];
+
+    // Step 2: Calculate item details
     const taxRate = 0.08; // 8% tax
     const unitPrice = parseFloat(price);
     const qty = parseInt(quantity);
     const itemTax = (unitPrice * qty) * taxRate;
     const itemTotal = (unitPrice * qty) + itemTax;
 
-    const saleItem = await db.sale_items.create({
-      data: {
-        sale_id: invoiceId,
-        merchant_id: merchantId,
-        product_id: productId,
-        product_name: productName,
-        quantity: qty,
-        unit_price: unitPrice,
-        tax_amount: itemTax,
-        total_price: itemTotal,
-        created_at: new Date()
-      }
-    });
+    // Step 3: Use transaction to add item and update totals atomically
+    const result = await transaction(async (client) => {
+      // Add item to invoice
+      const itemResult = await client.query(
+        `INSERT INTO sale_items (
+          sale_id,
+          merchant_id,
+          product_id,
+          product_name,
+          quantity,
+          unit_price,
+          tax_amount,
+          total_price,
+          created_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        RETURNING id`,
+        [
+          invoiceId,
+          merchantId,
+          productId,
+          productName,
+          qty,
+          unitPrice,
+          itemTax,
+          itemTotal,
+          new Date()
+        ]
+      );
 
-    // Step 3: Recalculate invoice totals
-    const allItems = await db.sale_items.findMany({
-      where: { sale_id: invoiceId }
-    });
+      const saleItem = itemResult.rows[0];
 
-    const newSubtotal = allItems.reduce((sum, item) =>
-      sum + (parseFloat(item.unit_price) * item.quantity), 0
-    );
-    const newTax = allItems.reduce((sum, item) =>
-      sum + parseFloat(item.tax_amount), 0
-    );
-    const newTotal = newSubtotal + newTax;
+      // Recalculate invoice totals
+      const itemsResult = await client.query(
+        `SELECT * FROM sale_items WHERE sale_id = $1`,
+        [invoiceId]
+      );
 
-    // Step 4: Update invoice with new totals
-    const updatedInvoice = await db.sales.update({
-      where: { id: invoiceId },
-      data: {
-        subtotal: newSubtotal,
-        tax_amount: newTax,
-        total_amount: newTotal,
-        updated_at: new Date()
-      }
+      const allItems = itemsResult.rows;
+
+      const newSubtotal = allItems.reduce((sum, item) =>
+        sum + (parseFloat(item.unit_price) * item.quantity), 0
+      );
+      const newTax = allItems.reduce((sum, item) =>
+        sum + parseFloat(item.tax_amount), 0
+      );
+      const newTotal = newSubtotal + newTax;
+
+      // Update invoice with new totals
+      const updateResult = await client.query(
+        `UPDATE sales SET
+          subtotal = $1,
+          tax_amount = $2,
+          total_amount = $3,
+          updated_at = $4
+        WHERE id = $5
+        RETURNING *`,
+        [newSubtotal, newTax, newTotal, new Date(), invoiceId]
+      );
+
+      return {
+        saleItem,
+        updatedInvoice: updateResult.rows[0],
+        itemCount: allItems.length
+      };
     });
 
     return NextResponse.json({
       success: true,
       item: {
-        id: saleItem.id,
+        id: result.saleItem.id,
         productName: productName,
         quantity: qty,
         unitPrice: unitPrice,
@@ -85,13 +113,13 @@ export async function POST(request: NextRequest) {
       invoice: {
         id: invoiceId,
         invoiceNumber: invoice.transaction_number,
-        itemCount: allItems.length,
-        subtotal: newSubtotal,
-        tax: newTax,
-        total: newTotal,
+        itemCount: result.itemCount,
+        subtotal: result.updatedInvoice.subtotal,
+        tax: result.updatedInvoice.tax_amount,
+        total: result.updatedInvoice.total_amount,
         status: 'draft'
       },
-      message: `Item added! ${allItems.length} items so far. Total: ${newTotal.toFixed(7)} Pi`
+      message: `Item added! ${result.itemCount} items so far. Total: ${result.updatedInvoice.total_amount.toFixed(7)} Pi`
     });
 
   } catch (error) {
