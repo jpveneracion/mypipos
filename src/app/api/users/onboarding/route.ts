@@ -35,21 +35,19 @@ export async function POST(request: NextRequest) {
     if (role === 'merchant') {
       userRole = 'merchant_admin';
       userType = 'merchant';
-      // Create merchant record
+      // Create merchant record using SECURITY DEFINER function
       merchantId = randomUUID();
       await query(
-        `INSERT INTO merchants (id, business_name, is_active, created_at, updated_at)
-         VALUES ($1, $2, $3, NOW(), NOW())`,
+        'SELECT * FROM create_merchant($1, $2, $3)',
         [merchantId, `${userType}'s Business`, true]
       );
     } else if (role === 'both') {
       userRole = 'merchant_admin';
       userType = 'customer';
-      // Create merchant record for "both" users
+      // Create merchant record for "both" users using SECURITY DEFINER function
       merchantId = randomUUID();
       await query(
-        `INSERT INTO merchants (id, business_name, is_active, created_at, updated_at)
-         VALUES ($1, $2, $3, NOW(), NOW())`,
+        'SELECT * FROM create_merchant($1, $2, $3)',
         [merchantId, `${userType}'s Business`, true]
       );
     }
@@ -98,9 +96,9 @@ function getNextStep(role: string): string {
     case 'customer':
       return '/customer';
     case 'merchant':
-      return '/merchant/onboarding';
+      return '/pos'; // Direct to POS for merchant-only users
     case 'both':
-      return '/customer';
+      return '/mode-selection'; // Direct to mode selection for users with both roles
     default:
       return '/';
   }
