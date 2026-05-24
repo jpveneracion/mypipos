@@ -206,7 +206,7 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.05 }}
-                className="bg-brand-indigo-900/30 backdrop-blur-xl border border-brand-indigo-800/50 rounded-xl p-5"
+                className="glass-card p-5"
               >
                 <span className="inline-block px-3 py-1 rounded-lg text-sm font-bold mb-3" style={{ background: 'linear-gradient(135deg, #14D3C5, #11a79e)', color: '#0D0F16' }}>
                   {item.step}

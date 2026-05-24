@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0D0F16;
+  --foreground: #e8eaf0;
 }
 
 @theme inline {
@@ -12,17 +12,20 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  background: #0D0F16;
+  background: var(--background);
   color: var(--foreground);
   font-family: var(--font-body);
+}
+
+/* Glass card effect - myPiroll style */
+.glass-card {
+  background: rgba(10,35,60, 0.4); /* Deep Sky Blue @ 40% */
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(166,241,224, 0.1); /* Frosted Aqua @ 10% */
+  border-radius: 1.25rem;
+  overflow: hidden;
 }
 
 /* Shimmer animation for gradient text */
