@@ -4,14 +4,14 @@
  */
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/Button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator
-} from '@/components/ui/dropdown-menu';
+} from '@/components/ui/DropdownMenu';
 import {
   MoreVertical,
   RefreshCw,
@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import { RefundModal } from './refund-modal';
 import { LoyaltyRewardsPanel } from './loyalty-rewards-panel';
-import { Dialog } from '@/components/ui/dialog';
+import { Dialog } from '@/components/ui/Dialog';
 
 interface SaleActionsProps {
   sale: {
