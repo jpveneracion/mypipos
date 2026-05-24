@@ -106,9 +106,9 @@ export async function POST(request: NextRequest) {
     const dbUser = {
       id: result.rows[0].id,
       pi_username: result.rows[0].pi_username,
-      userType: result.rows[0].userType,
+      userType: result.rows[0].user_type,
       role: result.rows[0].role,
-      onboardingComplete: result.rows[0].onboardingComplete || false,
+      onboardingComplete: result.rows[0].onboarding_complete || false,
       merchant_id: result.rows[0].merchant_id,
     };
 
