@@ -6,16 +6,8 @@ import { motion } from 'framer-motion';
 import { useAuthStore } from '@/lib/store';
 import { Button } from '@/components/ui/Button';
 import LoginModal from '@/components/auth/LoginModal';
-import {
-  Globe,
-  Link as LinkIcon,
-  TrendingUp,
-  Diamond,
-  Store,
-  Rocket,
-  ShoppingBag,
-  Check,
-} from 'lucide-react';
+import { ArrowRight, Check } from 'lucide-react';
+import { ShoppingBag } from 'lucide-react';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -82,7 +74,7 @@ export default function Home() {
 
       {/* Navbar */}
       <nav className="relative z-20 px-2 sm:px-4 md:px-8 py-8">
-        <div className="w-full max-w-7xl mx-auto flex items-center justify-between">
+        <div className="w-full max-w-7xl mx-auto flex items-center justify-center">
           <motion.div
             initial={{ y: -10, opacity: 0 }}
             animate={{
@@ -98,22 +90,7 @@ export default function Home() {
             <div className="w-12 h-12 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #14D3C5, #11a79e)' }}>
               <ShoppingBag className="w-6 h-6 text-[#0D0F16]" />
             </div>
-            <div className="text-left">
-              <h1 className="text-2xl font-display font-bold text-white">myPiPOS</h1>
-              <p className="text-xs text-brand-indigo-400 uppercase tracking-widest">
-                Universal Commerce Network
-              </p>
-            </div>
           </motion.div>
-
-          <Button
-            variant="outline"
-            size="lg"
-            onClick={() => setShowLoginModal(true)}
-            className="border-brand-indigo-700 text-brand-indigo-300 hover:bg-brand-indigo-900/30"
-          >
-            Login
-          </Button>
         </div>
       </nav>
 
@@ -135,8 +112,8 @@ export default function Home() {
                 transition={{ duration: 0.6, delay: 0.1 }}
                 className="font-display text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.1] mb-6"
               >
-                One Pi account,{' '}
-                <span className="text-cyan-shimmer">every myPiPOS merchant.</span>
+                Commerce, rebuilt for the{' '}
+                <span className="text-cyan-shimmer">Pi ecosystem.</span>
               </motion.h1>
 
               <motion.p
@@ -146,7 +123,7 @@ export default function Home() {
                 transition={{ duration: 0.6, delay: 0.2 }}
                 className="font-body text-brand-indigo-200 text-base md:text-lg mb-8 leading-relaxed max-w-xl"
               >
-                Join the universal commerce network where Pioneers connect once and shop at every myPiPOS merchant worldwide — no re-registration, ever.
+                Universal commerce network where Pioneers connect once and access every myPiPOS merchant worldwide — no re-registration, ever.
               </motion.p>
 
               <motion.div
@@ -165,7 +142,7 @@ export default function Home() {
                   onClick={scrollToFlow}
                   className="px-6 md:px-8 py-3 md:py-4 rounded-xl text-base font-semibold border border-brand-indigo-700 text-brand-indigo-300 hover:border-brand-indigo-600 hover:text-brand-indigo-200 transition-all"
                 >
-                  View How It Works <LinkIcon className="inline ml-2" size={18} />
+                  View Commerce Process <ArrowRight className="inline ml-1" size={18} />
                 </button>
               </motion.div>
             </motion.div>
@@ -186,22 +163,22 @@ export default function Home() {
       {/* Status Strip */}
       <section className="relative z-10 px-2 sm:px-4 md:px-8 py-6 border-y border-brand-indigo-800/50">
         <div className="w-full max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-start gap-3 md:gap-8">
+          <div className="flex flex-col md:flex-row items-start justify-start gap-3 md:gap-8">
             <div className="flex items-center gap-2 text-sm">
-              <span>🚀</span>
-              <span className="text-brand-indigo-300">Premium UI transformation complete</span>
+              <span>🚧</span>
+              <span className="text-brand-indigo-300">Multi-merchant commerce features are coming soon.</span>
             </div>
             <div className="hidden md:block w-px h-4 bg-brand-indigo-700" />
             <div className="flex items-center gap-2 text-sm">
               <span>✅</span>
-              <span className="text-brand-indigo-300">Professional myPiroll design system applied</span>
+              <span className="text-brand-indigo-300">Core universal commerce system is live with secure architecture from day one.</span>
             </div>
           </div>
         </div>
       </section>
 
       {/* Current Flow Section */}
-      <section id="flow" className="relative z-10 px-2 sm:px-4 md:px-8 py-16 md:py-24 bg-brand-indigo-900/20">
+      <section id="flow" className="relative z-10 px-2 sm:px-4 md:px-8 py-16 md:py-24 bg-brand-indigo-900/30">
         <div className="max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -210,17 +187,17 @@ export default function Home() {
             className="text-center mb-12"
           >
             <h2 className="font-display text-3xl md:text-4xl font-bold text-white mb-4">
-              How Universal Commerce Works
+              Universal commerce that already works—today.
             </h2>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {[
-              { step: '1', text: 'Create your Pi account once' },
-              { step: '2', text: 'Shop at any myPiPOS merchant' },
-              { step: '3', text: 'No re-registration needed' },
-              { step: '4', text: 'Pay seamlessly with Pi' },
-              { step: '5', text: 'Build your purchase history' },
+              { step: '1', text: 'Pioneer creates Pi account once' },
+              { step: '2', text: 'Access any myPiPOS merchant' },
+              { step: '3', text: 'Shop with seamless checkout' },
+              { step: '4', text: 'Pay with Pi Network' },
+              { step: '5', text: 'Build universal purchase history' },
               { step: '6', text: 'Access everywhere, forever' },
             ].map((item, i) => (
               <motion.div
@@ -229,7 +206,7 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.05 }}
-                className="bg-brand-indigo-900/30 backdrop-blur-xl border border-brand-indigo-800/50 rounded-xl p-4 md:p-5"
+                className="bg-brand-indigo-900/30 backdrop-blur-xl border border-brand-indigo-800/50 rounded-xl p-5"
               >
                 <span className="inline-block px-3 py-1 rounded-lg text-sm font-bold mb-3" style={{ background: 'linear-gradient(135deg, #14D3C5, #11a79e)', color: '#0D0F16' }}>
                   {item.step}
@@ -247,7 +224,7 @@ export default function Home() {
             viewport={{ once: true }}
             className="font-body text-brand-indigo-400 text-sm text-center mt-8"
           >
-            One account. Every merchant. Unlimited possibilities.
+            End-to-end universal commerce flow—fully functional, from day one.
           </motion.p>
         </div>
       </section>
@@ -256,7 +233,7 @@ export default function Home() {
       <section className="relative z-10 px-2 sm:px-4 md:px-8 py-12 border-t border-brand-indigo-800/50">
         <div className="max-w-7xl mx-auto">
           <p className="font-body text-brand-indigo-400 text-sm text-center">
-            Built with premium design inspired by myPiroll. Powered by Pi Network.
+            Designed with universal commerce in mind from day one.
           </p>
 
           <div className="flex flex-col md:flex-row items-center justify-center gap-4 mt-6 text-xs text-brand-indigo-500">

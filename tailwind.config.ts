@@ -1,24 +1,26 @@
-import type { Config } from "tailwindcss";
-
-const config: Config = {
+/** @type {import('tailwindcss').Config} */
+export default {
   content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    './src/app/**/*.{js,ts,jsx,tsx}',
+    './src/components/**/*.{js,ts,jsx,tsx}',
   ],
   theme: {
     extend: {
       animation: {
         'float-slow': 'floatSlow 12s ease-in-out infinite',
         shimmer: 'shimmer 2.5s linear infinite',
+        float: 'float 6s ease-in-out infinite',
         'fade-up': 'fadeUp 0.6s ease forwards',
         'glow-pulse': 'glowPulse 3s ease-in-out infinite',
-        float: 'float 6s ease-in-out infinite',
       },
       keyframes: {
         floatSlow: {
           '0%, 100%': { transform: 'translate(0, 0)' },
           '50%': { transform: 'translateY(20px-20px)' },
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-12px)' },
         },
         shimmer: {
           '0%': { backgroundPosition: '-200% center' },
@@ -31,10 +33,6 @@ const config: Config = {
         glowPulse: {
           '0%, 100%': { boxShadow: '0 0 20px rgba(20,211,197,0.3)' },
           '50%': { boxShadow: '0 0 40px rgba(20,211,197,0.6)' },
-        },
-        float: {
-          '0%, 100%': { transform: 'translateY(0px)' },
-          '50%': { transform: 'translateY(-12px)' },
         },
       },
       colors: {
@@ -136,46 +134,6 @@ const config: Config = {
             950: '#060912',
           },
         },
-        // Keep functional colors for success/warning/error states
-        success: {
-          50: '#f0fdf4',
-          100: '#dcfce7',
-          200: '#bbf7d0',
-          300: '#86efac',
-          400: '#4ade80',
-          500: '#22c55e',
-          600: '#16a34a',
-          700: '#15803d',
-          800: '#166534',
-          900: '#14532d',
-          950: '#052e16',
-        },
-        warning: {
-          50: '#fffbeb',
-          100: '#fef3c7',
-          200: '#fde68a',
-          300: '#fcd34d',
-          400: '#fbbf24',
-          500: '#f59e0b',
-          600: '#d97706',
-          700: '#b45309',
-          800: '#92400e',
-          900: '#78350f',
-          950: '#451a03',
-        },
-        error: {
-          50: '#fef2f2',
-          100: '#fee2e2',
-          200: '#fecaca',
-          300: '#fca5a5',
-          400: '#f87171',
-          500: '#ef4444',
-          600: '#dc2626',
-          700: '#b91c1c',
-          800: '#991b1b',
-          900: '#7f1d1d',
-          950: '#450a0a',
-        },
       },
       fontFamily: {
         display: ['"Playfair Display"', 'Georgia', 'serif'],
@@ -185,25 +143,8 @@ const config: Config = {
       backgroundImage: {
         'radial-ocean': 'radial-gradient(ellipse at top left, #0D2436 0%, #1A1B29 60%)',
         'cyan-shimmer': 'linear-gradient(135deg, #14D3C5 0%, #11a79e 40%, #25ede1 60%, #0d8b84 100%)',
-        'brand-gradient': 'linear-gradient(135deg, #14D3C5, #11a79e)',
-      },
-      backgroundSize: {
-        '200%': '200%',
-      },
-      boxShadow: {
-        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.3)',
-        'glass-lg': '0 12px 48px 0 rgba(0, 0, 0, 0.4)',
-        'glow': '0 0 20px rgba(20, 211, 197, 0.3)',
-        'glow-strong': '0 0 40px rgba(20, 211, 197, 0.6)',
-      },
-      borderRadius: {
-        'xl': '1rem',
-        '2xl': '1.5rem',
-        '3xl': '2rem',
       },
     },
   },
   plugins: [],
-};
-
-export default config;
+}
