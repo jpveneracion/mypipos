@@ -12,6 +12,8 @@ export interface DbProduct {
   universal_sku: string | null;
   barcode: string | null;
   category_id: string | null;
+  universal_category_id: string | null;
+  category_name: string | null;
   main_image_url: string | null;
   status: string;
   created_at: Date;
@@ -101,6 +103,27 @@ export async function createProductForMerchant(params: {
     // 1. Create or find universal product
     let productResult;
 
+    // Look up category by name if provided
+    let categoryId = null;
+    if (category) {
+      const categoryResult = await client.query(
+        'SELECT id FROM universal_categories WHERE name = $1 OR slug = $1',
+        [category]
+      );
+      if (categoryResult.rows.length > 0) {
+        categoryId = categoryResult.rows[0].id;
+      } else {
+        // Create new category if it doesn't exist
+        const newCategoryResult = await client.query(
+          `INSERT INTO universal_categories (name, slug, description)
+           VALUES ($1, $2, $3)
+           RETURNING id`,
+          [category, category.toLowerCase().replace(/\s+/g, '-'), `Products in ${category} category`]
+        );
+        categoryId = newCategoryResult.rows[0].id;
+      }
+    }
+
     // Check if product with this barcode already exists
     if (barcode) {
       const existingProduct = await client.query(
@@ -112,25 +135,25 @@ export async function createProductForMerchant(params: {
         // Use existing universal product
         productResult = existingProduct;
       } else {
-        // Create new universal product with attribution
+        // Create new universal product with attribution and category
         productResult = await client.query(
           `INSERT INTO products (
             name, description, barcode, universal_sku,
-            category_id, main_image_url, status, created_by, metadata
+            universal_category_id, main_image_url, status, created_by, metadata
           ) VALUES ($1, $2, $3, $4, $5, $6, 'active', $7, '{}')
           RETURNING *`,
-          [name, description, barcode, sku, category, image, userId]
+          [name, description, barcode, sku, categoryId, image, userId]
         );
       }
     } else {
-      // No barcode, create new universal product with attribution
+      // No barcode, create new universal product with attribution and category
       productResult = await client.query(
         `INSERT INTO products (
           name, description, universal_sku,
-          category_id, main_image_url, status, created_by, metadata
+          universal_category_id, main_image_url, status, created_by, metadata
         ) VALUES ($1, $2, $3, $4, $5, 'active', $6, '{}')
         RETURNING *`,
-        [name, description, sku, category, image, userId]
+        [name, description, sku, categoryId, image, userId]
       );
     }
 
@@ -170,6 +193,7 @@ export async function getMerchantProducts(merchantId: string): Promise<ProductWi
   const result = await query(
     `SELECT
       p.*,
+      uc.name as category_name,
       mp.id as merchant_product_id,
       mp.merchant_id,
       mp.product_id,
@@ -202,6 +226,7 @@ export async function getMerchantProducts(merchantId: string): Promise<ProductWi
       mi.updated_at as inventory_updated_at
     FROM merchant_products mp
     INNER JOIN products p ON mp.product_id = p.id
+    LEFT JOIN universal_categories uc ON p.universal_category_id = uc.id
     LEFT JOIN merchant_inventory mi ON mp.merchant_id = mi.merchant_id AND mp.product_id = mi.product_id
     WHERE mp.merchant_id = $1
       AND mp.deleted_at IS NULL
@@ -459,7 +484,7 @@ export async function searchMerchantProducts(params: {
   }
 
   if (category && category !== 'All') {
-    conditions.push(`p.category_id = $${paramIndex++}`);
+    conditions.push(`uc.name = $${paramIndex++}`);
     values.push(category);
   }
 
@@ -470,6 +495,7 @@ export async function searchMerchantProducts(params: {
   const result = await query(
     `SELECT
       p.*,
+      uc.name as category_name,
       mp.id as merchant_product_id,
       mp.merchant_id,
       mp.product_id,
@@ -502,6 +528,7 @@ export async function searchMerchantProducts(params: {
       mi.updated_at as inventory_updated_at
     FROM merchant_products mp
     INNER JOIN products p ON mp.product_id = p.id
+    LEFT JOIN universal_categories uc ON p.universal_category_id = uc.id
     LEFT JOIN merchant_inventory mi ON mp.merchant_id = mi.merchant_id AND mp.product_id = mi.product_id
     WHERE ${conditions.join(' AND ')}
     ORDER BY mp.created_at DESC`,

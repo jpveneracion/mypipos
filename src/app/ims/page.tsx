@@ -36,11 +36,21 @@ interface ApiProduct extends Product {
   is_low_stock?: boolean;
 }
 
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  icon?: string;
+  color?: string;
+}
+
 export default function IMSPage() {
   const router = useRouter();
   const { user, merchantId, isAuthenticated } = useAuthStore();
 
   const [products, setProducts] = useState<ApiProduct[]>([]);
+  const [categories, setCategories] = useState<string[]>(['All']);
+  const [availableCategories, setAvailableCategories] = useState<Category[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [showAddModal, setShowAddModal] = useState(false);
@@ -49,6 +59,8 @@ export default function IMSPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState<string>('');
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -57,6 +69,54 @@ export default function IMSPage() {
     }
 
     (window as any).openScanner = () => setScanningBarcode(true);
+    loadCategories();
+    loadProducts();
+    return () => { delete (window as any).openScanner; };
+  }, [isAuthenticated, merchantId]);
+
+  async function loadCategories() {
+    try {
+      const response = await fetch('/api/categories');
+      const data = await response.json();
+
+      if (data.success) {
+        const categoryNames = ['All', ...data.categories.map((cat: Category) => cat.name)];
+        setCategories(categoryNames);
+        setAvailableCategories(data.categories);
+      }
+    } catch (err) {
+      console.error('Error loading categories:', err);
+      // Fallback to basic categories
+      setCategories(['All', 'Beverages', 'Food', 'Snacks', 'Condiments', 'Confectionery']);
+    }
+  }
+
+  async function addNewCategory(categoryName: string) {
+    try {
+      const response = await fetch('/api/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: categoryName })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        await loadCategories();
+        setSelectedCategory(categoryName);
+        setShowNewCategoryInput(false);
+        setNewCategoryName('');
+        return true;
+      } else {
+        setError(data.error || 'Failed to create category');
+        return false;
+      }
+    } catch (err) {
+      console.error('Error creating category:', err);
+      setError('Failed to connect to server');
+      return false;
+    }
+  }
     loadProducts();
     return () => { delete (window as any).openScanner; };
   }, [isAuthenticated, merchantId]);

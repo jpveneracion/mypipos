@@ -208,7 +208,7 @@ function formatProductForResponse(data: any): any {
     description: product.description,
     sku: merchantProduct.merchant_sku,
     barcode: product.barcode || merchantProduct.merchant_barcode,
-    category: product.category_id,
+    category: product.category_name,
     price: parseFloat(merchantProduct.price),
     cost: merchantProduct.cost ? parseFloat(merchantProduct.cost) : null,
     stock: inventory?.current_stock || 0,
