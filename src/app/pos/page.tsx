@@ -239,51 +239,13 @@ export default function POSPage() {
         {/* Products Section */}
         <div className="flex-1 overflow-y-auto order-1 lg:order-1">
           <div className="container mx-auto px-6 py-6">
-            {/* Search and Filter */}
+            {/* Category Filter */}
             <motion.div
               initial="hidden"
               animate="show"
               variants={fadeInUp}
-              className="mb-6 space-y-4 min-h-[100px]"
+              className="mb-4"
             >
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search products or enter barcode..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && searchQuery.trim() && handleBarcodeScanned(searchQuery.trim())}
-                  className="w-full h-14 pl-12 pr-28 py-3 rounded-lg bg-brand-indigo-800 border-2 border-brand-cyan-600 text-white placeholder-brand-indigo-400 focus:border-brand-cyan-400 focus:ring-4 focus:ring-brand-cyan-500/30 focus:outline-none shadow-lg"
-                  style={{ backgroundColor: '#1A1B29', border: '2px solid #14D3C5' }}
-                />
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-7 h-7 text-brand-cyan-400 z-10 pointer-events-none drop-shadow-lg" />
-                <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex gap-2">
-                  {searchQuery.trim() && (
-                    <Button
-                      size="sm"
-                      onClick={() => handleBarcodeScanned(searchQuery.trim())}
-                      className="px-3 bg-linear-to-br from-brand-cyan-400 to-brand-cyan-600 text-brand-dark-950 hover:from-brand-cyan-500 hover:to-brand-cyan-700 font-semibold"
-                    >
-                      Go
-                    </Button>
-                  )}
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => {
-                      setScannerMode('product');
-                      setShowScanner(true);
-                    }}
-                    className="px-4 py-2 bg-brand-cyan-600 border-2 border-brand-cyan-400 text-white hover:bg-brand-cyan-500 rounded-lg font-semibold shadow-lg"
-                    title="Scan Product Barcode"
-                  >
-                    <Scan className="w-5 h-5 mr-1" />
-                    Scan
-                  </Button>
-                </div>
-              </div>
-
-              {/* Category Pills */}
               <div className="flex gap-2 overflow-x-auto pb-2">
                 {categories.map((category) => (
                   <button
@@ -461,6 +423,52 @@ export default function POSPage() {
                 <p>No customer selected</p>
               </div>
             )}
+          </motion.div>
+
+          {/* Item Scanning Section */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.25 }}
+            className="p-4 border-b border-brand-indigo-800/50"
+          >
+            <div className="mb-3">
+              <h3 className="text-xs font-bold text-brand-indigo-300 uppercase tracking-wider mb-2 flex items-center gap-2">
+                <Scan className="w-3 h-3" />
+                Add Items
+              </h3>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search or scan item..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && searchQuery.trim() && handleBarcodeScanned(searchQuery.trim())}
+                  className="w-full h-10 pl-8 pr-20 py-2 rounded-lg bg-brand-indigo-800 border border-brand-indigo-700 text-brand-indigo-200 text-sm placeholder-brand-indigo-500 focus:border-brand-cyan-500 focus:ring-2 focus:ring-brand-cyan-500/20 focus:outline-none"
+                  disabled={!selectedCustomer}
+                />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-brand-indigo-500 pointer-events-none" />
+                <div className="absolute right-1 top-1/2 transform -translate-y-1/2 flex gap-1">
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      setScannerMode('product');
+                      setShowScanner(true);
+                    }}
+                    disabled={!selectedCustomer}
+                    className="px-2 py-1 bg-brand-cyan-600 text-white text-xs rounded hover:bg-brand-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Scan Item Barcode"
+                  >
+                    <Scan className="w-3 h-3" />
+                  </Button>
+                </div>
+              </div>
+              {!selectedCustomer && (
+                <p className="text-xs text-brand-indigo-500 mt-1 text-center">
+                  Scan customer QR first to add items
+                </p>
+              )}
+            </div>
           </motion.div>
 
           {/* Cart Header */}
