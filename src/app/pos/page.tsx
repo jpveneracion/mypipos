@@ -275,7 +275,7 @@ export default function POSPage() {
               initial="hidden"
               animate="show"
               variants={fadeInUp}
-              className="mb-6 space-y-4"
+              className="mb-6 space-y-4 min-h-[100px]"
             >
               <div className="relative">
                 <input
@@ -284,9 +284,9 @@ export default function POSPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && searchQuery.trim() && handleBarcodeScanned(searchQuery.trim())}
-                  className="w-full pl-12 pr-24 py-2 rounded-md bg-brand-indigo-900/50 border border-brand-indigo-700 text-brand-indigo-200 placeholder-brand-indigo-500 focus:border-brand-cyan-500 focus:ring-2 focus:ring-brand-cyan-500/20 focus:outline-none"
+                  className="w-full h-12 pl-12 pr-24 py-2 rounded-md bg-brand-indigo-900/50 border-2 border-brand-indigo-700 text-brand-indigo-200 placeholder-brand-indigo-500 focus:border-brand-cyan-500 focus:ring-2 focus:ring-brand-cyan-500/20 focus:outline-none block"
                 />
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-brand-indigo-500" />
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-brand-cyan-400 z-10 pointer-events-none" />
                 <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex gap-2">
                   {searchQuery.trim() && (
                     <Button
@@ -304,7 +304,8 @@ export default function POSPage() {
                       setScannerMode('product');
                       setShowScanner(true);
                     }}
-                    className="px-3 text-brand-cyan-400 hover:text-brand-cyan-300 hover:bg-brand-cyan-900/20"
+                    className="px-3 py-2 bg-brand-cyan-900/30 border border-brand-cyan-600 text-brand-cyan-400 hover:text-brand-cyan-300 hover:bg-brand-cyan-900/50 rounded-md"
+                    title="Scan Product Barcode"
                   >
                     <Scan className="w-5 h-5" />
                   </Button>
