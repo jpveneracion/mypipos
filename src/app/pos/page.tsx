@@ -95,11 +95,11 @@ const sampleProducts: Product[] = [
 
 // Icon mapping for products
 const productIcons: Record<string, React.ReactNode> = {
-  'Coffee': <Coffee className="w-8 h-8" />,
-  'Sandwich': <Sandwich className="w-8 h-8" />,
-  'Salad': <Salad className="w-8 h-8" />,
-  'Tea': <Coffee className="w-8 h-8" />,
-  'Cookie': <Cookie className="w-8 h-8" />,
+  'Coffee': <Coffee className="w-6 h-6" />,
+  'Sandwich': <Sandwich className="w-6 h-6" />,
+  'Salad': <Salad className="w-6 h-6" />,
+  'Tea': <Coffee className="w-6 h-6" />,
+  'Cookie': <Cookie className="w-6 h-6" />,
 };
 
 export default function POSPage() {
@@ -356,7 +356,7 @@ export default function POSPage() {
                     <div className="aspect-square bg-linear-to-br from-brand-cyan-900/20 to-brand-indigo-900/20 rounded-xl mb-4 flex items-center justify-center relative overflow-hidden">
                       <div className="absolute inset-0 bg-linear-to-br from-brand-cyan-400/0 to-brand-cyan-600/0 group-hover:from-brand-cyan-400/10 group-hover:to-brand-cyan-600/10 transition-all duration-300" />
                       <div className="relative z-10 text-brand-cyan-400 group-hover:text-brand-cyan-300 group-hover:scale-110 transition-all duration-300">
-                        {productIcons[product.name] || <Package className="w-12 h-12" />}
+                        {productIcons[product.name] || <Package className="w-8 h-8" />}
                       </div>
                       {quantity > 0 && (
                         <div className="absolute top-2 right-2 w-8 h-8 bg-linear-to-br from-brand-cyan-400 to-brand-cyan-600 rounded-full flex items-center justify-center shadow-glow">
@@ -392,10 +392,10 @@ export default function POSPage() {
                 animate={{ opacity: 1 }}
                 className="text-center py-16"
               >
-                <div className="text-6xl mb-4 text-brand-indigo-700">
+                <div className="text-4xl mb-4 text-brand-indigo-700">
                   <Search />
                 </div>
-                <h3 className="text-xl font-display font-semibold text-brand-indigo-400 mb-2">
+                <h3 className="text-lg font-display font-semibold text-brand-indigo-400 mb-2">
                   No products found
                 </h3>
                 <p className="text-brand-indigo-600">
@@ -407,7 +407,7 @@ export default function POSPage() {
         </div>
 
         {/* Cart Section */}
-        <div className="w-full lg:w-96 border-l border-brand-indigo-800/50 flex flex-col backdrop-blur-xl bg-brand-indigo-900/30">
+        <div className="w-96 border-l border-brand-indigo-800/50 flex flex-col backdrop-blur-xl bg-brand-indigo-900/30 flex-shrink-0">
           {/* Customer Section */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
