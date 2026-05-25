@@ -11,7 +11,6 @@ interface TestPiClaimCardProps {
 }
 
 export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
-  const VERSION = 'test-pi-claim-v2-mypiroll-compatible';
   const [hasClaimed, setHasClaimed] = useState<boolean | null>(null);
   const [isClaiming, setIsClaiming] = useState(false);
   const [error, setError] = useState('');
@@ -19,87 +18,9 @@ export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [debugInfo, setDebugInfo] = useState<any>(null);
   const [showDebug, setShowDebug] = useState(false);
-  const [piSdkReady, setPiSdkReady] = useState(false);
-  const [paymentResult, setPaymentResult] = useState<string | null>(null);
 
   useEffect(() => {
-    let waitForPiInterval: NodeJS.Timeout | null = null;
-
-    const initAndAuth = async () => {
-      if (typeof window === "undefined" || !(window as any).Pi) return;
-
-      try {
-        const Pi = (window as any).Pi;
-        console.log('Initializing Pi Network SDK...');
-
-        // Step 1: Initialize Pi SDK FIRST
-        await Pi.init({ version: "2.0" });
-
-        // Step 2: Wait a moment for init to complete
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        // Step 3: Handle incomplete payment during authentication (like mypiroll)
-        const handleIncompletePayment = async (payment: any) => {
-          console.log('[TEST-PI-CLAIM] ⚠️ Zombie payment found during auth:', payment.identifier);
-
-          try {
-            // Send to backend to clear using Master API Key
-            const clearResponse = await fetch('/api/payments/clear-incomplete-payment', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                paymentId: payment.identifier
-              })
-            });
-
-            if (clearResponse.ok) {
-              const result = await clearResponse.json();
-              console.log('[TEST-PI-CLAIM] ✅ Zombie payment cleared:', result);
-
-              // Wait a moment then retry authentication
-              setTimeout(() => {
-                console.log('[TEST-PI-CLAIM] Retrying authentication...');
-                initAndAuth();
-              }, 2000);
-            } else {
-              const error = await clearResponse.json();
-              console.error('[TEST-PI-CLAIM] Failed to clear zombie:', error);
-            }
-          } catch (err) {
-            console.error('[TEST-PI-CLAIM] Error clearing zombie:', err);
-          }
-        };
-
-        // Step 4: Authenticate with payment scope AND incomplete payment handler
-        console.log('Authenticating with Pi Network for payments...');
-
-        const auth = await Pi.authenticate(
-          ['username', 'payments'],
-          handleIncompletePayment
-        );
-
-        const username = auth?.user?.username || 'Unknown User';
-        const uid = auth?.user?.uid || 'Unknown UID';
-
-        console.log(`✅ Payment permission granted!\nUser: ${username}\nUID: ${uid}`);
-
-        setPiSdkReady(true);
-        console.log('✅ Pi Network SDK ready for payments');
-      } catch (error) {
-        console.error('Failed to initialize/auth Pi SDK:', error);
-        setError(`Failed to initialize Pi Network: ${error instanceof Error ? error.message : String(error)}`);
-      }
-    };
-
-    waitForPiInterval = setInterval(() => {
-      if (typeof window !== "undefined" && (window as any).Pi) {
-        if (waitForPiInterval) clearInterval(waitForPiInterval);
-        initAndAuth();
-        checkClaimStatus();
-      }
-    }, 100);
-
-    return () => clearInterval(waitForPiInterval);
+    checkClaimStatus();
   }, [userId]);
 
   const checkClaimStatus = async () => {
@@ -153,133 +74,78 @@ export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
   };
 
   const handleClaim = async () => {
-    // Check if Pi SDK is ready
-    if (!piSdkReady) {
-      setError('Pi Network SDK is not ready. Please wait a moment and try again.');
-      return;
-    }
-
     setIsClaiming(true);
     setError('');
     setSuccessMessage('');
 
     try {
-      // Check if Pi SDK is available
-      const Pi = (window as any).Pi;
-      if (!Pi) {
-        throw new Error('Pi Network SDK not available. Please use Pi Browser.');
-      }
+      console.log('[TEST-PI-CLAIM] Starting A2U Test Pi claim...');
 
-      // Step 1: Create payment via Pi SDK with CORRECT format (like mypiroll)
-      const paymentAmount = 1.00;
-      const paymentData = {
-        amount: paymentAmount.toFixed(7), // Must be string with 7 decimals like "1.0000000"
-        memo: 'Test Pi Claim - One-time pioneer bonus',
-        metadata: {
-          transaction_id: `test_pi_claim_${Date.now()}`,
-          user_id: userId,
-          type: 'test_pi_claim'
-        }
-      };
+      setSuccessMessage('Processing your claim...');
 
-      console.log('Creating payment with data:', paymentData);
-      console.log('Payment amount:', paymentAmount.toFixed(7));
-
-      const payment = await Pi.createPayment(paymentData, {
-        // Step 2: Payment ready for server approval
-        onReadyForServerApproval: async (paymentId: string) => {
-          console.log(`✅ onReadyForServerApproval fired!\nPayment ID: ${paymentId}\nCalling approve endpoint...`);
-          setSuccessMessage('Payment created! Approving with Pi Network...');
-          setError('');
-
-          try {
-            // Approve payment on backend (matching mypiroll format)
-            const response = await fetch('/api/customers/claim-test-pi', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                paymentId: paymentId,
-                amount: paymentAmount,
-                memo: 'Test Pi Claim - One-time pioneer bonus',
-                type: 'test_pi_claim',
-                action: 'approve',
-                txid: '',
-                userId: userId
-              })
-            });
-
-            const data = await response.json();
-
-            if (!response.ok || !data.success) {
-              throw new Error(data.error || 'Payment approval failed');
-            }
-
-            console.log('✅ Approve endpoint called! Now check your Pi Browser for wallet popup.');
-            setSuccessMessage('✅ Backend approved. Waiting for wallet approval...');
-          } catch (error) {
-            console.error('Payment approval error:', error);
-            setError(error instanceof Error ? error.message : 'Failed to approve payment');
-            setIsClaiming(false);
-          }
-        },
-
-        // Step 3: Payment completed in wallet (ready for server completion)
-        onReadyForServerCompletion: async (paymentId: string, txid: string) => {
-          console.log(`✅ Payment approved in wallet!\nPayment ID: ${paymentId}\nTXID: ${txid}\nCalling complete endpoint...`);
-          setSuccessMessage('✅ Wallet approved! Processing your claim...');
-
-          try {
-            // Complete payment on backend
-            const response = await fetch('/api/customers/claim-test-pi', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                paymentId: paymentId,
-                amount: paymentAmount,
-                memo: 'Test Pi Claim - One-time pioneer bonus',
-                type: 'test_pi_claim',
-                action: 'complete',
-                txid: txid,
-                userId: userId
-              })
-            });
-
-            const data = await response.json();
-
-            if (!response.ok || !data.success) {
-              throw new Error(data.error || 'Payment completion failed');
-            }
-
-            console.log('✅ Test Pi claim successful!', data);
-            setHasClaimed(true);
-            setSuccessMessage('Successfully claimed 1 Test Pi! 🎉');
-          } catch (error) {
-            console.error('Payment completion error:', error);
-            setError(error instanceof Error ? error.message : 'Failed to complete payment');
-          } finally {
-            setIsClaiming(false);
-          }
-        },
-
-        // Step 4: Payment cancelled
-        onCancel: async (paymentId: string) => {
-          console.log(`❌ Payment cancelled: ${paymentId}`);
-          setPaymentResult(`❌ Payment cancelled`);
-          setIsClaiming(false);
-        },
-
-        // Step 5: Payment error
-        onError: async (error: unknown) => {
-          const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-          console.error(`❌ Payment error: ${errorMsg}`);
-          setError(`Payment failed: ${errorMsg}`);
-          setIsClaiming(false);
-        }
+      // Get user details first
+      const userResponse = await fetch(`/api/users/get-by-id`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId })
       });
 
+      if (!userResponse.ok) {
+        throw new Error('Failed to get user details');
+      }
+
+      const userData = await userResponse.json();
+      const user = userData.user;
+
+      if (!user || !user.pi_uid) {
+        throw new Error('User does not have a Pi UID. Please authenticate with Pi Network first.');
+      }
+
+      console.log('[TEST-PI-CLAIM] User details:', { username: user.username, piUid: user.pi_uid });
+
+      // Create A2U payment to send 1 Pi to user
+      console.log('[TEST-PI-CLAIM] Creating A2U payment...');
+
+      const a2uResponse = await fetch('/api/payments/a2u', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          uid: user.pi_uid,
+          amount: 1.00,
+          memo: 'Test Pi Claim - One-time pioneer bonus',
+          transaction_type: 'reward',
+          metadata: {
+            reward_type: 'test_pi_claim',
+            user_id: userId,
+            claimed_at: new Date().toISOString()
+          }
+        })
+      });
+
+      if (!a2uResponse.ok) {
+        const errorData = await a2uResponse.json();
+        throw new Error(errorData.error || 'A2U payment failed');
+      }
+
+      const a2uResult = await a2uResponse.json();
+
+      if (!a2uResult.success) {
+        throw new Error(a2uResult.error || 'A2U payment failed');
+      }
+
+      console.log('[TEST-PI-CLAIM] ✅ A2U payment successful!', a2uResult);
+
+      setSuccessMessage('Successfully claimed 1 Test Pi! 🎉 Check your Pi wallet.');
+      setHasClaimed(true);
+
+      setTimeout(() => {
+        checkClaimStatus();
+      }, 2000);
+
     } catch (error) {
-      console.error('Claim error:', error);
-      setError(error instanceof Error ? error.message : 'Failed to initiate payment. Please try again.');
+      console.error('[TEST-PI-CLAIM] Claim error:', error);
+      setError(error instanceof Error ? error.message : 'Failed to claim Test Pi. Please try again.');
+    } finally {
       setIsClaiming(false);
     }
   };
@@ -293,7 +159,6 @@ export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
         <div className="text-xs text-brand-indigo-200 mt-1 space-y-1">
           <p>hasClaimed: {hasClaimed === null ? 'null (loading)' : hasClaimed ? 'true (claimed)' : 'false (can claim)'}</p>
           <p>isLoading: {isLoading ? 'true' : 'false'}</p>
-          <p>piSdkReady: {piSdkReady ? '✅ true' : '❌ false'}</p>
           <p>userId: {userId?.substring(0, 8)}...</p>
           {error && <p className="text-red-300">Error: {error}</p>}
           {debugInfo && <p className="text-brand-cyan-300">API Response: {JSON.stringify(debugInfo).substring(0, 100)}...</p>}
@@ -366,18 +231,13 @@ export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
 
                   <Button
                     onClick={handleClaim}
-                    disabled={isClaiming || !piSdkReady}
+                    disabled={isClaiming}
                     className="w-full md:w-auto"
                   >
                     {isClaiming ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Claiming...
-                      </>
-                    ) : !piSdkReady ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Initializing Pi SDK...
                       </>
                     ) : (
                       <>
@@ -483,11 +343,11 @@ export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
               </div>
 
               <div className="bg-brand-dark-950 p-2 rounded text-xs text-brand-indigo-300">
-                <p className="font-bold mb-1">🔧 Pi SDK Status:</p>
-                <p>Window.Pi: {(typeof window !== 'undefined' && (window as any).Pi) ? '✅ Available' : '❌ Not found'}</p>
-                <p>SDK Ready: {piSdkReady ? '✅ Yes' : '❌ No'}</p>
+                <p className="font-bold mb-1">🔧 A2U Payment Status:</p>
+                <p>Method: App-to-User (A2U)</p>
+                <p>Flow: Platform directly sends 1 Pi to user</p>
                 <p className="text-brand-indigo-400 mt-1">
-                  {piSdkReady ? 'Ready to create payments' : 'SDK initialization in progress...'}
+                  ✅ No Pi SDK needed - backend handles payment
                 </p>
               </div>
             </div>

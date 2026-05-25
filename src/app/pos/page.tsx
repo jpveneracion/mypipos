@@ -8,6 +8,7 @@ import { useCartStore } from '@/lib/store';
 import { Product } from '@/types';
 import BarcodeScanner from '@/components/pos/BarcodeScanner';
 import { Button } from '@/components/ui/Button';
+import { getCurrencySymbol, formatPrice } from '@/lib/currency';
 import {
   ShoppingCart,
   Scan,
@@ -154,18 +155,19 @@ export default function POSPage() {
   const handleCheckout = () => {
     const total = getTotal();
     const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+    const currencySymbol = getCurrencySymbol();
 
     const confirmed = window.confirm(
       `Checkout Summary:\n` +
       `• ${itemCount} items\n` +
-      `• Subtotal: $${getSubtotal().toFixed(2)}\n` +
-      `• Tax: $${getTax().toFixed(2)}\n` +
-      `• Total: $${total.toFixed(2)}\n\n` +
+      `• Subtotal: ${currencySymbol}${getSubtotal().toFixed(2)}\n` +
+      `• Tax: ${currencySymbol}${getTax().toFixed(2)}\n` +
+      `• Total: ${currencySymbol}${total.toFixed(2)}\n\n` +
       `Proceed with Pi payment?`
     );
 
     if (confirmed) {
-      alert(`Processing Pi payment of $${total.toFixed(2)}...\n\n(Payment integration to be implemented)`);
+      alert(`Processing Pi payment of ${currencySymbol}${total.toFixed(2)}...\n\n(Payment integration to be implemented)`);
       clearCart();
       setSelectedCustomer(null);
     }
@@ -328,7 +330,7 @@ export default function POSPage() {
 
                     <div className="flex items-center justify-between mb-2">
                       <p className="text-brand-cyan-400 font-bold text-lg">
-                        ${product.price.toFixed(2)}
+                        {formatPrice(product.price)}
                       </p>
                       <div className="w-8 h-8 bg-brand-indigo-800 rounded-lg flex items-center justify-center group-hover:from-brand-cyan-400 group-hover:to-brand-cyan-600 group-hover:text-white transition-all duration-300">
                         <Plus className="w-4 h-4 text-brand-cyan-400 group-hover:text-brand-dark-950" />
@@ -506,7 +508,7 @@ export default function POSPage() {
                         {item.product.name}
                       </div>
                       <div className="text-xs text-brand-indigo-500">
-                        ${item.product.price.toFixed(2)} each
+                        {formatPrice(item.product.price)} each
                       </div>
                     </div>
 
@@ -549,16 +551,16 @@ export default function POSPage() {
             <div className="space-y-3 mb-6">
               <div className="flex justify-between text-sm text-brand-indigo-400">
                 <span>Subtotal</span>
-                <span className="font-semibold text-brand-indigo-200">${getSubtotal().toFixed(2)}</span>
+                <span className="font-semibold text-brand-indigo-200">{formatPrice(getSubtotal())}</span>
               </div>
               <div className="flex justify-between text-sm text-brand-indigo-400">
                 <span>Tax (8%)</span>
-                <span className="font-semibold text-brand-indigo-200">${getTax().toFixed(2)}</span>
+                <span className="font-semibold text-brand-indigo-200">{formatPrice(getTax())}</span>
               </div>
               <div className="h-px bg-brand-indigo-800 my-3"></div>
               <div className="flex justify-between">
                 <span className="text-base font-semibold text-brand-indigo-300">Total</span>
-                <span className="text-xl font-bold text-brand-cyan-400">${getTotal().toFixed(2)}</span>
+                <span className="text-xl font-bold text-brand-cyan-400">{formatPrice(getTotal())}</span>
               </div>
             </div>
 

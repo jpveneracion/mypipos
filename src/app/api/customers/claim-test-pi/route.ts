@@ -11,9 +11,9 @@ import { query } from '@/lib/db';
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId, paymentId, amount, action, txid, memo, type } = await request.json();
+    const { userId } = await request.json();
 
-    console.log(`[${action?.toUpperCase()}] Test Pi claim request:`, { userId, paymentId, amount, action, txid });
+    console.log(`[CLAIM-TEST-PI] Test Pi claim request:`, { userId });
 
     if (!userId) {
       return NextResponse.json(
@@ -22,19 +22,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!paymentId) {
-      return NextResponse.json(
-        { success: false, error: 'Payment ID required' },
-        { status: 400 }
-      );
-    }
-
     // Step 1: Check if user has already claimed test Pi
     const existingClaimResult = await query(
       `SELECT * FROM a2u_payments
        WHERE to_user_id = $1
-       AND transaction_type = 'customer_reward'
+       AND transaction_type = 'reward'
        AND metadata->>'reward_type' = 'test_pi_claim'
+       AND status = 'completed'
        LIMIT 1`,
       [userId]
     );
@@ -63,117 +57,42 @@ export async function POST(request: NextRequest) {
 
     const user = userResult.rows[0];
 
-    // Step 3: Handle different payment actions (matching mypiroll pattern)
-    if (action === 'approve') {
-      console.log('[APPROVE] Processing payment approval...');
-
-      // Call Pi Network API to approve payment
-      const apiKey = process.env.PI_API_KEY;
-      if (!apiKey) {
-        return NextResponse.json(
-          { success: false, error: 'Pi Network not configured' },
-          { status: 500 }
-        );
-      }
-
-      const piApiUrl = process.env.PI_API_URL || 'https://api.minepi.com/v2';
-
-      // Approve payment using Pi API key
-      const approveResponse = await fetch(`${piApiUrl}/payments/${paymentId}/approve`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Key ${apiKey}`,
-        },
-      });
-
-      if (!approveResponse.ok) {
-        const errorText = await approveResponse.text();
-        console.error('Pi API approval error:', errorText);
-        return NextResponse.json(
-          { success: false, error: 'Failed to approve payment with Pi Network' },
-          { status: approveResponse.status }
-        );
-      }
-
-      const approveResult = await approveResponse.json();
-      console.log('✅ Payment approved with Pi Network:', approveResult);
-
-      return NextResponse.json({
-        success: true,
-        payment: {
-          id: paymentId,
-          status: 'approved',
-          message: 'Payment approved - waiting for wallet confirmation'
-        }
-      });
-
-    } else if (action === 'complete') {
-      console.log('[COMPLETE] Processing payment completion...');
-
-      // Step 4: Create A2U payment record for test Pi claim (only on completion)
-      const claimResult = await query(
-        `INSERT INTO a2u_payments (
-          transaction_number,
-          payment_id,
-          to_user_id,
-          to_user_type,
-          to_user_username,
-          to_user_pi_uid,
-          amount,
-          memo,
-          transaction_type,
-          metadata,
-          status,
-          network
-        ) VALUES (
-          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
-        ) RETURNING *`,
-        [
-          `A2U-TEST-${Date.now()}`,
-          paymentId,
-          user.id,
-          'customer',
-          user.username,
-          user.pi_uid,
-          amount || 1.0,
-          'One-time Pioneer Test Pi Bonus',
-          'customer_reward',
-          JSON.stringify({
-            reward_type: 'test_pi_claim',
-            claimed_at: new Date().toISOString(),
-            txid: txid,
-            completed: true
-          }),
-          'completed',
-          'Pi Testnet'
-        ]
-      );
-
-      const claim = claimResult.rows[0];
-
-      console.log('✅ Test Pi claim completed:', claim);
-
-      return NextResponse.json({
-        success: true,
-        payment: {
-          id: claim.id,
-          transactionNumber: claim.transaction_number,
-          paymentId: claim.payment_id,
-          amount: claim.amount,
-          memo: claim.memo,
-          status: claim.status,
-          claimedAt: claim.created_at,
-          txid: txid
-        },
-        message: '✅ Successfully claimed 1 test Pi! Check your wallet.'
-      });
-    } else {
+    if (!user.pi_uid) {
       return NextResponse.json(
-        { success: false, error: `Invalid action: ${action}. Use "approve" or "complete"` },
+        { success: false, error: 'User does not have Pi UID. Please authenticate with Pi Network first.' },
         { status: 400 }
       );
     }
+
+    // Step 3: Import and call A2U payment logic directly
+    const { processA2UPayment } = await import('@/lib/a2u-payment');
+
+    const a2uResult = await processA2UPayment({
+      uid: user.pi_uid,
+      amount: 1.00,
+      memo: 'Test Pi Claim - One-time pioneer bonus',
+      transaction_type: 'reward',
+      metadata: {
+        reward_type: 'test_pi_claim',
+        user_id: userId,
+        claimed_at: new Date().toISOString()
+      }
+    });
+
+    if (!a2uResult.success) {
+      return NextResponse.json(
+        { success: false, error: a2uResult.error || 'A2U payment failed' },
+        { status: 500 }
+      );
+    }
+
+    console.log('✅ Test Pi claim completed via A2U:', a2uResult);
+
+    return NextResponse.json({
+      success: true,
+      payment: a2uResult.payment,
+      message: '✅ Successfully claimed 1 test Pi! Check your wallet.'
+    });
 
   } catch (error) {
     console.error('Test Pi claim error:', error);
@@ -197,12 +116,13 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Check if user has already claimed
+    // Check if user has already claimed (using A2U payments)
     const existingClaimResult = await query(
       `SELECT * FROM a2u_payments
        WHERE to_user_id = $1
-       AND transaction_type = 'customer_reward'
+       AND transaction_type = 'reward'
        AND metadata->>'reward_type' = 'test_pi_claim'
+       AND status = 'completed'
        LIMIT 1`,
       [userId]
     );
@@ -216,7 +136,9 @@ export async function GET(request: NextRequest) {
         id: existingClaimResult.rows[0].id,
         transactionNumber: existingClaimResult.rows[0].transaction_number,
         amount: existingClaimResult.rows[0].amount,
-        claimedAt: existingClaimResult.rows[0].created_at
+        claimedAt: existingClaimResult.rows[0].created_at,
+        txid: existingClaimResult.rows[0].txid,
+        status: existingClaimResult.rows[0].status
       } : null
     });
 
