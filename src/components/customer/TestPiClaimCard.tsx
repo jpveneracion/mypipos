@@ -197,6 +197,7 @@ export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
         <div className="text-xs text-brand-indigo-200 mt-1 space-y-1">
           <p>hasClaimed: {hasClaimed === null ? 'null (loading)' : hasClaimed ? 'true (claimed)' : 'false (can claim)'}</p>
           <p>isLoading: {isLoading ? 'true' : 'false'}</p>
+          <p>piSdkReady: {piSdkReady ? '✅ true' : '❌ false'}</p>
           <p>userId: {userId?.substring(0, 8)}...</p>
           {error && <p className="text-red-300">Error: {error}</p>}
           {debugInfo && <p className="text-brand-cyan-300">API Response: {JSON.stringify(debugInfo).substring(0, 100)}...</p>}
@@ -269,13 +270,18 @@ export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
 
                   <Button
                     onClick={handleClaim}
-                    disabled={isClaiming}
+                    disabled={isClaiming || !piSdkReady}
                     className="w-full md:w-auto"
                   >
                     {isClaiming ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Claiming...
+                      </>
+                    ) : !piSdkReady ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Initializing Pi SDK...
                       </>
                     ) : (
                       <>
@@ -377,6 +383,15 @@ export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
                 <p className="font-bold mb-1">🔗 Debug API:</p>
                 <p className="break-all text-brand-indigo-400">
                   /api/debug/test-claim-status?userId={userId}
+                </p>
+              </div>
+
+              <div className="bg-brand-dark-950 p-2 rounded text-xs text-brand-indigo-300">
+                <p className="font-bold mb-1">🔧 Pi SDK Status:</p>
+                <p>Window.Pi: {(typeof window !== 'undefined' && (window as any).Pi) ? '✅ Available' : '❌ Not found'}</p>
+                <p>SDK Ready: {piSdkReady ? '✅ Yes' : '❌ No'}</p>
+                <p className="text-brand-indigo-400 mt-1">
+                  {piSdkReady ? 'Ready to create payments' : 'SDK initialization in progress...'}
                 </p>
               </div>
             </div>
