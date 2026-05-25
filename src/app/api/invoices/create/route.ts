@@ -18,11 +18,39 @@ export async function POST(request: NextRequest) {
       invoiceType = 'standard' // 'standard', 'online_order', 'subscription'
     } = await request.json();
 
+    // Validate required fields
+    if (!customerId || !merchantId || !items || !Array.isArray(items) || items.length === 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Missing required fields: customerId, merchantId, items'
+        },
+        { status: 400 }
+      );
+    }
+
+    // Get merchant's tax rate from database
+    let taxRate = 0.08; // Default fallback
+    try {
+      const merchantResult = await query(
+        'SELECT tax_rate FROM merchants WHERE id = $1',
+        [merchantId]
+      );
+
+      if (merchantResult.rows.length > 0) {
+        const merchantTaxRate = merchantResult.rows[0].tax_rate;
+        // Convert percentage to decimal (e.g., 8 -> 0.08)
+        taxRate = (merchantTaxRate || 8) / 100;
+      }
+    } catch (error) {
+      console.error('Error fetching merchant tax rate:', error);
+      // Keep default tax rate
+    }
+
     // Calculate totals
     const subtotal = items.reduce((sum: number, item: any) =>
       sum + (item.unitPrice * item.quantity), 0
     );
-    const taxRate = 0.08; // 8% tax
     const tax = subtotal * taxRate;
     const total = subtotal + tax;
 
