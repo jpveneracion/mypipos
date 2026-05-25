@@ -11,6 +11,7 @@ interface TestPiClaimCardProps {
 }
 
 export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
+  const VERSION = 'test-pi-claim-v2-mypiroll-compatible';
   const [hasClaimed, setHasClaimed] = useState<boolean | null>(null);
   const [isClaiming, setIsClaiming] = useState(false);
   const [error, setError] = useState('');
@@ -19,6 +20,7 @@ export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
   const [debugInfo, setDebugInfo] = useState<any>(null);
   const [showDebug, setShowDebug] = useState(false);
   const [piSdkReady, setPiSdkReady] = useState(false);
+  const [paymentResult, setPaymentResult] = useState<string | null>(null);
 
   useEffect(() => {
     let waitForPiInterval: NodeJS.Timeout | null = null;
@@ -36,10 +38,45 @@ export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
         // Step 2: Wait a moment for init to complete
         await new Promise(resolve => setTimeout(resolve, 500));
 
-        // Step 3: Authenticate with payment scope
+        // Step 3: Handle incomplete payment during authentication (like mypiroll)
+        const handleIncompletePayment = async (payment: any) => {
+          console.log('[TEST-PI-CLAIM] ⚠️ Zombie payment found during auth:', payment.identifier);
+
+          try {
+            // Send to backend to clear using Master API Key
+            const clearResponse = await fetch('/api/payments/clear-incomplete-payment', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                paymentId: payment.identifier
+              })
+            });
+
+            if (clearResponse.ok) {
+              const result = await clearResponse.json();
+              console.log('[TEST-PI-CLAIM] ✅ Zombie payment cleared:', result);
+
+              // Wait a moment then retry authentication
+              setTimeout(() => {
+                console.log('[TEST-PI-CLAIM] Retrying authentication...');
+                initAndAuth();
+              }, 2000);
+            } else {
+              const error = await clearResponse.json();
+              console.error('[TEST-PI-CLAIM] Failed to clear zombie:', error);
+            }
+          } catch (err) {
+            console.error('[TEST-PI-CLAIM] Error clearing zombie:', err);
+          }
+        };
+
+        // Step 4: Authenticate with payment scope AND incomplete payment handler
         console.log('Authenticating with Pi Network for payments...');
 
-        const auth = await Pi.authenticate(['username', 'payments']);
+        const auth = await Pi.authenticate(
+          ['username', 'payments'],
+          handleIncompletePayment
+        );
 
         const username = auth?.user?.username || 'Unknown User';
         const uid = auth?.user?.uid || 'Unknown UID';
@@ -225,17 +262,17 @@ export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
         },
 
         // Step 4: Payment cancelled
-        onCancelled: (payment: any) => {
-          console.log('Payment cancelled:', payment);
-          setError('Payment was cancelled.');
+        onCancel: async (paymentId: string) => {
+          console.log(`❌ Payment cancelled: ${paymentId}`);
+          setPaymentResult(`❌ Payment cancelled`);
           setIsClaiming(false);
         },
 
         // Step 5: Payment error
-        onError: (error: any, payment?: any) => {
-          console.error('Payment error:', error, payment);
-          const errorMessage = error?.message || JSON.stringify(error);
-          setError(`Payment failed: ${errorMessage}`);
+        onError: async (error: unknown) => {
+          const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+          console.error(`❌ Payment error: ${errorMsg}`);
+          setError(`Payment failed: ${errorMsg}`);
           setIsClaiming(false);
         }
       });
