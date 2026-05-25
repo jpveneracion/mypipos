@@ -53,32 +53,83 @@ export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
     setSuccessMessage('');
 
     try {
-      const response = await fetch('/api/customers/claim-test-pi', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId })
+      // Step 1: Create payment via Pi SDK
+      const payment = await (window as any).Pi.createPayment({
+        amount: '1.0000000',
+        memo: 'Test Pi Claim - One-time pioneer bonus',
+        metadata: {
+          userId,
+          type: 'test_pi_claim',
+          timestamp: new Date().toISOString()
+        }
+      }, {
+        // Step 2: Payment ready for server approval
+        onReadyForServerApproval: async (paymentId: string) => {
+          console.log('Test Pi payment ready for approval:', paymentId);
+          setError('');
+
+          try {
+            // Approve payment on backend
+            const response = await fetch('/api/customers/claim-test-pi', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                userId,
+                paymentId,
+                amount: 1
+              })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+              throw new Error(data.error || 'Payment approval failed');
+            }
+
+            setSuccessMessage('Payment approved! Processing your claim...');
+          } catch (error) {
+            console.error('Payment approval error:', error);
+            setError(error instanceof Error ? error.message : 'Failed to approve payment');
+            setIsClaiming(false);
+          }
+        },
+
+        // Step 3: Payment completed
+        onIncompletePaymentFound: (payment: any) => {
+          console.log('Incomplete payment found:', payment);
+          setError('Payment was not completed. Please try again.');
+          setIsClaiming(false);
+        },
+
+        // Step 4: Payment cancelled
+        onCancelled: (payment: any) => {
+          console.log('Payment cancelled:', payment);
+          setError('Payment was cancelled.');
+          setIsClaiming(false);
+        },
+
+        // Step 5: Payment completed successfully
+        onCompleted: (payment: any) => {
+          console.log('Payment completed:', payment);
+          setHasClaimed(true);
+          setSuccessMessage('Successfully claimed 1 Test Pi! 🎉');
+          setIsClaiming(false);
+
+          // Clear success message after 5 seconds
+          setTimeout(() => setSuccessMessage(''), 5000);
+        },
+
+        // Step 6: Payment error
+        onError: (error: any, payment?: any) => {
+          console.error('Payment error:', error, payment);
+          setError(error?.message || 'Payment failed. Please try again.');
+          setIsClaiming(false);
+        }
       });
 
-      const data = await response.json();
-
-      if (!data.success) {
-        if (data.alreadyClaimed) {
-          setHasClaimed(true);
-        } else {
-          setError(data.error || 'Failed to claim test Pi');
-        }
-        return;
-      }
-
-      setHasClaimed(true);
-      setSuccessMessage(data.message);
-
-      // Clear success message after 5 seconds
-      setTimeout(() => setSuccessMessage(''), 5000);
-
     } catch (error) {
-      setError('Network error. Please try again.');
-    } finally {
+      console.error('Claim error:', error);
+      setError(error instanceof Error ? error.message : 'Failed to initiate payment. Please try again.');
       setIsClaiming(false);
     }
   };

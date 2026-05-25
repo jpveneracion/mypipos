@@ -11,11 +11,18 @@ import { query } from '@/lib/db';
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await request.json();
+    const { userId, paymentId, amount } = await request.json();
 
     if (!userId) {
       return NextResponse.json(
         { success: false, error: 'User ID required' },
+        { status: 400 }
+      );
+    }
+
+    if (!paymentId) {
+      return NextResponse.json(
+        { success: false, error: 'Payment ID required' },
         { status: 400 }
       );
     }
@@ -54,7 +61,39 @@ export async function POST(request: NextRequest) {
 
     const user = userResult.rows[0];
 
-    // Step 3: Create A2U payment record for test Pi claim
+    // Step 3: Approve the payment using Pi Network API
+    const apiKey = process.env.PI_API_KEY;
+    if (!apiKey) {
+      return NextResponse.json(
+        { success: false, error: 'Pi Network not configured' },
+        { status: 500 }
+      );
+    }
+
+    const piApiUrl = process.env.PI_API_URL || 'https://api.minepi.com/v2';
+
+    // Approve payment using Pi API key
+    const approveResponse = await fetch(`${piApiUrl}/payments/${paymentId}/approve`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Key ${apiKey}`,
+      },
+    });
+
+    if (!approveResponse.ok) {
+      const errorText = await approveResponse.text();
+      console.error('Pi API approval error:', errorText);
+      return NextResponse.json(
+        { success: false, error: 'Failed to approve payment with Pi Network' },
+        { status: approveResponse.status }
+      );
+    }
+
+    const approveResult = await approveResponse.json();
+    console.log('Payment approved:', approveResult);
+
+    // Step 4: Create A2U payment record for test Pi claim
     const claimResult = await query(
       `INSERT INTO a2u_payments (
         transaction_number,
@@ -74,19 +113,20 @@ export async function POST(request: NextRequest) {
       ) RETURNING *`,
       [
         `A2U-TEST-${Date.now()}`,
-        `TEST-CLAIM-${Date.now()}`,
+        paymentId,
         user.id,
         'customer',
         user.username,
         user.pi_uid,
-        1.0, // 1 test Pi
+        amount || 1.0,
         'One-time Pioneer Test Pi Bonus',
         'customer_reward',
         JSON.stringify({
           reward_type: 'test_pi_claim',
-          claimed_at: new Date().toISOString()
+          claimed_at: new Date().toISOString(),
+          pi_network_payment: approveResult
         }),
-        'completed', // Auto-complete for test Pi
+        'completed',
         'Pi Testnet'
       ]
     );
@@ -98,6 +138,7 @@ export async function POST(request: NextRequest) {
       claim: {
         id: claim.id,
         transactionNumber: claim.transaction_number,
+        paymentId: claim.payment_id,
         amount: claim.amount,
         memo: claim.memo,
         status: claim.status,
