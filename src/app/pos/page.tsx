@@ -26,72 +26,9 @@ import {
   CreditCard,
   Barcode,
   Box,
-  AlertCircle
+  AlertCircle,
+  Loader2
 } from 'lucide-react';
-
-// Sample products - would come from API
-const sampleProducts: Product[] = [
-  {
-    id: '1',
-    name: 'Coffee',
-    price: 3.50,
-    sku: 'COF001',
-    barcode: '1234567890123',
-    category: 'Beverages',
-    stock: 50,
-    minStock: 10,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '2',
-    name: 'Sandwich',
-    price: 6.99,
-    sku: 'SND001',
-    barcode: '9876543210987',
-    category: 'Food',
-    stock: 20,
-    minStock: 5,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '3',
-    name: 'Salad',
-    price: 5.49,
-    sku: 'SAL001',
-    barcode: '5555555555555',
-    category: 'Food',
-    stock: 15,
-    minStock: 3,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '4',
-    name: 'Tea',
-    price: 2.99,
-    sku: 'TEA001',
-    barcode: '1111111111111',
-    category: 'Beverages',
-    stock: 35,
-    minStock: 8,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '5',
-    name: 'Cookie',
-    price: 1.99,
-    sku: 'CKI001',
-    barcode: '2222222222222',
-    category: 'Snacks',
-    stock: 60,
-    minStock: 15,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-];
 
 // Icon mapping for products
 const productIcons: Record<string, React.ReactNode> = {
@@ -114,6 +51,9 @@ export default function POSPage() {
     name?: string;
     piUsername?: string;
   } | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [productsError, setProductsError] = useState<string | null>(null);
 
   // Auth check
   useEffect(() => {
@@ -139,11 +79,40 @@ export default function POSPage() {
     return () => { delete (window as any).openScanner; };
   }, []);
 
+  // Fetch products from API
+  useEffect(() => {
+    const fetchProducts = async () => {
+      if (!merchantId) return;
+
+      try {
+        setLoadingProducts(true);
+        setProductsError(null);
+
+        const response = await fetch(`/api/products?merchant_id=${merchantId}`);
+        const data = await response.json();
+
+        if (data.success) {
+          setProducts(data.products);
+        } else {
+          setProductsError(data.error || 'Failed to load products');
+        }
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        setProductsError('Failed to connect to product API');
+      } finally {
+        setLoadingProducts(false);
+      }
+    };
+
+    fetchProducts();
+  }, [merchantId]);
+
   const { items, addItem, removeItem, updateQuantity, getSubtotal, getTax, getTotal, clearCart } = useCartStore();
 
-  const categories = ['All', 'Beverages', 'Food', 'Snacks'];
+  // Extract categories from products
+  const categories = ['All', ...Array.from(new Set(products.map(p => p.category).filter(Boolean)))];
 
-  const filteredProducts = sampleProducts.filter(product => {
+  const filteredProducts = products.filter(product => {
     const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          product.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -152,7 +121,7 @@ export default function POSPage() {
   });
 
   const handleBarcodeScanned = (barcode: string) => {
-    const product = sampleProducts.find(p => p.barcode === barcode);
+    const product = products.find(p => p.barcode === barcode);
     if (product) {
       addItem(product);
       setSelectedCategory(product.category);
@@ -332,7 +301,33 @@ export default function POSPage() {
               </div>
             </motion.div>
 
+            {/* Loading State */}
+            {loadingProducts && (
+              <div className="flex flex-col items-center justify-center py-16">
+                <Loader2 className="w-12 h-12 text-brand-cyan-400 animate-spin mb-4" />
+                <p className="text-brand-indigo-300 text-lg font-semibold">Loading products...</p>
+              </div>
+            )}
+
+            {/* Error State */}
+            {productsError && (
+              <div className="bg-brand-magenta-900/30 border border-brand-magenta-700 rounded-xl p-6 text-center">
+                <AlertCircle className="w-12 h-12 text-brand-magenta-400 mx-auto mb-4" />
+                <h3 className="text-brand-magenta-300 text-lg font-semibold mb-2">Failed to Load Products</h3>
+                <p className="text-brand-magenta-400 text-sm mb-4">{productsError}</p>
+                <Button
+                  size="sm"
+                  onClick={() => window.location.reload()}
+                  className="bg-brand-magenta-600 hover:bg-brand-magenta-700 text-white"
+                >
+                  Retry
+                </Button>
+              </div>
+            )}
+
             {/* Products Grid */}
+            {!loadingProducts && !productsError && (
+              <>
             <motion.div
               initial="hidden"
               animate="show"
@@ -386,7 +381,7 @@ export default function POSPage() {
               })}
             </motion.div>
 
-            {filteredProducts.length === 0 && (
+            {filteredProducts.length === 0 && !loadingProducts && !productsError && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -402,6 +397,8 @@ export default function POSPage() {
                   Try adjusting your search or category filter
                 </p>
               </motion.div>
+            )}
+              </>
             )}
           </div>
         </div>
