@@ -42,7 +42,7 @@ const productIcons: Record<string, React.ReactNode> = {
 
 export default function POSPage() {
   const router = useRouter();
-  const { isAuthenticated, merchantId, currentContext } = useAuthStore();
+  const { isAuthenticated, merchantId, currentContext, setMerchantData } = useAuthStore();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [showScanner, setShowScanner] = useState(false);
@@ -108,7 +108,35 @@ export default function POSPage() {
     fetchProducts();
   }, [merchantId]);
 
-  const { items, addItem, removeItem, updateQuantity, getSubtotal, getTax, getTotal, clearCart } = useCartStore();
+  const { items, addItem, removeItem, updateQuantity, getSubtotal, getTax, getTotal, clearCart, setMerchantTaxRate, merchantTaxRate } = useCartStore();
+
+  // Fetch merchant data to get tax rate
+  useEffect(() => {
+    const fetchMerchantData = async () => {
+      if (!merchantId) return;
+
+      try {
+        const response = await fetch(`/api/merchant?merchant_id=${merchantId}`);
+        const data = await response.json();
+
+        if (data.success && data.merchant) {
+          const merchant = data.merchant;
+
+          // Store merchant data in auth store
+          setMerchantData(merchant);
+
+          // Set the tax rate (convert from percentage to decimal)
+          const taxRate = (merchant.tax_rate || 8) / 100;
+          setMerchantTaxRate(taxRate);
+        }
+      } catch (error) {
+        console.error('Error fetching merchant data:', error);
+        // Keep default 8% tax rate on error
+      }
+    };
+
+    fetchMerchantData();
+  }, [merchantId, setMerchantData, setMerchantTaxRate]);
 
   // Extract categories from products
   const categories = ['All', ...Array.from(new Set(products.map(p => p.category).filter(Boolean)))];
@@ -554,7 +582,7 @@ export default function POSPage() {
                 <span className="font-semibold text-brand-indigo-200">{formatPrice(getSubtotal())}</span>
               </div>
               <div className="flex justify-between text-sm text-brand-indigo-400">
-                <span>Tax (8%)</span>
+                <span>Tax ({(merchantTaxRate * 100).toFixed(0)}%)</span>
                 <span className="font-semibold text-brand-indigo-200">{formatPrice(getTax())}</span>
               </div>
               <div className="h-px bg-brand-indigo-800 my-3"></div>

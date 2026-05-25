@@ -5,6 +5,8 @@ import type { Customer } from '@/types/customer';
 
 interface CartStore {
   items: CartItem[];
+  merchantTaxRate: number;
+  setMerchantTaxRate: (taxRate: number) => void;
   addItem: (product: Product) => void;
   removeItem: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
@@ -17,6 +19,9 @@ interface CartStore {
 
 export const useCartStore = create<CartStore>((set, get) => ({
   items: [],
+  merchantTaxRate: 0.08, // Default 8% until merchant data loads
+
+  setMerchantTaxRate: (taxRate) => set({ merchantTaxRate: taxRate }),
 
   addItem: (product) => {
     set((state) => {
@@ -56,7 +61,8 @@ export const useCartStore = create<CartStore>((set, get) => ({
 
   getTax: () => {
     const subtotal = get().getSubtotal();
-    return subtotal * 0.08; // 8% tax rate
+    const taxRate = get().merchantTaxRate;
+    return subtotal * taxRate;
   },
 
   getTotal: () => {
@@ -72,9 +78,11 @@ interface AuthStore {
   isAuthenticated: boolean;
   user: User | null;
   merchantId: string | null;
+  merchantData: any | null; // Merchant settings including tax_rate
   currentContext: 'merchant' | 'customer';
   setAuth: (isAuthenticated: boolean, user: User | null, merchantId?: string | null) => void;
   setMerchantId: (merchantId: string | null) => void;
+  setMerchantData: (merchantData: any) => void;
   setContext: (context: 'merchant' | 'customer') => void;
   logout: () => void;
 }
@@ -85,6 +93,7 @@ export const useAuthStore = create<AuthStore>()(
       isAuthenticated: false,
       user: null,
       merchantId: null,
+      merchantData: null,
       currentContext: 'customer',
       setAuth: (isAuthenticated, user, merchantId) => set({
         isAuthenticated,
@@ -93,6 +102,7 @@ export const useAuthStore = create<AuthStore>()(
         currentContext: merchantId ? 'merchant' : 'customer'
       }),
       setMerchantId: (merchantId) => set({ merchantId }),
+      setMerchantData: (merchantData) => set({ merchantData }),
       setContext: (context) => set({ currentContext: context }),
       logout: () => {
         // Clear persisted storage first
@@ -102,6 +112,7 @@ export const useAuthStore = create<AuthStore>()(
           isAuthenticated: false,
           user: null,
           merchantId: null,
+          merchantData: null,
           currentContext: 'customer'
         });
       },
