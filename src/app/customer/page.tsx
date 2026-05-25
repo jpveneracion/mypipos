@@ -10,6 +10,7 @@ import { Card } from '@/components/ui/Card';
 import InvoiceList from './components/InvoiceList';
 import CustomerQRCode from './components/CustomerQRCode';
 import { TestPiClaimCard } from '@/components/customer/TestPiClaimCard';
+import { TestPiPaymentDebug } from '@/components/customer/TestPiPaymentDebug';
 import {
   User,
   ShoppingBag,
@@ -164,6 +165,9 @@ export default function CustomerPage() {
           {/* Test Pi Claim Section - Above QR Code */}
           {user ? (
             <>
+              {/* Payment Debug - Always visible for troubleshooting */}
+              <TestPiPaymentDebug userId={user.id} />
+
               {/* Debug Info - Always visible */}
               <div className="mb-4 p-4 bg-brand-dark-950 border-2 border-brand-cyan-500 rounded-lg">
                 <h4 className="text-brand-cyan-400 font-bold mb-2">🔍 Customer Debug Info</h4>

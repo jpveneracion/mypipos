@@ -26,18 +26,32 @@ export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
       try {
         if (typeof window !== 'undefined' && (window as any).Pi) {
           console.log('Initializing Pi Network SDK...');
-          await (window as any).Pi.init({ version: "2.0" });
+
+          // Check available SDK methods
+          const Pi = (window as any).Pi;
+          console.log('Pi SDK methods:', Object.keys(Pi).filter(key => typeof Pi[key] === 'function'));
+
+          await Pi.init({ version: "2.0" });
+
           // Wait for SDK to be ready
-          await new Promise(resolve => setTimeout(resolve, 500));
-          setPiSdkReady(true);
-          console.log('Pi Network SDK initialized successfully');
+          await new Promise(resolve => setTimeout(resolve, 1000));
+
+          // Verify SDK is ready by checking createPayment method
+          if (typeof Pi.createPayment === 'function') {
+            setPiSdkReady(true);
+            console.log('✅ Pi Network SDK initialized successfully');
+            console.log('✅ createPayment method available');
+          } else {
+            console.warn('⚠️ SDK initialized but createPayment not available');
+            setError('Pi Network SDK partially loaded. Please refresh.');
+          }
         } else {
           console.warn('Pi Network SDK not available');
           setError('Pi Network SDK not available. Please use Pi Browser.');
         }
       } catch (error) {
         console.error('Failed to initialize Pi SDK:', error);
-        setError('Failed to initialize Pi Network SDK. Please refresh the page.');
+        setError(`Failed to initialize Pi Network SDK: ${error instanceof Error ? error.message : String(error)}`);
       }
     };
 
@@ -107,19 +121,36 @@ export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
     setSuccessMessage('');
 
     try {
-      // Step 1: Create payment via Pi SDK
-      const payment = await (window as any).Pi.createPayment({
-        amount: '1.0000000',
+      // Check if Pi SDK is available
+      const Pi = (window as any).Pi;
+      if (!Pi) {
+        throw new Error('Pi Network SDK not available. Please use Pi Browser.');
+      }
+
+      // Step 1: Create payment via Pi SDK with all required fields
+      const paymentData = {
+        amount: '1.00',
         memo: 'Test Pi Claim - One-time pioneer bonus',
         metadata: {
           userId,
           type: 'test_pi_claim',
           timestamp: new Date().toISOString()
         }
-      }, {
+      };
+
+      console.log('Creating payment with data:', paymentData);
+      console.log('Pi SDK available:', typeof Pi.createPayment);
+
+      // Check if createPayment method exists
+      if (typeof Pi.createPayment !== 'function') {
+        throw new Error('Pi.createPayment method not available. SDK may not be fully loaded.');
+      }
+
+      const payment = await Pi.createPayment(paymentData, {
         // Step 2: Payment ready for server approval
         onReadyForServerApproval: async (paymentId: string) => {
           console.log('Test Pi payment ready for approval:', paymentId);
+          setSuccessMessage('Payment created! Approving with Pi Network...');
           setError('');
 
           try {
@@ -176,7 +207,8 @@ export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
         // Step 6: Payment error
         onError: (error: any, payment?: any) => {
           console.error('Payment error:', error, payment);
-          setError(error?.message || 'Payment failed. Please try again.');
+          const errorMessage = error?.message || JSON.stringify(error);
+          setError(`Payment failed: ${errorMessage}`);
           setIsClaiming(false);
         }
       });

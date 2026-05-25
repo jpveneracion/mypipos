@@ -266,9 +266,9 @@ export default function POSPage() {
         </div>
       </header>
 
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* Products Section */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto order-1 lg:order-1">
           <div className="container mx-auto px-6 py-6">
             {/* Search and Filter */}
             <motion.div
@@ -407,7 +407,7 @@ export default function POSPage() {
         </div>
 
         {/* Cart Section */}
-        <div className="w-96 border-l border-brand-indigo-800/50 flex flex-col backdrop-blur-xl bg-brand-indigo-900/30 flex-shrink-0">
+        <div className="w-full lg:w-96 border-l-0 lg:border-l border-brand-indigo-800/50 flex flex-col backdrop-blur-xl bg-brand-indigo-900/30 shrink-0 order-2 lg:order-3">
           {/* Customer Section */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}

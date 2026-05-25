@@ -371,12 +371,12 @@ export default function IMSPage() {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <p className="text-brand-indigo-400 text-sm font-medium mb-1">Total Value</p>
-                  <p className="text-4xl font-display font-bold text-brand-indigo-200">
+                  <p className="text-2xl font-display font-bold text-brand-indigo-200">
                     ${totalValue.toFixed(2)}
                   </p>
                 </div>
-                <div className="w-14 h-14 bg-gradient-to-br from-brand-cyan-400/10 to-brand-cyan-600/10 rounded-2xl flex items-center justify-center border border-brand-cyan-700/30">
-                  <DollarSign className="w-7 h-7 text-brand-cyan-400" />
+                <div className="w-10 h-10 bg-gradient-to-br from-brand-cyan-400/10 to-brand-cyan-600/10 rounded-2xl flex items-center justify-center border border-brand-cyan-700/30">
+                  <DollarSign className="w-5 h-5 text-brand-cyan-400" />
                 </div>
               </div>
             </div>
@@ -388,10 +388,10 @@ export default function IMSPage() {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <p className="text-brand-indigo-400 text-sm font-medium mb-1">Low Stock</p>
-                  <p className="text-4xl font-display font-bold text-warning-400">{lowStockProducts.length}</p>
+                  <p className="text-2xl font-display font-bold text-warning-400">{lowStockProducts.length}</p>
                 </div>
-                <div className="w-14 h-14 bg-gradient-to-br from-warning-400/10 to-amber-400/10 rounded-2xl flex items-center justify-center border border-warning-700/30">
-                  <AlertTriangle className="w-7 h-7 text-warning-400" />
+                <div className="w-10 h-10 bg-gradient-to-br from-warning-400/10 to-amber-400/10 rounded-2xl flex items-center justify-center border border-warning-700/30">
+                  <AlertTriangle className="w-5 h-5 text-warning-400" />
                 </div>
               </div>
             </div>
@@ -403,12 +403,12 @@ export default function IMSPage() {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <p className="text-brand-indigo-400 text-sm font-medium mb-1">Out of Stock</p>
-                  <p className="text-4xl font-display font-bold text-error-400">
+                  <p className="text-2xl font-display font-bold text-error-400">
                     {products.filter(p => p.stock === 0).length}
                   </p>
                 </div>
-                <div className="w-14 h-14 bg-gradient-to-br from-error-400/10 to-red-400/10 rounded-2xl flex items-center justify-center border border-error-700/30">
-                  <AlertCircle className="w-7 h-7 text-error-400" />
+                <div className="w-10 h-10 bg-gradient-to-br from-error-400/10 to-red-400/10 rounded-2xl flex items-center justify-center border border-error-700/30">
+                  <AlertCircle className="w-5 h-5 text-error-400" />
                 </div>
               </div>
             </div>
@@ -427,12 +427,12 @@ export default function IMSPage() {
             <Card className="glass-card">
               <div className="flex items-start gap-4 p-6">
                 <div className="shrink-0">
-                  <div className="w-14 h-14 bg-warning-400/10 rounded-2xl flex items-center justify-center">
-                    <AlertTriangle className="w-7 h-7 text-warning-400" />
+                  <div className="w-10 h-10 bg-warning-400/10 rounded-2xl flex items-center justify-center">
+                    <AlertTriangle className="w-5 h-5 text-warning-400" />
                   </div>
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-xl font-display font-bold text-warning-200 mb-4">Stock Alerts</h3>
+                  <h3 className="text-lg font-display font-bold text-warning-200 mb-4">Stock Alerts</h3>
                   <div className="space-y-3 text-sm">
                     {outOfStockProducts.length > 0 && (
                       <div className="bg-error-900/40 backdrop-blur-xl border border-error-700/50 rounded-2xl p-5">
@@ -595,8 +595,8 @@ export default function IMSPage() {
               <Card key={product.id} className="bg-brand-indigo-900/30 backdrop-blur-xl border border-brand-indigo-800/50 hover:shadow-glass transition-all duration-300">
                 <div className="flex items-start justify-between mb-4 p-6">
                   <div className="flex items-center gap-4">
-                    <div className="shrink-0 h-14 w-14 bg-gradient-to-br from-brand-cyan-400/10 to-brand-cyan-600/10 rounded-xl flex items-center justify-center border border-brand-cyan-700/30">
-                      <Package className="w-7 h-7 text-brand-cyan-400" />
+                    <div className="shrink-0 h-10 w-10 bg-gradient-to-br from-brand-cyan-400/10 to-brand-cyan-600/10 rounded-xl flex items-center justify-center border border-brand-cyan-700/30">
+                      <Package className="w-5 h-5 text-brand-cyan-400" />
                     </div>
                     <div>
                       <h3 className="text-base font-display font-bold text-brand-indigo-200">{product.name}</h3>
@@ -660,10 +660,10 @@ export default function IMSPage() {
             transition={{ duration: 0.6 }}
             className="text-center py-16"
           >
-            <div className="w-20 h-20 bg-brand-indigo-900/50 rounded-full flex items-center justify-center mx-auto mb-6 border border-brand-indigo-800/50">
-              <Search className="w-10 h-10 text-brand-indigo-600" />
+            <div className="w-14 h-14 bg-brand-indigo-900/50 rounded-full flex items-center justify-center mx-auto mb-6 border border-brand-indigo-800/50">
+              <Search className="w-6 h-6 text-brand-indigo-600" />
             </div>
-            <h3 className="text-2xl font-display font-bold text-brand-indigo-300 mb-2">No products found</h3>
+            <h3 className="text-xl font-display font-bold text-brand-indigo-300 mb-2">No products found</h3>
             <p className="text-brand-indigo-500 mb-6">Try adjusting your search or category filter</p>
             <Button
               variant="outline"
