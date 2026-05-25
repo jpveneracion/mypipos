@@ -72,13 +72,13 @@ export default function ModeSelectionPage() {
             transition={{ duration: 0.6 }}
             className="text-center mb-12"
           >
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-linear-to-br from-brand-cyan-400 to-brand-cyan-600 rounded-3xl shadow-glow mb-6">
-              <Target className="w-10 h-10 text-brand-dark-950" />
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-linear-to-br from-brand-cyan-400 to-brand-cyan-600 rounded-3xl shadow-glow mb-6">
+              <Target className="w-6 h-6 text-brand-dark-950" />
             </div>
-            <h2 className="text-2xl font-display font-bold text-white mb-4">
+            <h2 className="text-xl font-display font-bold text-white mb-4">
               Choose Your Mode
             </h2>
-            <p className="text-xl text-brand-indigo-300 max-w-2xl mx-auto">
+            <p className="text-lg text-brand-indigo-300 max-w-2xl mx-auto">
               You have access to both Merchant and Customer modes
             </p>
           </motion.div>
@@ -97,15 +97,15 @@ export default function ModeSelectionPage() {
                   setContext('merchant');
                   router.push('/pos');
                 }}
-                className="bg-brand-indigo-900/30 backdrop-blur-xl border-2 border-brand-indigo-800/50 hover:border-brand-cyan-500 rounded-3xl p-8 text-left hover:shadow-glass transition-all duration-300 group w-full"
+                className="glass-card p-8 text-left hover:shadow-glass transition-all duration-300 group w-full"
               >
                 <div className="flex flex-col">
                   <div className="flex items-center gap-4 mb-6">
-                    <div className="w-16 h-16 bg-linear-to-br from-brand-cyan-400 to-brand-cyan-600 rounded-2xl flex items-center justify-center shadow-glow group-hover:scale-110 transition-transform duration-300">
-                      <Store className="w-8 h-8 text-brand-dark-950" />
+                    <div className="w-12 h-12 bg-linear-to-br from-brand-cyan-400 to-brand-cyan-600 rounded-2xl flex items-center justify-center shadow-glow group-hover:scale-110 transition-transform duration-300">
+                      <Store className="w-6 h-6 text-brand-dark-950" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-xl font-display font-bold text-brand-indigo-100 mb-2">
+                      <h3 className="text-lg font-display font-bold text-brand-indigo-100 mb-2">
                         Merchant Mode
                       </h3>
                     </div>
@@ -152,15 +152,15 @@ export default function ModeSelectionPage() {
                   setContext('customer');
                   router.push('/customer');
                 }}
-                className="bg-brand-indigo-900/30 backdrop-blur-xl border-2 border-brand-indigo-800/50 hover:border-brand-cyan-500 rounded-3xl p-8 text-left hover:shadow-glass transition-all duration-300 group w-full"
+                className="glass-card p-8 text-left hover:shadow-glass transition-all duration-300 group w-full"
               >
                 <div className="flex flex-col">
                   <div className="flex items-center gap-4 mb-6">
-                    <div className="w-16 h-16 bg-linear-to-br from-brand-cyan-500 to-brand-cyan-700 rounded-2xl flex items-center justify-center shadow-glow group-hover:scale-110 transition-transform duration-300">
-                      <User className="w-8 h-8 text-brand-dark-950" />
+                    <div className="w-12 h-12 bg-linear-to-br from-brand-cyan-500 to-brand-cyan-700 rounded-2xl flex items-center justify-center shadow-glow group-hover:scale-110 transition-transform duration-300">
+                      <User className="w-6 h-6 text-brand-dark-950" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-xl font-display font-bold text-brand-indigo-100 mb-2">
+                      <h3 className="text-lg font-display font-bold text-brand-indigo-100 mb-2">
                         Customer Mode
                       </h3>
                     </div>

@@ -18,8 +18,30 @@ export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [debugInfo, setDebugInfo] = useState<any>(null);
   const [showDebug, setShowDebug] = useState(false);
+  const [piSdkReady, setPiSdkReady] = useState(false);
 
   useEffect(() => {
+    // Initialize Pi SDK on component mount
+    const initializePiSdk = async () => {
+      try {
+        if (typeof window !== 'undefined' && (window as any).Pi) {
+          console.log('Initializing Pi Network SDK...');
+          await (window as any).Pi.init({ version: "2.0" });
+          // Wait for SDK to be ready
+          await new Promise(resolve => setTimeout(resolve, 500));
+          setPiSdkReady(true);
+          console.log('Pi Network SDK initialized successfully');
+        } else {
+          console.warn('Pi Network SDK not available');
+          setError('Pi Network SDK not available. Please use Pi Browser.');
+        }
+      } catch (error) {
+        console.error('Failed to initialize Pi SDK:', error);
+        setError('Failed to initialize Pi Network SDK. Please refresh the page.');
+      }
+    };
+
+    initializePiSdk();
     checkClaimStatus();
   }, [userId]);
 
@@ -47,7 +69,39 @@ export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
     }
   };
 
+  const resetClaimStatus = async () => {
+    if (!confirm('Are you sure you want to reset your Test Pi claim status? This will allow you to claim again for testing purposes.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/debug/reset-test-claim', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert(data.message);
+        // Refresh claim status after reset
+        checkClaimStatus();
+      } else {
+        alert('Failed to reset: ' + data.error);
+      }
+    } catch (error) {
+      alert('Error resetting claim status: ' + String(error));
+    }
+  };
+
   const handleClaim = async () => {
+    // Check if Pi SDK is ready
+    if (!piSdkReady) {
+      setError('Pi Network SDK is not ready. Please wait a moment and try again.');
+      return;
+    }
+
     setIsClaiming(true);
     setError('');
     setSuccessMessage('');
@@ -308,6 +362,16 @@ export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
                 <RefreshCw className="w-3 h-3" />
                 Refresh Status
               </button>
+
+              {hasClaimed === true && (
+                <button
+                  onClick={resetClaimStatus}
+                  className="w-full text-xs bg-red-600/20 hover:bg-red-600/30 text-red-400 px-3 py-2 rounded flex items-center justify-center gap-2"
+                >
+                  <RefreshCw className="w-3 h-3" />
+                  Reset Claim Status (Debug)
+                </button>
+              )}
 
               <div className="bg-brand-indigo-900/20 p-2 rounded text-xs text-brand-indigo-300">
                 <p className="font-bold mb-1">🔗 Debug API:</p>
