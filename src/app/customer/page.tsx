@@ -81,7 +81,7 @@ export default function CustomerPage() {
                 <User className="w-8 h-8 text-brand-dark-950" />
               </div>
               <div>
-                <h2 className="text-4xl font-display font-bold bg-linear-to-r from-brand-cyan-400 to-brand-cyan-600 bg-clip-text text-transparent">
+                <h2 className="text-2xl font-display font-bold text-white">
                   Customer Dashboard
                 </h2>
                 <p className="text-brand-indigo-400 mt-1">
@@ -99,7 +99,7 @@ export default function CustomerPage() {
               variants={fadeUp}
               transition={{ duration: 0.6, delay: 0.1 }}
             >
-              <Card className="relative overflow-hidden bg-brand-indigo-900/30 backdrop-blur-xl border border-brand-indigo-800/50 hover:shadow-glass transition-all duration-300 group">
+              <Card className="glass-card">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-brand-cyan-400/5 rounded-full blur-3xl group-hover:bg-brand-cyan-400/10 transition-all"></div>
                 <div className="relative">
                   <div className="flex items-center gap-4">
@@ -108,7 +108,7 @@ export default function CustomerPage() {
                     </div>
                     <div>
                       <p className="text-brand-indigo-400 text-sm font-medium">Total Purchases</p>
-                      <p className="text-2xl font-display font-bold text-brand-indigo-200">--</p>
+                      <p className="text-xl font-display font-bold text-brand-indigo-200">--</p>
                     </div>
                   </div>
                 </div>
@@ -121,7 +121,7 @@ export default function CustomerPage() {
               variants={fadeUp}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              <Card className="relative overflow-hidden bg-brand-indigo-900/30 backdrop-blur-xl border border-brand-indigo-800/50 hover:shadow-glass transition-all duration-300 group">
+              <Card className="glass-card">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-brand-cyan-400/5 rounded-full blur-3xl group-hover:bg-brand-cyan-400/10 transition-all"></div>
                 <div className="relative">
                   <div className="flex items-center gap-4">
@@ -130,7 +130,7 @@ export default function CustomerPage() {
                     </div>
                     <div>
                       <p className="text-brand-indigo-400 text-sm font-medium">Total Spent</p>
-                      <p className="text-2xl font-display font-bold text-brand-indigo-200">-- π</p>
+                      <p className="text-xl font-display font-bold text-brand-indigo-200">-- π</p>
                     </div>
                   </div>
                 </div>
@@ -143,7 +143,7 @@ export default function CustomerPage() {
               variants={fadeUp}
               transition={{ duration: 0.6, delay: 0.3 }}
             >
-              <Card className="relative overflow-hidden bg-brand-indigo-900/30 backdrop-blur-xl border border-brand-indigo-800/50 hover:shadow-glass transition-all duration-300 group">
+              <Card className="glass-card">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-brand-cyan-400/5 rounded-full blur-3xl group-hover:bg-brand-cyan-400/10 transition-all"></div>
                 <div className="relative">
                   <div className="flex items-center gap-4">
@@ -152,7 +152,7 @@ export default function CustomerPage() {
                     </div>
                     <div>
                       <p className="text-brand-indigo-400 text-sm font-medium">Merchants Used</p>
-                      <p className="text-2xl font-display font-bold text-brand-indigo-200">--</p>
+                      <p className="text-xl font-display font-bold text-brand-indigo-200">--</p>
                     </div>
                   </div>
                 </div>
@@ -168,14 +168,14 @@ export default function CustomerPage() {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="mb-12"
           >
-            <Card className="bg-brand-indigo-900/30 backdrop-blur-xl border border-brand-indigo-800/50">
+            <Card className="glass-card">
               <div className="mb-6">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-10 h-10 bg-linear-to-br from-brand-cyan-400 to-brand-cyan-600 rounded-xl flex items-center justify-center">
                     <Smartphone className="w-5 h-5 text-brand-dark-950" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-display font-bold text-brand-indigo-100">
+                    <h3 className="text-xl font-display font-bold text-brand-indigo-100">
                       Your Customer QR Code
                     </h3>
                     <p className="text-brand-indigo-400 text-sm">

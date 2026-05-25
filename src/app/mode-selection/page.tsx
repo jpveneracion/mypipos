@@ -75,7 +75,7 @@ export default function ModeSelectionPage() {
             <div className="inline-flex items-center justify-center w-20 h-20 bg-linear-to-br from-brand-cyan-400 to-brand-cyan-600 rounded-3xl shadow-glow mb-6">
               <Target className="w-10 h-10 text-brand-dark-950" />
             </div>
-            <h2 className="text-4xl md:text-5xl font-display font-bold mb-4 bg-linear-to-r from-brand-cyan-400 to-brand-cyan-600 bg-clip-text text-transparent">
+            <h2 className="text-2xl font-display font-bold text-white mb-4">
               Choose Your Mode
             </h2>
             <p className="text-xl text-brand-indigo-300 max-w-2xl mx-auto">
@@ -105,7 +105,7 @@ export default function ModeSelectionPage() {
                       <Store className="w-8 h-8 text-brand-dark-950" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-2xl font-display font-bold text-brand-indigo-100 mb-2">
+                      <h3 className="text-xl font-display font-bold text-brand-indigo-100 mb-2">
                         Merchant Mode
                       </h3>
                     </div>
@@ -160,7 +160,7 @@ export default function ModeSelectionPage() {
                       <User className="w-8 h-8 text-brand-dark-950" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-2xl font-display font-bold text-brand-indigo-100 mb-2">
+                      <h3 className="text-xl font-display font-bold text-brand-indigo-100 mb-2">
                         Customer Mode
                       </h3>
                     </div>
