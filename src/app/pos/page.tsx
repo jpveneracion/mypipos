@@ -284,9 +284,10 @@ export default function POSPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && searchQuery.trim() && handleBarcodeScanned(searchQuery.trim())}
-                  className="w-full h-12 pl-12 pr-24 py-2 rounded-md bg-brand-indigo-900/50 border-2 border-brand-indigo-700 text-brand-indigo-200 placeholder-brand-indigo-500 focus:border-brand-cyan-500 focus:ring-2 focus:ring-brand-cyan-500/20 focus:outline-none block"
+                  className="w-full h-14 pl-12 pr-28 py-3 rounded-lg bg-brand-indigo-800 border-2 border-brand-cyan-600 text-white placeholder-brand-indigo-400 focus:border-brand-cyan-400 focus:ring-4 focus:ring-brand-cyan-500/30 focus:outline-none shadow-lg"
+                  style={{ backgroundColor: '#1A1B29', border: '2px solid #14D3C5' }}
                 />
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-brand-cyan-400 z-10 pointer-events-none" />
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-7 h-7 text-brand-cyan-400 z-10 pointer-events-none drop-shadow-lg" />
                 <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex gap-2">
                   {searchQuery.trim() && (
                     <Button
@@ -304,10 +305,11 @@ export default function POSPage() {
                       setScannerMode('product');
                       setShowScanner(true);
                     }}
-                    className="px-3 py-2 bg-brand-cyan-900/30 border border-brand-cyan-600 text-brand-cyan-400 hover:text-brand-cyan-300 hover:bg-brand-cyan-900/50 rounded-md"
+                    className="px-4 py-2 bg-brand-cyan-600 border-2 border-brand-cyan-400 text-white hover:bg-brand-cyan-500 rounded-lg font-semibold shadow-lg"
                     title="Scan Product Barcode"
                   >
-                    <Scan className="w-5 h-5" />
+                    <Scan className="w-5 h-5 mr-1" />
+                    Scan
                   </Button>
                 </div>
               </div>
