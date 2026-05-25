@@ -277,23 +277,23 @@ export default function IMSPage() {
 
       {/* Premium Header */}
       <header className="relative z-50 border-b border-brand-indigo-800/50 backdrop-blur-xl bg-brand-indigo-900/30">
-        <div className="container mx-auto px-6 py-4">
+        <div className="container mx-auto px-6 py-5">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <motion.div
               initial="hidden"
               animate="show"
               variants={fadeUp}
               transition={{ duration: 0.6 }}
-              className="flex items-center gap-3"
+              className="flex items-center gap-4"
             >
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-linear-to-br from-brand-cyan-400 to-brand-cyan-600 shadow-glow">
-                <BarChart3 className="w-6 h-6 text-brand-dark-950" />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-brand-cyan-400 to-brand-cyan-600">
+                <BarChart3 className="w-5 h-5 text-brand-dark-950" />
               </div>
               <div>
-                <h1 className="text-xl font-display font-bold text-white">
+                <h1 className="text-2xl font-display font-bold text-white">
                   Inventory Management
                 </h1>
-                <p className="text-xs text-brand-indigo-400 font-medium">
+                <p className="text-sm text-brand-indigo-400 font-medium">
                   Manage products and stock levels
                 </p>
               </div>
@@ -308,7 +308,7 @@ export default function IMSPage() {
             >
               <Button
                 variant="outline"
-                size="md"
+                size="lg"
                 onClick={() => setScanningBarcode(true)}
                 className="border-brand-indigo-700 text-brand-indigo-300 hover:bg-brand-indigo-900/50 hover:border-brand-cyan-500 transition-all"
               >
@@ -317,11 +317,11 @@ export default function IMSPage() {
               </Button>
 
               <Button
-                size="md"
+                size="lg"
                 onClick={() => setShowAddModal(true)}
-                className="bg-linear-to-r from-brand-cyan-400 to-brand-cyan-600 text-brand-dark-950 hover:from-brand-cyan-500 hover:to-brand-cyan-700 font-semibold shadow-glow"
+                className="bg-gradient-to-r from-brand-cyan-400 to-brand-cyan-600 text-brand-dark-950 hover:from-brand-cyan-500 hover:to-brand-cyan-700 font-semibold"
               >
-                <Plus className="mr-2 w-4 h-4" />
+                <Plus className="mr-2 w-5 h-5" />
                 <span className="hidden sm:inline">Add Product</span>
               </Button>
             </motion.div>
@@ -329,9 +329,9 @@ export default function IMSPage() {
         </div>
       </header>
 
-      <div className="container mx-auto px-6 py-6 flex-1 overflow-y-auto">
+      <div className="container mx-auto px-6 py-8 flex-1 overflow-y-auto">
         {error && (
-          <div className="mb-6 p-4 bg-error-900/30 border border-error-700 rounded-lg text-error-200">
+          <div className="mb-6 p-4 bg-error-900/30 border border-error-700 rounded-xl text-error-200">
             {error}
           </div>
         )}
@@ -348,18 +348,18 @@ export default function IMSPage() {
           animate="show"
           variants={fadeUp}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6"
+          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
         >
           <Card className="glass-card">
             <div className="absolute top-0 right-0 w-32 h-32 bg-brand-cyan-400/5 rounded-full blur-3xl group-hover:bg-brand-cyan-400/10 transition-all"></div>
-            <div className="relative">
-              <div className="flex items-center justify-between">
+            <div className="relative p-4">
+              <div className="flex items-center justify-between mb-4">
                 <div>
-                  <p className="text-brand-indigo-400 text-sm font-medium">Total Products</p>
-                  <p className="text-3xl font-display font-bold text-brand-indigo-200">{products.length}</p>
+                  <p className="text-brand-indigo-400 text-sm font-medium mb-1">Total Products</p>
+                <p className="text-2xl font-display font-bold text-brand-indigo-200">{products.length}</p>
                 </div>
-                <div className="w-12 h-12 bg-linear-to-br from-brand-cyan-400/10 to-brand-cyan-600/10 rounded-xl flex items-center justify-center border border-brand-cyan-700/30">
-                  <Package className="w-6 h-6 text-brand-cyan-400" />
+                <div className="w-10 h-10 bg-gradient-to-br from-brand-cyan-400/10 to-brand-cyan-600/10 rounded-xl flex items-center justify-center border border-brand-cyan-700/30">
+                  <Package className="w-5 h-5 text-brand-cyan-400" />
                 </div>
               </div>
             </div>
@@ -367,16 +367,16 @@ export default function IMSPage() {
 
           <Card className="glass-card">
             <div className="absolute top-0 right-0 w-32 h-32 bg-brand-cyan-400/5 rounded-full blur-3xl group-hover:bg-brand-cyan-400/10 transition-all"></div>
-            <div className="relative">
-              <div className="flex items-center justify-between">
+            <div className="relative p-4">
+              <div className="flex items-center justify-between mb-4">
                 <div>
-                  <p className="text-brand-indigo-400 text-sm font-medium">Total Value</p>
-                  <p className="text-3xl font-display font-bold text-brand-indigo-200">
+                  <p className="text-brand-indigo-400 text-sm font-medium mb-1">Total Value</p>
+                  <p className="text-4xl font-display font-bold text-brand-indigo-200">
                     ${totalValue.toFixed(2)}
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-linear-to-br from-brand-cyan-400/10 to-brand-cyan-600/10 rounded-xl flex items-center justify-center border border-brand-cyan-700/30">
-                  <DollarSign className="w-6 h-6 text-brand-cyan-400" />
+                <div className="w-14 h-14 bg-gradient-to-br from-brand-cyan-400/10 to-brand-cyan-600/10 rounded-2xl flex items-center justify-center border border-brand-cyan-700/30">
+                  <DollarSign className="w-7 h-7 text-brand-cyan-400" />
                 </div>
               </div>
             </div>
@@ -384,14 +384,14 @@ export default function IMSPage() {
 
           <Card className="glass-card">
             <div className="absolute top-0 right-0 w-32 h-32 bg-warning-400/5 rounded-full blur-3xl group-hover:bg-warning-400/10 transition-all"></div>
-            <div className="relative">
-              <div className="flex items-center justify-between">
+            <div className="relative p-4">
+              <div className="flex items-center justify-between mb-4">
                 <div>
-                  <p className="text-brand-indigo-400 text-sm font-medium">Low Stock</p>
-                  <p className="text-3xl font-display font-bold text-warning-400">{lowStockProducts.length}</p>
+                  <p className="text-brand-indigo-400 text-sm font-medium mb-1">Low Stock</p>
+                  <p className="text-4xl font-display font-bold text-warning-400">{lowStockProducts.length}</p>
                 </div>
-                <div className="w-12 h-12 bg-linear-to-br from-warning-400/10 to-amber-400/10 rounded-xl flex items-center justify-center border border-warning-700/30">
-                  <AlertTriangle className="w-6 h-6 text-warning-400" />
+                <div className="w-14 h-14 bg-gradient-to-br from-warning-400/10 to-amber-400/10 rounded-2xl flex items-center justify-center border border-warning-700/30">
+                  <AlertTriangle className="w-7 h-7 text-warning-400" />
                 </div>
               </div>
             </div>
@@ -399,16 +399,16 @@ export default function IMSPage() {
 
           <Card className="glass-card">
             <div className="absolute top-0 right-0 w-32 h-32 bg-error-400/5 rounded-full blur-3xl group-hover:bg-error-400/10 transition-all"></div>
-            <div className="relative">
-              <div className="flex items-center justify-between">
+            <div className="relative p-4">
+              <div className="flex items-center justify-between mb-4">
                 <div>
-                  <p className="text-brand-indigo-400 text-sm font-medium">Out of Stock</p>
-                  <p className="text-3xl font-display font-bold text-error-400">
+                  <p className="text-brand-indigo-400 text-sm font-medium mb-1">Out of Stock</p>
+                  <p className="text-4xl font-display font-bold text-error-400">
                     {products.filter(p => p.stock === 0).length}
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-linear-to-br from-error-400/10 to-red-400/10 rounded-xl flex items-center justify-center border border-error-700/30">
-                  <AlertCircle className="w-6 h-6 text-error-400" />
+                <div className="w-14 h-14 bg-gradient-to-br from-error-400/10 to-red-400/10 rounded-2xl flex items-center justify-center border border-error-700/30">
+                  <AlertCircle className="w-7 h-7 text-error-400" />
                 </div>
               </div>
             </div>
@@ -422,25 +422,25 @@ export default function IMSPage() {
             animate="show"
             variants={fadeUp}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="mb-6"
+            className="mb-8"
           >
             <Card className="glass-card">
               <div className="flex items-start gap-4 p-6">
                 <div className="shrink-0">
-                  <div className="w-12 h-12 bg-warning-400/10 rounded-xl flex items-center justify-center">
-                    <AlertTriangle className="w-6 h-6 text-warning-400" />
+                  <div className="w-14 h-14 bg-warning-400/10 rounded-2xl flex items-center justify-center">
+                    <AlertTriangle className="w-7 h-7 text-warning-400" />
                   </div>
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-display font-bold text-warning-200 mb-4">Stock Alerts</h3>
+                  <h3 className="text-xl font-display font-bold text-warning-200 mb-4">Stock Alerts</h3>
                   <div className="space-y-3 text-sm">
                     {outOfStockProducts.length > 0 && (
-                      <div className="bg-error-900/40 backdrop-blur-xl border border-error-700/50 rounded-xl p-4">
-                        <p className="font-semibold text-error-200 mb-2 flex items-center gap-2">
-                          <AlertCircle className="w-4 h-4" />
+                      <div className="bg-error-900/40 backdrop-blur-xl border border-error-700/50 rounded-2xl p-5">
+                        <p className="font-semibold text-error-200 mb-3 flex items-center gap-2">
+                          <AlertCircle className="w-5 h-5" />
                           Out of Stock
                         </p>
-                        <ul className="list-disc list-inside text-error-300 space-y-1">
+                        <ul className="list-disc list-inside text-error-300 space-y-2">
                           {outOfStockProducts.map(product => (
                             <li key={product.id}>{product.name}</li>
                           ))}
@@ -448,12 +448,12 @@ export default function IMSPage() {
                       </div>
                     )}
                     {lowStockProducts.filter(p => p.stock > 0).length > 0 && (
-                      <div className="bg-warning-900/40 backdrop-blur-xl border border-warning-700/50 rounded-xl p-4">
-                        <p className="font-semibold text-warning-200 mb-2 flex items-center gap-2">
-                          <AlertTriangle className="w-4 h-4" />
+                      <div className="bg-warning-900/40 backdrop-blur-xl border border-warning-700/50 rounded-2xl p-5">
+                        <p className="font-semibold text-warning-200 mb-3 flex items-center gap-2">
+                          <AlertTriangle className="w-5 h-5" />
                           Low Stock
                         </p>
-                        <ul className="list-disc list-inside text-warning-300 space-y-1">
+                        <ul className="list-disc list-inside text-warning-300 space-y-2">
                           {lowStockProducts.filter(p => p.stock > 0).map(product => (
                             <li key={product.id}>
                               {product.name} - {product.stock} units left
@@ -475,10 +475,10 @@ export default function IMSPage() {
           animate="show"
           variants={fadeUp}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="mb-6"
+          className="mb-8"
         >
           <Card className="glass-card">
-            <div className="flex flex-col lg:flex-row gap-4 p-6">
+            <div className="flex flex-col lg:flex-row gap-4 p-4">
               <div className="flex-1 relative">
                 <Input
                   type="text"
@@ -487,17 +487,17 @@ export default function IMSPage() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-12 bg-brand-indigo-950/50 border-brand-indigo-700 text-brand-indigo-200 placeholder-brand-indigo-500 focus:border-brand-cyan-500 focus:ring-2 focus:ring-brand-cyan-500/20"
                 />
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-brand-indigo-500" />
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-brand-indigo-500" />
               </div>
 
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-3">
                 {categories.map((category) => (
                   <button
                     key={category}
                     onClick={() => setSelectedCategory(category)}
-                    className={`px-4 py-2 rounded-lg transition-all duration-300 text-sm font-medium ${
+                    className={`px-5 py-2.5 rounded-xl transition-all duration-300 text-sm font-medium ${
                       selectedCategory === category
-                        ? 'bg-linear-to-r from-brand-cyan-400 to-brand-cyan-600 text-brand-dark-950 shadow-glow font-semibold'
+                        ? 'bg-gradient-to-r from-brand-cyan-400 to-brand-cyan-600 text-brand-dark-950'
                         : 'bg-brand-indigo-950/50 text-brand-indigo-400 hover:bg-brand-indigo-900/70 border border-brand-indigo-700'
                     }`}
                   >
@@ -538,7 +538,7 @@ export default function IMSPage() {
                       <tr key={product.id} className="hover:bg-brand-indigo-900/30 transition-colors">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <div className="shrink-0 h-12 w-12 bg-linear-to-br from-brand-cyan-400/10 to-brand-cyan-600/10 rounded-xl flex items-center justify-center border border-brand-cyan-700/30">
+                            <div className="shrink-0 h-12 w-12 bg-gradient-to-br from-brand-cyan-400/10 to-brand-cyan-600/10 rounded-xl flex items-center justify-center border border-brand-cyan-700/30">
                               <Package className="w-6 h-6 text-brand-cyan-400" />
                             </div>
                             <div className="ml-4">
@@ -549,15 +549,15 @@ export default function IMSPage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-brand-indigo-300 font-medium">{product.sku}</td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="px-3 py-1 text-xs font-medium bg-brand-cyan-900/30 text-brand-cyan-300 border border-brand-cyan-700/50 rounded-full">
+                          <span className="px-3 py-1.5 text-xs font-medium bg-brand-cyan-900/30 text-brand-cyan-300 border border-brand-cyan-700/50 rounded-full">
                             {product.category}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-brand-indigo-200 font-bold">{product.stock}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-bold bg-linear-to-r from-brand-cyan-400 to-brand-cyan-600 bg-clip-text text-transparent">${product.price.toFixed(2)}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-bold bg-gradient-to-r from-brand-cyan-400 to-brand-cyan-600 bg-clip-text text-transparent">${product.price.toFixed(2)}</td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center gap-2 px-3 py-1 text-xs font-bold rounded-full border ${stockStatus.color}`}>
-                            <stockStatus.icon className="w-3 h-3" />
+                          <span className={`inline-flex items-center gap-2 px-3 py-1.5 text-xs font-bold rounded-full border ${stockStatus.color}`}>
+                            <stockStatus.icon className="w-3.5 h-3.5" />
                             {stockStatus.status}
                           </span>
                         </td>
@@ -594,8 +594,8 @@ export default function IMSPage() {
             return (
               <Card key={product.id} className="bg-brand-indigo-900/30 backdrop-blur-xl border border-brand-indigo-800/50 hover:shadow-glass transition-all duration-300">
                 <div className="flex items-start justify-between mb-4 p-6">
-                  <div className="flex items-center gap-3">
-                    <div className="shrink-0 h-14 w-14 bg-linear-to-br from-brand-cyan-400/10 to-brand-cyan-600/10 rounded-xl flex items-center justify-center border border-brand-cyan-700/30">
+                  <div className="flex items-center gap-4">
+                    <div className="shrink-0 h-14 w-14 bg-gradient-to-br from-brand-cyan-400/10 to-brand-cyan-600/10 rounded-xl flex items-center justify-center border border-brand-cyan-700/30">
                       <Package className="w-7 h-7 text-brand-cyan-400" />
                     </div>
                     <div>
@@ -604,28 +604,28 @@ export default function IMSPage() {
                       <p className="text-xs text-brand-cyan-400">{product.category}</p>
                     </div>
                   </div>
-                  <span className={`px-2 py-1 text-xs font-bold rounded-full border ${stockStatus.color} inline-flex items-center gap-1`}>
-                    <stockStatus.icon className="w-3 h-3" />
+                  <span className={`px-3 py-1.5 text-xs font-bold rounded-full border ${stockStatus.color} inline-flex items-center gap-1.5`}>
+                    <stockStatus.icon className="w-3.5 h-3.5" />
                   </span>
                 </div>
 
                 <div className="grid grid-cols-3 gap-3 mb-4 px-6">
-                  <div className="bg-brand-indigo-950/50 rounded-lg p-3 text-center border border-brand-indigo-800/50">
-                    <p className="text-xs text-brand-indigo-500 font-medium">Stock</p>
+                  <div className="bg-brand-indigo-950/50 rounded-xl p-4 text-center border border-brand-indigo-800/50">
+                    <p className="text-xs text-brand-indigo-500 font-medium mb-1">Stock</p>
                     <p className="text-lg font-bold text-brand-indigo-200">{product.stock}</p>
                   </div>
-                  <div className="bg-brand-indigo-950/50 rounded-lg p-3 text-center border border-brand-indigo-800/50">
-                    <p className="text-xs text-brand-indigo-500 font-medium">Price</p>
-                    <p className="text-lg font-bold bg-linear-to-r from-brand-cyan-400 to-brand-cyan-600 bg-clip-text text-transparent">${product.price.toFixed(2)}</p>
+                  <div className="bg-brand-indigo-950/50 rounded-xl p-4 text-center border border-brand-indigo-800/50">
+                    <p className="text-xs text-brand-indigo-500 font-medium mb-1">Price</p>
+                    <p className="text-lg font-bold bg-gradient-to-r from-brand-cyan-400 to-brand-cyan-600 bg-clip-text text-transparent">${product.price.toFixed(2)}</p>
                   </div>
-                  <div className="bg-brand-indigo-950/50 rounded-lg p-3 text-center border border-brand-indigo-800/50">
-                    <p className="text-xs text-brand-indigo-500 font-medium">SKU</p>
+                  <div className="bg-brand-indigo-950/50 rounded-xl p-4 text-center border border-brand-indigo-800/50">
+                    <p className="text-xs text-brand-indigo-500 font-medium mb-1">SKU</p>
                     <p className="text-sm font-bold text-brand-indigo-200">{product.sku}</p>
                   </div>
                 </div>
 
                 <div className="flex gap-2 p-6 pt-0">
-                  <Button size="sm" className="flex-1 bg-linear-to-r from-brand-cyan-400 to-brand-cyan-600 text-brand-dark-950 font-semibold">
+                  <Button size="sm" className="flex-1 bg-gradient-to-r from-brand-cyan-400 to-brand-cyan-600 text-brand-dark-950 font-semibold">
                     <Edit className="w-4 h-4 mr-1" />
                     Edit
                   </Button>
@@ -685,7 +685,7 @@ export default function IMSPage() {
       {showAddModal && (
         <div className="fixed inset-0 bg-black/95 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-brand-indigo-900 backdrop-blur-xl border border-brand-indigo-700 rounded-2xl shadow-glass-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-linear-to-r from-brand-cyan-400 to-brand-cyan-600 border-b border-brand-cyan-700 p-6 rounded-t-2xl">
+            <div className="sticky top-0 bg-gradient-to-r from-brand-cyan-400 to-brand-cyan-600 border-b border-brand-cyan-700 p-6 rounded-t-2xl">
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-display font-bold text-brand-dark-950">Add New Product</h2>
                 <button
@@ -702,13 +702,13 @@ export default function IMSPage() {
 
             <div className="p-6">
               {error && (
-                <div className="mb-4 p-4 bg-error-900/30 border border-error-700 rounded-lg text-error-200 text-sm">
+                <div className="mb-4 p-4 bg-error-900/30 border border-error-700 rounded-xl text-error-200 text-sm">
                   {error}
                 </div>
               )}
 
               <form
-                className="space-y-4"
+                className="space-y-5"
                 onSubmit={(e) => {
                   e.preventDefault();
                   const formData = new FormData(e.currentTarget);
@@ -731,15 +731,15 @@ export default function IMSPage() {
                     setShowAddModal(false);
                     setScanningBarcode(true);
                   }}
-                  className="w-full py-6 border-2 border-dashed border-brand-cyan-700 hover:border-brand-cyan-500 flex flex-col items-center gap-2 bg-brand-cyan-900/20 text-brand-cyan-400 hover:bg-brand-cyan-900/30 transition-all"
+                  className="w-full py-8 border-2 border-dashed border-brand-cyan-700 hover:border-brand-cyan-500 flex flex-col items-center gap-3 bg-brand-cyan-900/20 text-brand-cyan-400 hover:bg-brand-cyan-900/30 transition-all rounded-2xl"
                 >
-                  <Barcode className="w-8 h-8" />
-                  <span className="font-semibold">Scan Barcode with Camera</span>
+                  <Barcode className="w-10 h-10" />
+                  <span className="font-semibold text-lg">Scan Barcode with Camera</span>
                 </Button>
 
-                <div className="relative flex py-2 items-center">
+                <div className="relative flex py-3 items-center">
                   <div className="grow border-t border-brand-indigo-700"></div>
-                  <span className="shrink-0 mx-4 text-brand-indigo-500 font-medium">or enter manually</span>
+                  <span className="shrink-0 mx-4 text-brand-indigo-500 font-medium text-sm">or enter manually</span>
                   <div className="grow border-t border-brand-indigo-700"></div>
                 </div>
 
@@ -753,7 +753,7 @@ export default function IMSPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
                     <label className="block text-sm font-bold text-brand-indigo-300 mb-2">Price</label>
                     <Input
@@ -775,7 +775,7 @@ export default function IMSPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
                     <label className="block text-sm font-bold text-brand-indigo-300 mb-2">Stock</label>
                     <Input
@@ -811,7 +811,7 @@ export default function IMSPage() {
                     className="w-full bg-brand-indigo-950/50 border-brand-indigo-700 text-brand-indigo-200 placeholder-brand-indigo-500 focus:border-brand-cyan-500 focus:ring-2 focus:ring-brand-cyan-500/20"
                   />
                   {scannedBarcode && (
-                    <p className="text-xs text-success-400 mt-1">Barcode "{scannedBarcode}" ready to use</p>
+                    <p className="text-xs text-success-400 mt-2">Barcode "{scannedBarcode}" ready to use</p>
                   )}
                 </div>
 
@@ -903,7 +903,7 @@ export default function IMSPage() {
                   <Button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex-1 bg-linear-to-r from-brand-cyan-400 to-brand-cyan-600 text-brand-dark-950 hover:from-brand-cyan-500 hover:to-brand-cyan-700 font-semibold shadow-glow"
+                    className="flex-1 bg-gradient-to-r from-brand-cyan-400 to-brand-cyan-600 text-brand-dark-950 hover:from-brand-cyan-500 hover:to-brand-cyan-700 font-semibold shadow-lg shadow-brand-cyan-500/20"
                   >
                     {isSubmitting ? (
                       <>

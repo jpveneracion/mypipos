@@ -42,6 +42,7 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/categories
  * Create a new category (for merchants who need custom categories like "Nails")
+ * Uses security definer function to allow category creation within RLS constraints
  */
 export async function POST(request: NextRequest) {
   try {
@@ -61,44 +62,30 @@ export async function POST(request: NextRequest) {
     // Generate slug from name
     const slug = name.toLowerCase().replace(/\s+/g, '-');
 
-    // Check if category already exists
-    const existing = await query(
-      'SELECT id, name FROM universal_categories WHERE name = $1 OR slug = $2',
-      [name, slug]
-    );
-
-    if (existing.rows.length > 0) {
-      return NextResponse.json({
-        success: true,
-        category: existing.rows[0],
-        message: 'Category already exists'
-      });
-    }
-
-    // Get next display order
-    const orderResult = await query(
-      'SELECT COALESCE(MAX(display_order), 0) + 1 as next_order FROM universal_categories'
-    );
-
-    // Create new category
+    // Use the security definer function to create category
     const result = await query(
-      `INSERT INTO universal_categories (name, slug, description, icon, color, display_order)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING *`,
+      'SELECT create_category_if_not_exists($1, $2, $3, $4, $5) as category_id',
       [
         name,
         slug,
         description || null,
         icon || null,
-        color || null,
-        orderResult.rows[0].next_order
+        color || null
       ]
+    );
+
+    // Fetch the created/existing category
+    const categoryResult = await query(
+      'SELECT id, name, slug, description, icon, color, display_order FROM universal_categories WHERE id = $1',
+      [result.rows[0].category_id]
     );
 
     return NextResponse.json({
       success: true,
-      category: result.rows[0],
-      message: 'Category created successfully'
+      category: categoryResult.rows[0],
+      message: categoryResult.rows[0].name === name
+        ? 'Category created successfully'
+        : 'Category already exists'
     });
   } catch (error) {
     console.error('Category creation error:', error);

@@ -28,6 +28,43 @@ body {
   overflow: hidden;
 }
 
+/* Premium glass shadow effects */
+.shadow-glass {
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 2px 8px rgba(20, 211, 197, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.shadow-glass-lg {
+  box-shadow:
+    0 12px 48px rgba(0, 0, 0, 0.4),
+    0 4px 16px rgba(20, 211, 197, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.shadow-glass-xl {
+  box-shadow:
+    0 16px 64px rgba(0, 0, 0, 0.5),
+    0 8px 24px rgba(20, 211, 197, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.shadow-glass-2xl {
+  box-shadow:
+    0 24px 96px rgba(0, 0, 0, 0.6),
+    0 12px 32px rgba(20, 211, 197, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+/* Premium cyan glow effect */
+.shadow-glow {
+  box-shadow:
+    0 0 20px rgba(20, 211, 197, 0.4),
+    0 0 40px rgba(20, 211, 197, 0.2),
+    0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
 /* Shimmer animation for gradient text */
 .text-cyan-shimmer {
   background: linear-gradient(135deg, #14D3C5 0%, #11a79e 40%, #25ede1 60%, #0d8b84 100%);
@@ -43,3 +80,10 @@ body {
   100% { background-position: 200% center; }
 }
 
+/* Glassmorphism utility */
+.glassmorphism {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}

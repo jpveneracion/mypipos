@@ -11,7 +11,11 @@
     "migrate": "ts-node database/migrations/migrate.ts",
     "migrate:status": "ts-node database/migrations/migrate.ts status",
     "migrate:rollback": "ts-node database/migrations/migrate.ts rollback",
-    "db:test": "ts-node -e \"require('./src/lib/db').testConnection()\""
+    "db:test": "ts-node -e \"require('./src/lib/db').testConnection()\"",
+    "vercel:env": "vercel env pull .env.local",
+    "vercel:deploy": "vercel --prod",
+    "vercel:deploy:pre": "npm run build && vercel --prod",
+    "setup:vercel": "node scripts/vercel-setup.js"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4",

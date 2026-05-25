@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import InvoiceList from './components/InvoiceList';
 import CustomerQRCode from './components/CustomerQRCode';
+import { TestPiClaimCard } from '@/components/customer/TestPiClaimCard';
 import {
   User,
   ShoppingBag,
@@ -77,11 +78,11 @@ export default function CustomerPage() {
             className="mb-8"
           >
             <div className="flex items-center gap-4 mb-4">
-              <div className="w-16 h-16 bg-linear-to-br from-brand-cyan-400 to-brand-cyan-600 rounded-2xl flex items-center justify-center shadow-glow">
-                <User className="w-8 h-8 text-brand-dark-950" />
+              <div className="w-12 h-12 bg-linear-to-br from-brand-cyan-400 to-brand-cyan-600 rounded-2xl flex items-center justify-center shadow-glow">
+                <User className="w-6 h-6 text-brand-dark-950" />
               </div>
               <div>
-                <h2 className="text-2xl font-display font-bold text-white">
+                <h2 className="text-xl font-display font-bold text-white">
                   Customer Dashboard
                 </h2>
                 <p className="text-brand-indigo-400 mt-1">
@@ -108,7 +109,7 @@ export default function CustomerPage() {
                     </div>
                     <div>
                       <p className="text-brand-indigo-400 text-sm font-medium">Total Purchases</p>
-                      <p className="text-xl font-display font-bold text-brand-indigo-200">--</p>
+                      <p className="text-lg font-display font-bold text-brand-indigo-200">--</p>
                     </div>
                   </div>
                 </div>
@@ -130,7 +131,7 @@ export default function CustomerPage() {
                     </div>
                     <div>
                       <p className="text-brand-indigo-400 text-sm font-medium">Total Spent</p>
-                      <p className="text-xl font-display font-bold text-brand-indigo-200">-- π</p>
+                      <p className="text-lg font-display font-bold text-brand-indigo-200">-- π</p>
                     </div>
                   </div>
                 </div>
@@ -152,13 +153,44 @@ export default function CustomerPage() {
                     </div>
                     <div>
                       <p className="text-brand-indigo-400 text-sm font-medium">Merchants Used</p>
-                      <p className="text-xl font-display font-bold text-brand-indigo-200">--</p>
+                      <p className="text-lg font-display font-bold text-brand-indigo-200">--</p>
                     </div>
                   </div>
                 </div>
               </Card>
             </motion.div>
           </div>
+
+          {/* Test Pi Claim Section - Above QR Code */}
+          {user ? (
+            <>
+              {/* Debug Info - Always visible */}
+              <div className="mb-4 p-4 bg-brand-dark-950 border-2 border-brand-cyan-500 rounded-lg">
+                <h4 className="text-brand-cyan-400 font-bold mb-2">🔍 Customer Debug Info</h4>
+                <div className="text-xs text-brand-indigo-200 space-y-1">
+                  <p>✅ User exists: {user?.piUsername || 'Unknown'}</p>
+                  <p>✅ User ID: {user?.id || 'No ID'}</p>
+                  <p>✅ User object: {JSON.stringify({
+                    id: user?.id,
+                    username: user?.piUsername,
+                    hasId: !!user?.id
+                  })}</p>
+                  <div className="mt-2 p-2 bg-brand-indigo-900/50 rounded">
+                    <p className="text-brand-cyan-300 font-bold mb-1">🎯 Test Pi Claim Card:</p>
+                    <p className="text-brand-indigo-300">
+                      Status: {user?.id ? 'Should be rendering below' : 'Not rendering (no user ID)'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <TestPiClaimCard userId={user.id} />
+            </>
+          ) : (
+            <div className="mb-4 p-4 bg-red-900/30 border border-red-500 rounded-lg">
+              <p className="text-red-300">❌ No user object found - not logged in properly</p>
+            </div>
+          )}
 
           {/* Customer QR Code Section */}
           <motion.div
@@ -209,7 +241,7 @@ export default function CustomerPage() {
                 <FileText className="w-5 h-5 text-brand-dark-950" />
               </div>
               <div>
-                <h3 className="text-2xl font-display font-bold text-brand-indigo-100">
+                <h3 className="text-xl font-display font-bold text-brand-indigo-100">
                   My Invoices
                 </h3>
                 <p className="text-brand-indigo-400 text-sm">
@@ -230,7 +262,7 @@ export default function CustomerPage() {
             variants={fadeUp}
             transition={{ duration: 0.6, delay: 0.6 }}
           >
-            <h3 className="text-xl font-display font-bold text-brand-indigo-100 mb-4">
+            <h3 className="text-lg font-display font-bold text-brand-indigo-100 mb-4">
               Quick Actions
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

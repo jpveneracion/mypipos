@@ -106,22 +106,12 @@ export async function createProductForMerchant(params: {
     // Look up category by name if provided
     let categoryId = null;
     if (category) {
+      const slug = category.toLowerCase().replace(/\s+/g, '-');
       const categoryResult = await client.query(
-        'SELECT id FROM universal_categories WHERE name = $1 OR slug = $1',
-        [category]
+        'SELECT create_category_if_not_exists($1, $2, $3) as category_id',
+        [category, slug, `Products in ${category} category`]
       );
-      if (categoryResult.rows.length > 0) {
-        categoryId = categoryResult.rows[0].id;
-      } else {
-        // Create new category if it doesn't exist
-        const newCategoryResult = await client.query(
-          `INSERT INTO universal_categories (name, slug, description)
-           VALUES ($1, $2, $3)
-           RETURNING id`,
-          [category, category.toLowerCase().replace(/\s+/g, '-'), `Products in ${category} category`]
-        );
-        categoryId = newCategoryResult.rows[0].id;
-      }
+      categoryId = categoryResult.rows[0].category_id;
     }
 
     // Check if product with this barcode already exists

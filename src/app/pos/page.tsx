@@ -8,7 +8,6 @@ import { useCartStore } from '@/lib/store';
 import { Product } from '@/types';
 import BarcodeScanner from '@/components/pos/BarcodeScanner';
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
 import {
   ShoppingCart,
   Scan,
@@ -279,13 +278,13 @@ export default function POSPage() {
               className="mb-6 space-y-4"
             >
               <div className="relative">
-                <Input
+                <input
                   type="text"
                   placeholder="Search products or enter barcode..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && searchQuery.trim() && handleBarcodeScanned(searchQuery.trim())}
-                  className="w-full pl-12 pr-24 bg-brand-indigo-900/50 border-brand-indigo-700 text-brand-indigo-200 placeholder-brand-indigo-500 focus:border-brand-cyan-500 focus:ring-2 focus:ring-brand-cyan-500/20"
+                  className="w-full pl-12 pr-24 py-2 rounded-md bg-brand-indigo-900/50 border border-brand-indigo-700 text-brand-indigo-200 placeholder-brand-indigo-500 focus:border-brand-cyan-500 focus:ring-2 focus:ring-brand-cyan-500/20 focus:outline-none"
                 />
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-brand-indigo-500" />
                 <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex gap-2">
