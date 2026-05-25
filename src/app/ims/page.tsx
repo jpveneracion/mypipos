@@ -117,9 +117,6 @@ export default function IMSPage() {
       return false;
     }
   }
-    loadProducts();
-    return () => { delete (window as any).openScanner; };
-  }, [isAuthenticated, merchantId]);
 
   async function loadProducts() {
     if (!merchantId) return;
@@ -153,8 +150,6 @@ export default function IMSPage() {
   useEffect(() => {
     loadProducts();
   }, [searchQuery, selectedCategory, merchantId]);
-
-  const categories = ['All', 'Beverages', 'Food', 'Snacks', 'Condiments', 'Confectionery'];
 
   const filteredProducts = products.filter(product => {
     const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
@@ -822,15 +817,63 @@ export default function IMSPage() {
 
                 <div>
                   <label className="block text-sm font-bold text-brand-indigo-300 mb-2">Category</label>
-                  <select
-                    name="category"
-                    className="w-full px-4 py-3 border border-brand-indigo-700 rounded-xl focus:ring-2 focus:ring-brand-cyan-500 bg-brand-indigo-950/50 text-brand-indigo-200 focus:border-brand-cyan-500"
-                  >
-                    <option value="">Select category</option>
-                    {categories.filter(c => c !== 'All').map(cat => (
-                      <option key={cat} value={cat}>{cat}</option>
-                    ))}
-                  </select>
+                  {showNewCategoryInput ? (
+                    <div className="flex gap-2">
+                      <Input
+                        type="text"
+                        placeholder="Enter new category name"
+                        value={newCategoryName}
+                        onChange={(e) => setNewCategoryName(e.target.value)}
+                        className="flex-1 bg-brand-indigo-950/50 border-brand-indigo-700 text-brand-indigo-200 placeholder-brand-indigo-500 focus:border-brand-cyan-500 focus:ring-2 focus:ring-brand-cyan-500/20"
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter' && newCategoryName.trim()) {
+                            e.preventDefault();
+                            addNewCategory(newCategoryName.trim());
+                          }
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        onClick={() => addNewCategory(newCategoryName.trim())}
+                        disabled={!newCategoryName.trim()}
+                        className="bg-brand-cyan-400 text-brand-dark-950 hover:bg-brand-cyan-500"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          setShowNewCategoryInput(false);
+                          setNewCategoryName('');
+                        }}
+                        className="border-brand-indigo-700 text-brand-indigo-400"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <select
+                        name="category"
+                        className="flex-1 px-4 py-3 border border-brand-indigo-700 rounded-xl focus:ring-2 focus:ring-brand-cyan-500 bg-brand-indigo-950/50 text-brand-indigo-200 focus:border-brand-cyan-500"
+                      >
+                        <option value="">Select category</option>
+                        {categories.filter(c => c !== 'All').map(cat => (
+                          <option key={cat} value={cat}>{cat}</option>
+                        ))}
+                      </select>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setShowNewCategoryInput(true)}
+                        className="border-brand-cyan-700 text-brand-cyan-400 hover:bg-brand-cyan-900/30 whitespace-nowrap"
+                        title="Add new category"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
                 <div>
