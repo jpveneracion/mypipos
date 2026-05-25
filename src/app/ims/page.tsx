@@ -290,7 +290,7 @@ export default function IMSPage() {
                 <BarChart3 className="w-6 h-6 text-brand-dark-950" />
               </div>
               <div>
-                <h1 className="text-2xl font-display font-bold bg-linear-to-r from-brand-cyan-400 to-brand-cyan-600 bg-clip-text text-transparent">
+                <h1 className="text-xl font-display font-bold text-white">
                   Inventory Management
                 </h1>
                 <p className="text-xs text-brand-indigo-400 font-medium">
@@ -350,7 +350,7 @@ export default function IMSPage() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6"
         >
-          <Card className="relative overflow-hidden bg-brand-indigo-900/30 backdrop-blur-xl border border-brand-indigo-800/50 hover:shadow-glass transition-all duration-300 group">
+          <Card className="glass-card">
             <div className="absolute top-0 right-0 w-32 h-32 bg-brand-cyan-400/5 rounded-full blur-3xl group-hover:bg-brand-cyan-400/10 transition-all"></div>
             <div className="relative">
               <div className="flex items-center justify-between">
@@ -365,7 +365,7 @@ export default function IMSPage() {
             </div>
           </Card>
 
-          <Card className="relative overflow-hidden bg-brand-indigo-900/30 backdrop-blur-xl border border-brand-indigo-800/50 hover:shadow-glass transition-all duration-300 group">
+          <Card className="glass-card">
             <div className="absolute top-0 right-0 w-32 h-32 bg-brand-cyan-400/5 rounded-full blur-3xl group-hover:bg-brand-cyan-400/10 transition-all"></div>
             <div className="relative">
               <div className="flex items-center justify-between">
@@ -382,7 +382,7 @@ export default function IMSPage() {
             </div>
           </Card>
 
-          <Card className="relative overflow-hidden bg-brand-indigo-900/30 backdrop-blur-xl border border-brand-indigo-800/50 hover:shadow-glass transition-all duration-300 group">
+          <Card className="glass-card">
             <div className="absolute top-0 right-0 w-32 h-32 bg-warning-400/5 rounded-full blur-3xl group-hover:bg-warning-400/10 transition-all"></div>
             <div className="relative">
               <div className="flex items-center justify-between">
@@ -397,7 +397,7 @@ export default function IMSPage() {
             </div>
           </Card>
 
-          <Card className="relative overflow-hidden bg-brand-indigo-900/30 backdrop-blur-xl border border-brand-indigo-800/50 hover:shadow-glass transition-all duration-300 group">
+          <Card className="glass-card">
             <div className="absolute top-0 right-0 w-32 h-32 bg-error-400/5 rounded-full blur-3xl group-hover:bg-error-400/10 transition-all"></div>
             <div className="relative">
               <div className="flex items-center justify-between">
@@ -424,7 +424,7 @@ export default function IMSPage() {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="mb-6"
           >
-            <Card className="bg-linear-to-r from-warning-900/30 to-amber-900/30 backdrop-blur-xl border border-warning-700/50">
+            <Card className="glass-card">
               <div className="flex items-start gap-4 p-6">
                 <div className="shrink-0">
                   <div className="w-12 h-12 bg-warning-400/10 rounded-xl flex items-center justify-center">
@@ -477,7 +477,7 @@ export default function IMSPage() {
           transition={{ duration: 0.6, delay: 0.4 }}
           className="mb-6"
         >
-          <Card className="bg-brand-indigo-900/30 backdrop-blur-xl border border-brand-indigo-800/50">
+          <Card className="glass-card">
             <div className="flex flex-col lg:flex-row gap-4 p-6">
               <div className="flex-1 relative">
                 <Input

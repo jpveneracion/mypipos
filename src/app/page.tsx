@@ -110,7 +110,7 @@ export default function Home() {
                 animate="show"
                 variants={fadeUp}
                 transition={{ duration: 0.6, delay: 0.1 }}
-                className="font-display text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.1] mb-6"
+                className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-[1.2] mb-6"
               >
                 Commerce, rebuilt for the{' '}
                 <span className="text-cyan-shimmer">Pi ecosystem.</span>
@@ -186,8 +186,8 @@ export default function Home() {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-white mb-4">
-              Universal commerce that already works—today.
+            <h2 className="font-display text-2xl md:text-3xl font-bold text-white mb-4">
+              Commerce that already works—today.
             </h2>
           </motion.div>
 
