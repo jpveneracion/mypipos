@@ -9,7 +9,9 @@ interface User {
   id: string;
   piUsername: string;
   userType?: 'customer' | 'merchant';
+  user_type?: 'customer' | 'merchant'; // Database column name
   merchantId?: string;
+  merchant_id?: string | null; // Database column name
   role?: string;
 }
 
@@ -92,7 +94,7 @@ export default function SimpleSettingsPage() {
           setPromotionalEmails(s.notification_preferences?.promotional_emails ?? true);
 
           // Set default tab
-          if (userData.userType === 'merchant') {
+          if (userData.userType === 'merchant' || userData.user_type === 'merchant' || userData.merchantId || userData.merchant_id) {
             setActiveTab('business');
           }
         }
@@ -202,7 +204,7 @@ export default function SimpleSettingsPage() {
             <User size={18} className="inline mr-2" />
             Personal Settings
           </button>
-          {user?.userType === 'merchant' && (
+          {(user?.userType === 'merchant' || user?.user_type === 'merchant' || user?.merchantId || user?.merchant_id) && (
             <button
               onClick={() => setActiveTab('business')}
               className={`px-4 py-2 rounded-lg font-medium transition-all ${

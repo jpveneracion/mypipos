@@ -115,27 +115,14 @@ export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
     }
   };
 
+  // Don't render anything if already claimed
+  if (hasClaimed === true) {
+    return null;
+  }
+
   return (
     <div className="mb-6">
-      {hasClaimed === true ? (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Card className="bg-linear-to-br from-green-900/20 to-brand-indigo-900/20 backdrop-blur-xl border border-green-700/30">
-            <div className="p-4">
-              <div className="flex items-center gap-3">
-                <CheckCircle className="w-5 h-5 text-green-400" />
-                <div className="flex-1">
-                  <h4 className="text-lg font-semibold text-green-300">Test Pi Claimed! ✅</h4>
-                  <p className="text-sm text-green-400/80">You've already claimed your 1 test Pi bonus.</p>
-                </div>
-              </div>
-            </div>
-          </Card>
-        </motion.div>
-      ) : hasClaimed === false ? (
+      {hasClaimed === false ? (
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
