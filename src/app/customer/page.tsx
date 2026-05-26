@@ -10,7 +10,6 @@ import { Card } from '@/components/ui/Card';
 import InvoiceList from './components/InvoiceList';
 import CustomerQRCode from './components/CustomerQRCode';
 import { TestPiClaimCard } from '@/components/customer/TestPiClaimCard';
-import { TestPiPaymentDebug } from '@/components/customer/TestPiPaymentDebug';
 import {
   User,
   ShoppingBag,
@@ -163,38 +162,7 @@ export default function CustomerPage() {
           </div>
 
           {/* Test Pi Claim Section - Above QR Code */}
-          {user ? (
-            <>
-              {/* Payment Debug - Always visible for troubleshooting */}
-              <TestPiPaymentDebug userId={user.id} />
-
-              {/* Debug Info - Always visible */}
-              <div className="mb-4 p-4 bg-brand-dark-950 border-2 border-brand-cyan-500 rounded-lg">
-                <h4 className="text-brand-cyan-400 font-bold mb-2">🔍 Customer Debug Info</h4>
-                <div className="text-xs text-brand-indigo-200 space-y-1">
-                  <p>✅ User exists: {user?.piUsername || 'Unknown'}</p>
-                  <p>✅ User ID: {user?.id || 'No ID'}</p>
-                  <p>✅ User object: {JSON.stringify({
-                    id: user?.id,
-                    username: user?.piUsername,
-                    hasId: !!user?.id
-                  })}</p>
-                  <div className="mt-2 p-2 bg-brand-indigo-900/50 rounded">
-                    <p className="text-brand-cyan-300 font-bold mb-1">🎯 Test Pi Claim Card:</p>
-                    <p className="text-brand-indigo-300">
-                      Status: {user?.id ? 'Should be rendering below' : 'Not rendering (no user ID)'}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <TestPiClaimCard userId={user.id} />
-            </>
-          ) : (
-            <div className="mb-4 p-4 bg-red-900/30 border border-red-500 rounded-lg">
-              <p className="text-red-300">❌ No user object found - not logged in properly</p>
-            </div>
-          )}
+          {user && <TestPiClaimCard userId={user.id} />}
 
           {/* Customer QR Code Section */}
           <motion.div
