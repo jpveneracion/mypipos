@@ -60,3 +60,6 @@ export interface Category {
   description?: string;
   parentId?: string;
 }
+
+// Settings types
+export * from './settings';
