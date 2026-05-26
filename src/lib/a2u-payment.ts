@@ -139,14 +139,34 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
       const PiNetwork = await getPiNetworkClass();
 
       // Get API credentials
+      console.log('[A2U] Checking environment variables...');
+      console.log('[A2U] All env vars starting with PI:', Object.keys(process.env)
+        .filter(key => key.startsWith('PI_'))
+        .map(key => `${key}: ${key.substring(0, 15)}...`)
+      );
+
       const apiKey = process.env.PI_API_KEY;
       const walletPrivateKey = process.env.PI_WALLET_PRIVATE_KEY;
+
+      console.log('[A2U] Env var status:', {
+        PI_API_KEY: apiKey ? 'SET' : 'NOT SET',
+        PI_WALLET_PRIVATE_KEY: walletPrivateKey ? 'SET' : 'NOT SET',
+        PI_WALLET_PRIVATE_SEED: process.env.PI_WALLET_PRIVATE_SEED ? 'SET' : 'NOT SET'
+      });
 
       if (!apiKey || !walletPrivateKey) {
         throw new Error('Pi Network credentials not configured (PI_API_KEY, PI_WALLET_PRIVATE_KEY)');
       }
 
       console.log('[A2U] Initializing Pi SDK with credentials...');
+      console.log('[A2U] Available env vars:', {
+        hasApiKey: !!apiKey,
+        hasWalletKey: !!walletPrivateKey,
+        apiKeyPrefix: apiKey ? `${apiKey.substring(0, 8)}...` : 'none',
+        walletKeyPrefix: walletPrivateKey ? `${walletPrivateKey.substring(0, 8)}...` : 'none',
+        nodeEnv: process.env.NODE_ENV
+      });
+
       const pi = new PiNetwork(apiKey, walletPrivateKey);
       console.log('[A2U] Pi SDK initialized');
 
