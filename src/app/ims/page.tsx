@@ -354,7 +354,7 @@ export default function IMSPage() {
                 <div>
                   <p className="text-brand-indigo-400 text-sm font-medium mb-1">Total Value</p>
                   <p className="text-2xl font-display font-bold text-brand-indigo-200">
-                    ${totalValue.toFixed(2)}
+                    Test-{totalValue.toFixed(2)}π
                   </p>
                 </div>
                 <div className="w-10 h-10 bg-gradient-to-br from-brand-cyan-400/10 to-brand-cyan-600/10 rounded-2xl flex items-center justify-center border border-brand-cyan-700/30">
@@ -536,7 +536,7 @@ export default function IMSPage() {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-brand-indigo-200 font-bold">{product.stock}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-bold bg-gradient-to-r from-brand-cyan-400 to-brand-cyan-600 bg-clip-text text-transparent">${product.price.toFixed(2)}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-bold bg-gradient-to-r from-brand-cyan-400 to-brand-cyan-600 bg-clip-text text-transparent">Test-{product.price.toFixed(2)}π</td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex items-center gap-2 px-3 py-1.5 text-xs font-bold rounded-full border ${stockStatus.color}`}>
                             <stockStatus.icon className="w-3.5 h-3.5" />
@@ -591,18 +591,23 @@ export default function IMSPage() {
                   </span>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3 mb-4 px-6">
+                {/* SKU Row */}
+                <div className="mb-4 px-6">
+                  <div className="bg-brand-indigo-950/50 rounded-xl p-4 border border-brand-indigo-800/50">
+                    <p className="text-xs text-brand-indigo-500 font-medium mb-1">SKU</p>
+                    <p className="text-sm font-bold text-brand-indigo-200">{product.sku}</p>
+                  </div>
+                </div>
+
+                {/* Stock and Price Row - 2x1 layout */}
+                <div className="grid grid-cols-2 gap-3 mb-4 px-6">
                   <div className="bg-brand-indigo-950/50 rounded-xl p-4 text-center border border-brand-indigo-800/50">
                     <p className="text-xs text-brand-indigo-500 font-medium mb-1">Stock</p>
                     <p className="text-lg font-bold text-brand-indigo-200">{product.stock}</p>
                   </div>
                   <div className="bg-brand-indigo-950/50 rounded-xl p-4 text-center border border-brand-indigo-800/50">
                     <p className="text-xs text-brand-indigo-500 font-medium mb-1">Price</p>
-                    <p className="text-lg font-bold bg-gradient-to-r from-brand-cyan-400 to-brand-cyan-600 bg-clip-text text-transparent">${product.price.toFixed(2)}</p>
-                  </div>
-                  <div className="bg-brand-indigo-950/50 rounded-xl p-4 text-center border border-brand-indigo-800/50">
-                    <p className="text-xs text-brand-indigo-500 font-medium mb-1">SKU</p>
-                    <p className="text-sm font-bold text-brand-indigo-200">{product.sku}</p>
+                    <p className="text-lg font-bold bg-gradient-to-r from-brand-cyan-400 to-brand-cyan-600 bg-clip-text text-transparent">Test-{product.price.toFixed(2)}π</p>
                   </div>
                 </div>
 
