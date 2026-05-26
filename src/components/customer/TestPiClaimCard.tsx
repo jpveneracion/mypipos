@@ -74,6 +74,8 @@ export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
   };
 
   const handleClaim = async () => {
+    let isPaymentInProgress = false;
+
     setIsClaiming(true);
     setError('');
     setSuccessMessage('');
@@ -151,9 +153,24 @@ export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
 
     } catch (error) {
       console.error('[TEST-PI-CLAIM] Claim error:', error);
-      setError(error instanceof Error ? error.message : 'Failed to claim Test Pi. Please try again.');
+
+      let errorMessage = 'Failed to claim Test Pi. Please try again.';
+
+      if (error instanceof Error) {
+        // Handle payment in progress error specially
+        if (error.message.includes('Payment already in progress')) {
+          errorMessage = error.message;
+          isPaymentInProgress = true;
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
+      setError(errorMessage);
     } finally {
-      setIsClaiming(false);
+      if (!isPaymentInProgress) {
+        setIsClaiming(false);
+      }
     }
   };
 

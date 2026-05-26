@@ -88,7 +88,42 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
       };
     }
 
-    // Step 1: Create A2U payment record in database
+    // Step 1: Check for existing incomplete payment for this user and transaction type
+    const existingPayment = await query(
+      `SELECT * FROM a2u_payments
+       WHERE to_user_id = $1
+       AND transaction_type = $2
+       AND metadata->>'reward_type' = $3
+       AND status IN ('pending', 'failed')
+       ORDER BY created_at DESC
+       LIMIT 1`,
+      [user.id, transaction_type, metadata?.reward_type]
+    );
+
+    if (existingPayment.rows.length > 0) {
+      const existing = existingPayment.rows[0];
+      console.log(`[A2U] Found existing payment:`, existing.transaction_number, existing.status);
+
+      // If it's pending from a recent attempt, try to continue or fail it
+      if (existing.status === 'pending') {
+        const timeSinceCreated = Date.now() - new Date(existing.created_at).getTime();
+        // If pending for more than 5 minutes, mark as failed
+        if (timeSinceCreated > 5 * 60 * 1000) {
+          await query(
+            `UPDATE a2u_payments SET status = 'failed', error_message = $1 WHERE id = $2`,
+            ['Payment timed out', existing.id]
+          );
+          console.log(`[A2U] Marked stale pending payment as failed`);
+        } else {
+          return {
+            success: false,
+            error: `Payment already in progress. Please wait ${Math.ceil((5 * 60 * 1000 - timeSinceCreated) / 1000)} seconds before trying again.`
+          };
+        }
+      }
+    }
+
+    // Step 2: Create A2U payment record in database
     const transactionNumber = `A2U-${Date.now()}-${Math.random().toString(36).substring(2, 10)}`;
 
     const a2uPaymentResult = await query(
@@ -135,6 +170,10 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
     // Step 2: Use pi-backend SDK for A2U payment
     console.log(`[A2U] Using pi-backend SDK for A2U payment...`);
 
+    // Get API credentials outside try block for error handling
+    const apiKey = process.env.PI_API_KEY;
+    const walletPrivateKey = process.env.PI_WALLET_PRIVATE_KEY;
+
     try {
       const PiNetwork = await getPiNetworkClass();
 
@@ -144,9 +183,6 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
         .filter(key => key.startsWith('PI_'))
         .map(key => `${key}: ${key.substring(0, 15)}...`)
       );
-
-      const apiKey = process.env.PI_API_KEY;
-      const walletPrivateKey = process.env.PI_WALLET_PRIVATE_KEY;
 
       console.log('[A2U] Env var status:', {
         PI_API_KEY: apiKey ? 'SET' : 'NOT SET',
@@ -236,18 +272,79 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
         message: `Successfully sent ${amount} Pi to ${user.username}!`
       };
 
-    } catch (sdkError) {
+    } catch (sdkError: any) {
       console.error('[A2U] Pi SDK error:', sdkError);
+
+      // Handle duplicate payment error
+      if (sdkError?.response?.data?.exists === true) {
+        console.log('[A2U] Payment already exists, attempting to complete it...');
+
+        try {
+          const existingPayment = sdkError.response.data.payment;
+          const paymentId = existingPayment?.payment_id || existingPayment?.id;
+
+          if (paymentId) {
+            console.log('[A2U] Found existing payment ID:', paymentId);
+
+            // Try to submit and complete the existing payment
+            const PiNetwork = await getPiNetworkClass();
+            const pi = new PiNetwork(apiKey, walletPrivateKey);
+
+            // Submit to blockchain
+            console.log('[A2U] Submitting existing payment to blockchain...');
+            const txid = await pi.submitPayment(paymentId);
+            console.log('[A2U] ✅ Payment submitted with TXID:', txid);
+
+            // Complete payment
+            console.log('[A2U] Completing existing payment...');
+            await pi.completePayment(paymentId, txid);
+            console.log('[A2U] ✅ Payment completed');
+
+            // Update database record
+            await query(
+              `UPDATE a2u_payments SET
+                payment_id = $1,
+                txid = $2,
+                status = 'completed',
+                payment_completed_at = NOW(),
+                completed_at = NOW()
+              WHERE id = $3`,
+              [paymentId, txid, a2uPayment.id]
+            );
+
+            return {
+              success: true,
+              payment: {
+                id: a2uPayment.id,
+                transactionNumber: a2uPayment.transaction_number,
+                paymentId: paymentId,
+                txid: txid,
+                amount: a2uPayment.amount,
+                memo: a2uPayment.memo,
+                status: 'completed',
+                toUser: {
+                  id: user.id,
+                  username: user.username,
+                  piUid: user.pi_uid
+                }
+              },
+              message: `Successfully sent ${amount} Pi to ${user.username}!`
+            };
+          }
+        } catch (completionError: any) {
+          console.error('[A2U] Failed to complete existing payment:', completionError);
+        }
+      }
 
       // Update A2U payment as failed
       await query(
         `UPDATE a2u_payments SET status = 'failed', error_message = $1 WHERE id = $2`,
-        [(sdkError as Error).message, a2uPayment.id]
+        [sdkError?.message || 'Unknown SDK error', a2uPayment.id]
       );
 
       return {
         success: false,
-        error: `Pi Network SDK error: ${(sdkError as Error).message}`
+        error: `Pi Network SDK error: ${sdkError?.message || 'Unknown error'}`
       };
     }
 
