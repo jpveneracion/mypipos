@@ -281,7 +281,7 @@ export default function IMSPage() {
 
       <div className="container mx-auto px-6 py-8 flex-1 overflow-y-auto">
         {/* Navigation and Action Buttons */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-6">
           <Button
             variant="outline"
             onClick={() => router.push('/mode-selection')}
@@ -306,14 +306,14 @@ export default function IMSPage() {
               onClick={() => setShowAddModal(true)}
               className="bg-gradient-to-r from-brand-cyan-400 to-brand-cyan-600 text-brand-dark-950 hover:from-brand-cyan-500 hover:to-brand-cyan-700 font-semibold"
             >
-              <Plus className="mr-2 w-5 h-5" />
+              <Plus className="mr-2 w-4 h-4" />
               <span className="hidden sm:inline">Add Product</span>
             </Button>
           </div>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-error-900/30 border border-error-700 rounded-xl text-error-200">
+          <div className="mb-6 p-3 bg-error-900/30 border border-error-700 rounded-xl text-error-200">
             {error}
           </div>
         )}
@@ -330,18 +330,18 @@ export default function IMSPage() {
           animate="show"
           variants={fadeUp}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
+          className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8"
         >
           <Card className="glass-card">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-brand-cyan-400/5 rounded-full blur-3xl group-hover:bg-brand-cyan-400/10 transition-all"></div>
-            <div className="relative p-4">
-              <div className="flex items-center justify-between mb-4">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-brand-cyan-400/5 rounded-full blur-2xl group-hover:bg-brand-cyan-400/10 transition-all"></div>
+            <div className="relative p-3">
+              <div className="flex items-center justify-between mb-2">
                 <div>
-                  <p className="text-brand-indigo-400 text-sm font-medium mb-1">Total Products</p>
-                <p className="text-2xl font-display font-bold text-brand-indigo-200">{products.length}</p>
+                  <p className="text-brand-indigo-400 text-xs font-medium mb-1">Total Products</p>
+                <p className="text-lg md:text-xl font-display font-bold text-brand-indigo-200">{products.length}</p>
                 </div>
-                <div className="w-10 h-10 bg-gradient-to-br from-brand-cyan-400/10 to-brand-cyan-600/10 rounded-xl flex items-center justify-center border border-brand-cyan-700/30">
-                  <Package className="w-5 h-5 text-brand-cyan-400" />
+                <div className="w-8 h-8 bg-gradient-to-br from-brand-cyan-400/10 to-brand-cyan-600/10 rounded-xl flex items-center justify-center border border-brand-cyan-700/30">
+                  <Package className="w-4 h-4 text-brand-cyan-400" />
                 </div>
               </div>
             </div>
@@ -407,19 +407,19 @@ export default function IMSPage() {
             className="mb-8"
           >
             <Card className="glass-card">
-              <div className="flex items-start gap-4 p-6">
+              <div className="flex items-start gap-3 p-6">
                 <div className="shrink-0">
-                  <div className="w-10 h-10 bg-warning-400/10 rounded-2xl flex items-center justify-center">
-                    <AlertTriangle className="w-5 h-5 text-warning-400" />
+                  <div className="w-8 h-8 bg-warning-400/10 rounded-2xl flex items-center justify-center">
+                    <AlertTriangle className="w-4 h-4 text-warning-400" />
                   </div>
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-display font-bold text-warning-200 mb-4">Stock Alerts</h3>
+                  <h3 className="text-lg font-display font-bold text-warning-200 mb-2">Stock Alerts</h3>
                   <div className="space-y-3 text-sm">
                     {outOfStockProducts.length > 0 && (
                       <div className="bg-error-900/40 backdrop-blur-xl border border-error-700/50 rounded-2xl p-5">
                         <p className="font-semibold text-error-200 mb-3 flex items-center gap-2">
-                          <AlertCircle className="w-5 h-5" />
+                          <AlertCircle className="w-4 h-4" />
                           Out of Stock
                         </p>
                         <ul className="list-disc list-inside text-error-300 space-y-2">
@@ -432,7 +432,7 @@ export default function IMSPage() {
                     {lowStockProducts.filter(p => p.stock > 0).length > 0 && (
                       <div className="bg-warning-900/40 backdrop-blur-xl border border-warning-700/50 rounded-2xl p-5">
                         <p className="font-semibold text-warning-200 mb-3 flex items-center gap-2">
-                          <AlertTriangle className="w-5 h-5" />
+                          <AlertTriangle className="w-4 h-4" />
                           Low Stock
                         </p>
                         <ul className="list-disc list-inside text-warning-300 space-y-2">
@@ -460,7 +460,7 @@ export default function IMSPage() {
           className="mb-8"
         >
           <Card className="glass-card">
-            <div className="flex flex-col lg:flex-row gap-4 p-4">
+            <div className="flex flex-col lg:flex-row gap-3 p-3">
               <div className="flex-1 relative">
                 <Input
                   type="text"
@@ -477,7 +477,7 @@ export default function IMSPage() {
                   <button
                     key={category}
                     onClick={() => setSelectedCategory(category)}
-                    className={`px-5 py-2.5 rounded-xl transition-all duration-300 text-sm font-medium ${
+                    className={`px-5 py-2.5 rounded-xl transition-all duration-300 text-xs font-medium ${
                       selectedCategory === category
                         ? 'bg-gradient-to-r from-brand-cyan-400 to-brand-cyan-600 text-brand-dark-950'
                         : 'bg-brand-indigo-950/50 text-brand-indigo-400 hover:bg-brand-indigo-900/70 border border-brand-indigo-700'
@@ -543,7 +543,7 @@ export default function IMSPage() {
                             {stockStatus.status}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <td className="px-6 py-4 whitespace-nowrap text-xs font-medium">
                           <button
                             onClick={() => {
                               console.log('Edit product:', product.id);
@@ -581,10 +581,10 @@ export default function IMSPage() {
             const stockStatus = getStockStatus(product);
             return (
               <Card key={product.id} className="bg-brand-indigo-900/30 backdrop-blur-xl border border-brand-indigo-800/50 hover:shadow-glass transition-all duration-300">
-                <div className="flex items-start justify-between mb-4 p-6">
-                  <div className="flex items-center gap-4">
+                <div className="flex items-start justify-between mb-2 p-6">
+                  <div className="flex items-center gap-3">
                     <div className="shrink-0 h-10 w-10 bg-gradient-to-br from-brand-cyan-400/10 to-brand-cyan-600/10 rounded-xl flex items-center justify-center border border-brand-cyan-700/30">
-                      <Package className="w-5 h-5 text-brand-cyan-400" />
+                      <Package className="w-4 h-4 text-brand-cyan-400" />
                     </div>
                     <div>
                       <h3 className="text-base font-display font-bold text-brand-indigo-200">{product.name}</h3>
@@ -598,20 +598,20 @@ export default function IMSPage() {
                 </div>
 
                 {/* SKU Row */}
-                <div className="mb-4 px-6">
-                  <div className="bg-brand-indigo-950/50 rounded-xl p-4 border border-brand-indigo-800/50">
+                <div className="mb-2 px-6">
+                  <div className="bg-brand-indigo-950/50 rounded-xl p-3 border border-brand-indigo-800/50">
                     <p className="text-xs text-brand-indigo-500 font-medium mb-1">SKU</p>
                     <p className="text-sm font-bold text-brand-indigo-200">{product.sku}</p>
                   </div>
                 </div>
 
                 {/* Stock and Price Row - 2x1 layout */}
-                <div className="grid grid-cols-2 gap-3 mb-4 px-6">
-                  <div className="bg-brand-indigo-950/50 rounded-xl p-4 text-center border border-brand-indigo-800/50">
+                <div className="grid grid-cols-2 gap-3 mb-2 px-6">
+                  <div className="bg-brand-indigo-950/50 rounded-xl p-3 text-center border border-brand-indigo-800/50">
                     <p className="text-xs text-brand-indigo-500 font-medium mb-1">Stock</p>
                     <p className="text-lg font-bold text-brand-indigo-200">{product.stock}</p>
                   </div>
-                  <div className="bg-brand-indigo-950/50 rounded-xl p-4 text-center border border-brand-indigo-800/50">
+                  <div className="bg-brand-indigo-950/50 rounded-xl p-3 text-center border border-brand-indigo-800/50">
                     <p className="text-xs text-brand-indigo-500 font-medium mb-1">Price</p>
                     <p className="text-lg font-bold bg-gradient-to-r from-brand-cyan-400 to-brand-cyan-600 bg-clip-text text-transparent">{product.price.toFixed(7)} Test-π</p>
                   </div>
@@ -684,7 +684,7 @@ export default function IMSPage() {
 
       {/* Add Product Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black/95 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-black/95 backdrop-blur-sm flex items-center justify-center p-3 z-50">
           <div className="bg-brand-indigo-900 backdrop-blur-xl border border-brand-indigo-700 rounded-2xl shadow-glass-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-gradient-to-r from-brand-cyan-400 to-brand-cyan-600 border-b border-brand-cyan-700 p-6 rounded-t-2xl">
               <div className="flex justify-between items-center">
@@ -694,7 +694,7 @@ export default function IMSPage() {
                     setShowAddModal(false);
                     setScannedBarcode('');
                   }}
-                  className="text-brand-dark-950/80 hover:text-brand-dark-950 text-2xl font-bold"
+                  className="text-brand-dark-950/80 hover:text-brand-dark-950 text-lg md:text-xl font-bold"
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -703,7 +703,7 @@ export default function IMSPage() {
 
             <div className="p-6">
               {error && (
-                <div className="mb-4 p-4 bg-error-900/30 border border-error-700 rounded-xl text-error-200 text-sm">
+                <div className="mb-2 p-3 bg-error-900/30 border border-error-700 rounded-xl text-error-200 text-sm">
                   {error}
                 </div>
               )}
@@ -734,7 +734,7 @@ export default function IMSPage() {
                   }}
                   className="w-full py-8 border-2 border-dashed border-brand-cyan-700 hover:border-brand-cyan-500 flex flex-col items-center gap-3 bg-brand-cyan-900/20 text-brand-cyan-400 hover:bg-brand-cyan-900/30 transition-all rounded-2xl"
                 >
-                  <Barcode className="w-10 h-10" />
+                  <Barcode className="w-8 h-8" />
                   <span className="font-semibold text-lg">Scan Barcode with Camera</span>
                 </Button>
 
