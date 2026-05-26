@@ -14,15 +14,13 @@ export interface A2UPaymentRequest {
 }
 
 /**
- * Clear incomplete payment using mypiroll's "janitor protocol"
- * Tries cancel first, then completes with existing txid if cancel fails
+ * Cancel any incomplete payment outright
+ * Returns true if successfully cancelled or if payment doesn't exist
  */
-async function clearIncompletePayment(paymentId: string, apiKey: string, apiUrl: string): Promise<{ success: boolean; method: string; txid?: string }> {
-  console.log('[A2U Janitor] Clearing zombie payment:', paymentId);
+async function cancelIncompletePayment(paymentId: string, apiKey: string, apiUrl: string): Promise<boolean> {
+  console.log('[A2U Janitor] Cancelling payment outright:', paymentId);
 
   try {
-    // Step 1: Try to cancel (works for A2U payments)
-    console.log('[A2U Janitor] Step 1: Trying to cancel payment...');
     const cancelResponse = await fetch(`${apiUrl}/payments/${paymentId}/cancel`, {
       method: 'POST',
       headers: {
@@ -30,48 +28,37 @@ async function clearIncompletePayment(paymentId: string, apiKey: string, apiUrl:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        cancel_message: 'Zombie payment cleaned up by myPiPOS backend'
+        cancel_message: 'Cancelling incomplete payment to allow new A2U payment'
       })
     });
 
     if (cancelResponse.ok) {
-      console.log('[A2U Janitor] ✅ Zombie payment cancelled successfully');
-      return { success: true, method: 'cancel' };
+      console.log('[A2U Janitor] ✅ Payment cancelled successfully');
+      return true;
     }
 
-    // Step 2: Cancel failed - check if it's a 403 with txid we can use
+    // If payment doesn't exist or already completed/cancelled, that's fine
+    if (cancelResponse.status === 404) {
+      console.log('[A2U Janitor] Payment not found (404), treating as cleared');
+      return true;
+    }
+
     const cancelError = await cancelResponse.json().catch(() => ({}));
     console.log('[A2U Janitor] Cancel failed:', cancelError.error || cancelError.error_message);
 
-    // Step 3: If it's a 403 with payment data, extract txid and complete
-    if (cancelError.payment?.transaction?.txid && cancelError.payment?.transaction?.verified) {
-      const txid = cancelError.payment.transaction.txid;
-      console.log('[A2U Janitor] Step 2: Found verified txid in cancel error!', txid);
-      console.log('[A2U Janitor] Completing payment with ACTUAL txid...');
-
-      const completeResponse = await fetch(`${apiUrl}/payments/${paymentId}/complete`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Key ${apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ txid })
-      });
-
-      if (completeResponse.ok) {
-        console.log('[A2U Janitor] ✅ Zombie payment COMPLETED successfully!');
-        return { success: true, method: 'complete-from-cancel-error', txid };
-      }
-
-      console.error('[A2U Janitor] Complete failed:', await completeResponse.text());
+    // If it's already completed, that's fine too
+    if (cancelError.payment?.status === 'completed' ||
+        cancelError.payment?.status?.developer_completed) {
+      console.log('[A2U Janitor] Payment already completed, treating as cleared');
+      return true;
     }
 
-    console.error('[A2U Janitor] ❌ Cannot clear - no verified txid found');
-    return { success: false, method: 'failed' };
+    console.error('[A2U Janitor] ❌ Failed to cancel payment');
+    return false;
 
   } catch (error) {
-    console.error('[A2U Janitor] Error:', error);
-    return { success: false, method: 'error' };
+    console.error('[A2U Janitor] Error cancelling payment:', error);
+    return false;
   }
 }
 
@@ -171,62 +158,27 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
       const existing = existingPayment.rows[0];
       console.log(`[A2U] Found existing payment:`, existing.transaction_number, existing.status);
 
-      // If it's pending from a recent attempt, try to clean it up
+      // Cancel any incomplete payment outright before creating new one
       if (existing.status === 'pending' && existing.payment_id) {
-        console.log(`[A2U] Cleaning up stale pending payment:`, existing.payment_id);
+        console.log(`[A2U] Cancelling incomplete payment:`, existing.payment_id);
 
-        // Try to clear the incomplete payment using mypiroll's janitor protocol
-        const clearResult = await clearIncompletePayment(existing.payment_id, apiKey, apiUrl);
+        const cancelled = await cancelIncompletePayment(existing.payment_id, apiKey, apiUrl);
 
-        if (clearResult.success) {
-          console.log(`[A2U] ✅ Successfully cleared incomplete payment using method:`, clearResult.method);
+        if (cancelled) {
+          console.log(`[A2U] ✅ Successfully cancelled incomplete payment`);
 
-          // Update the existing payment record
+          // Mark as cancelled in our database
           await query(
             `UPDATE a2u_payments SET
-              status = 'completed',
-              txid = $1,
-              payment_completed_at = NOW(),
-              completed_at = NOW(),
-              error_message = NULL
-            WHERE id = $2`,
-            [clearResult.txid || null, existing.id]
+              status = 'failed',
+              error_message = 'Cancelled to allow new payment'
+            WHERE id = $1`,
+            [existing.id]
           );
-
-          return {
-            success: true,
-            payment: {
-              id: existing.id,
-              transactionNumber: existing.transaction_number,
-              paymentId: existing.payment_id,
-              txid: clearResult.txid,
-              amount: existing.amount,
-              memo: existing.memo,
-              status: 'completed',
-              toUser: {
-                id: user.id,
-                username: user.username,
-                piUid: user.pi_uid
-              }
-            },
-            message: `Successfully completed pending payment of ${amount} Pi to ${user.username}!`
-          };
+        } else {
+          console.log(`[A2U] ⚠️ Failed to cancel existing payment, will try new payment anyway`);
         }
-
-        // Mark as failed if we couldn't clear it
-        await query(
-          `UPDATE a2u_payments SET status = 'failed', error_message = $1 WHERE id = $2`,
-          ['Failed to clear incomplete payment', existing.id]
-        );
-
-        return {
-          success: false,
-          error: `Failed to clear existing incomplete payment. Please try again in a few minutes.`
-        };
       }
-
-      // If it's failed, we can proceed with a new payment
-      console.log(`[A2U] Previous payment failed, proceeding with new payment`);
     }
 
     // Step 2: Create A2U payment record in database
@@ -301,6 +253,8 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
         hasUid: !!paymentArgs.payment.uid
       });
 
+      let paymentId: string; // Declare paymentId here so it's available in error handling
+
       const createResponse = await fetch(`${apiUrl}/payments`, {
         method: 'POST',
         headers: {
@@ -312,78 +266,140 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
 
       if (!createResponse.ok) {
         const errorData = await createResponse.json().catch(() => ({}));
+        const errorMessage = errorData.error || errorData.error_message;
 
-        // Handle duplicate payment error
-        if (errorData.exists === true && errorData.payment) {
+        // Handle ongoing_payment_found error - cancel and retry
+        if (errorMessage === 'ongoing_payment_found') {
+          console.log('[A2U] ⚠️ Ongoing payment found, trying to cancel and retry...');
+
+          // Try to find and cancel any ongoing payments for this user
+          const cancelResponse = await fetch(`${apiUrl}/payments`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Key ${apiKey}`,
+              'Content-Type': 'application/json',
+            }
+          });
+
+          if (cancelResponse.ok) {
+            const paymentsData = await cancelResponse.json();
+            const ongoingPayments = Array.isArray(paymentsData)
+              ? paymentsData.filter(p => p.user_uid === uid && p.status !== 'completed')
+              : [];
+
+            console.log(`[A2U] Found ${ongoingPayments.length} ongoing payments for user`);
+
+            // Cancel all ongoing payments
+            for (const payment of ongoingPayments) {
+              if (payment.identifier) {
+                console.log(`[A2U] Cancelling ongoing payment:`, payment.identifier);
+                await cancelIncompletePayment(payment.identifier, apiKey, apiUrl);
+              }
+            }
+
+            // Wait a moment for cancellation to take effect
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            // Retry creating the payment
+            console.log('[A2U] Retrying payment creation after cancelling ongoing payments...');
+            const retryResponse = await fetch(`${apiUrl}/payments`, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Key ${apiKey}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(paymentArgs)
+            });
+
+            if (retryResponse.ok) {
+              const retryData = await retryResponse.json();
+              paymentId = retryData.identifier || retryData.id;
+              console.log('[A2U] ✅ Retry successful! Payment created with ID:', paymentId);
+            } else {
+              throw new Error('Still getting ongoing_payment_found after cancellation. Please wait 5 minutes and try again.');
+            }
+          } else {
+            throw new Error('Failed to check for ongoing payments. Please try again later.');
+          }
+        }
+        // Handle duplicate payment error - but skip if we just retried
+        else if (errorData.exists === true && errorData.payment && errorMessage !== 'ongoing_payment_found') {
           console.log('[A2U] Payment already exists on Pi Network, checking payment type...');
 
           const existingPiPayment = errorData.payment;
           const paymentDirection = existingPiPayment.direction;
-          const paymentId = existingPiPayment.identifier;
+          const existingPaymentId = existingPiPayment.identifier;
 
           console.log('[A2U] Existing payment direction:', paymentDirection);
 
           // IMPORTANT: Only complete if it's actually an A2U (app_to_user) payment
           // If it's U2A (user_to_app), we need to create a new A2U payment instead
-          if (paymentDirection === 'app_to_user' && paymentId) {
-            console.log('[A2U] Found existing A2U payment, using janitor protocol...');
+          if (paymentDirection === 'app_to_user' && existingPaymentId) {
+            console.log('[A2U] Found existing A2U payment, completing it...');
 
-            // Try to complete the existing payment using janitor protocol
-            const clearResult = await clearIncompletePayment(paymentId, apiKey, apiUrl);
+            // Complete the existing A2U payment
+            if (existingPiPayment.transaction?.txid) {
+              const txid = existingPiPayment.transaction.txid;
+              console.log('[A2U] Completing with existing txid:', txid);
 
-            if (clearResult.success) {
-              console.log('[A2U] ✅ Successfully completed existing A2U payment using method:', clearResult.method);
-
-              // Update our database record
-              await query(
-                `UPDATE a2u_payments SET
-                  payment_id = $1,
-                  txid = $2,
-                  status = 'completed',
-                  payment_completed_at = NOW(),
-                  completed_at = NOW()
-                WHERE id = $3`,
-                [paymentId, clearResult.txid || null, a2uPayment.id]
-              );
-
-              return {
-                success: true,
-                payment: {
-                  id: a2uPayment.id,
-                  transactionNumber: a2uPayment.transaction_number,
-                  paymentId: paymentId,
-                  txid: clearResult.txid,
-                  amount: a2uPayment.amount,
-                  memo: a2uPayment.memo,
-                  status: 'completed',
-                  toUser: {
-                    id: user.id,
-                    username: user.username,
-                    piUid: user.pi_uid
-                  }
+              const completeResponse = await fetch(`${apiUrl}/payments/${existingPaymentId}/complete`, {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Key ${apiKey}`,
+                  'Content-Type': 'application/json',
                 },
-                message: `Successfully sent ${amount} Pi to ${user.username}!`
-              };
+                body: JSON.stringify({ txid })
+              });
+
+              if (completeResponse.ok) {
+                console.log('[A2U] ✅ Successfully completed existing A2U payment');
+
+                // Update our database record
+                await query(
+                  `UPDATE a2u_payments SET
+                    payment_id = $1,
+                    txid = $2,
+                    status = 'completed',
+                    payment_completed_at = NOW(),
+                    completed_at = NOW()
+                  WHERE id = $3`,
+                  [existingPaymentId, txid, a2uPayment.id]
+                );
+
+                return {
+                  success: true,
+                  payment: {
+                    id: a2uPayment.id,
+                    transactionNumber: a2uPayment.transaction_number,
+                    paymentId: existingPaymentId,
+                    txid: txid,
+                    amount: a2uPayment.amount,
+                    memo: a2uPayment.memo,
+                    status: 'completed',
+                    toUser: {
+                      id: user.id,
+                      username: user.username,
+                      piUid: user.pi_uid
+                    }
+                  },
+                  message: `Successfully sent ${amount} Pi to ${user.username}!`
+                };
+              }
             }
           } else if (paymentDirection === 'user_to_app') {
             console.log('[A2U] ❌ Existing payment is U2A (user-to-app), not A2U!');
-            console.log('[A2U] This is the wrong direction. We need to create a new A2U payment.');
-            console.log('[A2U] Making memo even more unique to avoid false duplicate detection...');
-
-            // The issue is that Pi Network is matching different payment directions
-            // We need to make the memo even more unique to avoid this
-            throw new Error(`Found existing ${paymentDirection} payment with same parameters. Please use a different memo or contact support.`);
+            throw new Error(`Found existing ${paymentDirection} payment. Cannot create A2U payment with same parameters.`);
           }
 
           // If direction is neither, proceed with error
           throw new Error(errorData.error || errorData.error_message || 'Failed to create payment');
+        } else {
+          throw new Error(errorMessage || 'Failed to create payment');
         }
-
-        throw new Error(errorData.error || errorData.error_message || 'Failed to create payment');
       }
 
-      const paymentData = await createResponse.json();
-      const paymentId = paymentData.identifier || paymentData.id;
+      let paymentData: any = await createResponse.json();
+      paymentId = paymentData.identifier || paymentData.id;
 
       console.log('[A2U] ✅ Payment created with ID:', paymentId);
     console.log('[A2U] Payment data:', {
