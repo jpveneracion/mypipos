@@ -189,14 +189,14 @@ export default function POSPage() {
     const confirmed = window.confirm(
       `Checkout Summary:\n` +
       `• ${itemCount} items\n` +
-      `• Subtotal: ${currencySymbol}${getSubtotal().toFixed(7)}\n` +
-      `• Tax: ${currencySymbol}${getTax().toFixed(7)}\n` +
-      `• Total: ${currencySymbol}${total.toFixed(7)}\n\n` +
+      `• Subtotal: ${getSubtotal().toFixed(7)} ${currencySymbol}\n` +
+      `• Tax: ${getTax().toFixed(7)} ${currencySymbol}\n` +
+      `• Total: ${total.toFixed(7)} ${currencySymbol}\n\n` +
       `Proceed with Pi payment?`
     );
 
     if (confirmed) {
-      alert(`Processing Pi payment of ${currencySymbol}${total.toFixed(7)}...\n\n(Payment integration to be implemented)`);
+      alert(`Processing Pi payment of ${total.toFixed(7)} ${currencySymbol}...\n\n(Payment integration to be implemented)`);
       clearCart();
       setSelectedCustomer(null);
     }

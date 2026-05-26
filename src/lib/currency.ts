@@ -18,17 +18,17 @@ export function getCurrencySymbol(): string {
 }
 
 /**
- * Format price with Pi currency symbol
+ * Format price with Pi currency symbol at the end
  */
 export function formatPrice(amount: number): string {
   const symbol = getCurrencySymbol();
-  return `${symbol}${amount.toFixed(7)}`;
+  return `${amount.toFixed(7)} ${symbol}`;
 }
 
 /**
- * Format price with currency symbol at the end (alternative format)
+ * Format price with currency symbol at the beginning (alternative format)
  */
-export function formatPriceSuffix(amount: number): string {
+export function formatPricePrefix(amount: number): string {
   const symbol = getCurrencySymbol();
-  return `${amount.toFixed(7)}${symbol}`;
+  return `${symbol}${amount.toFixed(7)}`;
 }

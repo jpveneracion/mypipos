@@ -71,7 +71,7 @@ const ProductCard = React.forwardRef<HTMLDivElement, ProductCardProps>(({ produc
           </h3>
 
           <div className="flex items-center justify-between">
-            <p className="text-primary-600 dark:text-primary-400 font-bold text-lg">${product.price.toFixed(7)}</p>
+            <p className="text-primary-600 dark:text-primary-400 font-bold text-lg">{product.price.toFixed(7)} Test-π</p>
             <span className={cn('text-xs font-medium', stockStatus.color)}>{stockStatus.label}</span>
           </div>
 
