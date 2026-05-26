@@ -1,80 +1,57 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
-import { getAuthenticatedUser } from '@/lib/auth-api';
-
-const VALID_PERSONAL_FIELDS = [
-  'cashback_preferences',
-  'payment_preferences',
-  'notification_preferences',
-  'saved_addresses',
-  'purchase_history_settings',
-  'pi_address'
-];
 
 export async function PUT(request: NextRequest) {
   try {
-    // Get authenticated user
-    const session = await getAuthenticatedUser(request);
-    if (!session?.id) {
-      return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
-      );
-    }
-
-    const userId = session.id;
+    // Simple approach like mypiroll - get userId from body
     const body = await request.json();
-    const { field, value } = body;
+    const { userId, pi_address, cashback_preferences, payment_preferences, notification_preferences } = body;
 
-    // Validate field name
-    if (!VALID_PERSONAL_FIELDS.includes(field)) {
+    if (!userId) {
       return NextResponse.json(
-        { error: 'Invalid field name', field },
+        { success: false, error: 'userId required' },
         { status: 400 }
       );
     }
 
-    // Get client IP and user agent for audit log
-    const ipAddress = request.headers.get('x-forwarded-for') ||
-                     request.headers.get('x-real-ip') ||
-                     null;
-    const userAgent = request.headers.get('user-agent') || null;
-
-    // Handle pi_address as special case (text field)
-    let updateValue = value;
-    if (field === 'pi_address') {
-      updateValue = JSON.stringify({ pi_address: value });
-    } else {
-      updateValue = JSON.stringify(value);
+    // Update each field individually
+    if (pi_address !== undefined) {
+      await query(
+        'UPDATE users SET pi_address = $1, updated_at = NOW() WHERE id = $2',
+        [pi_address, userId]
+      );
     }
 
-    // Update settings using security function
-    const result = await query(
-      `SELECT update_personal_settings($1, $2, $3::jsonb, NULL, $4::inet, $5)`,
-      [userId, field, updateValue, ipAddress, userAgent]
-    );
+    if (cashback_preferences) {
+      await query(
+        'UPDATE users SET cashback_preferences = $1, updated_at = NOW() WHERE id = $2',
+        [JSON.stringify(cashback_preferences), userId]
+      );
+    }
 
-    const updatedValue = result.rows[0].update_personal_settings;
+    if (payment_preferences) {
+      await query(
+        'UPDATE users SET payment_preferences = $1, updated_at = NOW() WHERE id = $2',
+        [JSON.stringify(payment_preferences), userId]
+      );
+    }
+
+    if (notification_preferences) {
+      await query(
+        'UPDATE users SET notification_preferences = $1, updated_at = NOW() WHERE id = $2',
+        [JSON.stringify(notification_preferences), userId]
+      );
+    }
 
     return NextResponse.json({
       success: true,
-      field,
-      updatedValue: updatedValue
+      message: 'Settings updated successfully'
     });
 
   } catch (error) {
-    console.error('Error updating personal settings:', error);
-
-    // Check for constraint violations
-    if (error instanceof Error && error.message?.includes('Invalid personal settings field')) {
-      return NextResponse.json(
-        { error: 'Invalid field name' },
-        { status: 400 }
-      );
-    }
-
+    console.error('Error updating settings:', error);
     return NextResponse.json(
-      { error: 'Failed to update settings' },
+      { success: false, error: 'Failed to update settings' },
       { status: 500 }
     );
   }

@@ -1,165 +1,383 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/lib/store';
-import { useSettingsStore } from '@/lib/settings-store';
-import SettingsLayout from '@/components/account-settings/SettingsLayout';
-import PersonalSettingsTab from '@/components/account-settings/PersonalSettingsTab';
-import BusinessSettingsTab from '@/components/account-settings/BusinessSettingsTab';
+import { motion } from 'framer-motion';
+import { Settings, Save, ArrowLeft, User, Building2, Wallet, Loader2 } from 'lucide-react';
 
-export default function AccountSettingsPage() {
+interface User {
+  id: string;
+  pi_uid: string;
+  pi_username: string;
+  user_type?: 'customer' | 'merchant';
+  merchantId?: string;
+}
+
+interface PersonalSettings {
+  pi_address?: string;
+  cashback_preferences: {
+    enable_pi_cashback: boolean;
+    enable_mypipos_tokens: boolean;
+    cashback_percentage: number;
+  };
+  payment_preferences: {
+    default_payment_method: 'pi' | 'cash' | 'card';
+    save_payment_methods: boolean;
+  };
+  notification_preferences: {
+    email_notifications: boolean;
+    push_notifications: boolean;
+    promotional_emails: boolean;
+  };
+}
+
+export default function SimpleSettingsPage() {
   const router = useRouter();
-  const { isAuthenticated, user } = useAuthStore();
-  const {
-    personalSettings,
-    businessSettings,
-    activeTab,
-    isLoading,
-    isSaving,
-    saveStatus,
-    fetchPersonalSettings,
-    fetchBusinessSettings,
-    setActiveTab,
-    updatePersonalSetting,
-    updateBusinessSetting,
-    resetSaveStatus,
-    errorMessage
-  } = useSettingsStore();
+  const [user, setUser] = useState<User | null>(null);
+  const [activeTab, setActiveTab] = useState<'personal' | 'business'>('personal');
+  const [settings, setSettings] = useState<PersonalSettings | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [debugInfo, setDebugInfo] = useState<any>(null);
+  // Form state
+  const [piAddress, setPiAddress] = useState('');
+  const [enablePiCashback, setEnablePiCashback] = useState(true);
+  const [enableMypiposTokens, setEnableMypiposTokens] = useState(true);
+  const [defaultPaymentMethod, setDefaultPaymentMethod] = useState<'pi' | 'cash' | 'card'>('pi');
+  const [emailNotifications, setEmailNotifications] = useState(true);
+  const [promotionalEmails, setPromotionalEmails] = useState(true);
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    console.log('🚀 [SETTINGS] Page mounting...');
+
+    // Get user from localStorage (like mypiroll does)
+    const stored = localStorage.getItem('user');
+    if (!stored) {
       router.push('/');
       return;
     }
 
-    // Fetch settings based on user role
-    const loadSettings = async () => {
-      try {
-        console.log('🔍 Loading settings...');
-        await fetchPersonalSettings();
+    const parsed = JSON.parse(stored);
+    console.log('👤 [SETTINGS] User:', parsed);
 
-        // Only fetch business settings if user is a merchant
-        if (user?.merchantId) {
-          await fetchBusinessSettings();
+    setUser(parsed);
+
+    // Fetch settings
+    const fetchSettings = async () => {
+      try {
+        console.log('📡 [SETTINGS] Fetching settings...');
+        const response = await fetch(`/api/user/settings?userId=${parsed.id}`);
+        const data = await response.json();
+        console.log('✅ [SETTINGS] Response:', data);
+
+        if (data.success && data.data) {
+          const s = data.data.personal || data.data;
+          setSettings(s);
+
+          // Populate form
+          setPiAddress(s.pi_address || '');
+          setEnablePiCashback(s.cashback_preferences?.enable_pi_cashback ?? true);
+          setEnableMypiposTokens(s.cashback_preferences?.enable_mypipos_tokens ?? true);
+          setDefaultPaymentMethod(s.payment_preferences?.default_payment_method || 'pi');
+          setEmailNotifications(s.notification_preferences?.email_notifications ?? true);
+          setPromotionalEmails(s.notification_preferences?.promotional_emails ?? true);
+
+          // Set default tab
+          if (parsed.user_type === 'merchant') {
+            setActiveTab('business');
+          }
         }
-      } catch (error) {
-        console.error('❌ Failed to load settings:', error);
-        setDebugInfo({
-          error: error instanceof Error ? error.message : 'Unknown error',
-          stack: error instanceof Error ? error.stack : undefined
-        });
+      } catch (err) {
+        console.error('❌ [SETTINGS] Error:', err);
+        setError('Failed to load settings');
+      } finally {
+        setLoading(false);
       }
     };
 
-    loadSettings();
-  }, [isAuthenticated, user]);
+    fetchSettings();
+  }, [router]);
 
-  // Show success message when save completes
-  useEffect(() => {
-    if (saveStatus === 'success') {
-      setShowSuccess(true);
-      const timer = setTimeout(() => {
-        setShowSuccess(false);
-        resetSaveStatus();
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [saveStatus, resetSaveStatus]);
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    setError(null);
+    setSuccess(false);
 
-  const handleTabChange = (tab: 'personal' | 'business') => {
-    setActiveTab(tab);
-  };
-
-  const handlePersonalUpdate = async (field: string, value: any) => {
     try {
-      await updatePersonalSetting(field, value);
-    } catch (error) {
-      console.error('Failed to update setting:', error);
+      const payload = {
+        userId: user?.id,
+        pi_address: piAddress,
+        cashback_preferences: {
+          enable_pi_cashback: enablePiCashback,
+          enable_mypipos_tokens: enableMypiposTokens,
+          cashback_percentage: 2.5
+        },
+        payment_preferences: {
+          default_payment_method: defaultPaymentMethod,
+          save_payment_methods: false
+        },
+        notification_preferences: {
+          email_notifications: emailNotifications,
+          push_notifications: false,
+          promotional_emails: promotionalEmails
+        }
+      };
+
+      console.log('💾 [SETTINGS] Saving:', payload);
+
+      const response = await fetch('/api/user/settings/update', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+      console.log('✅ [SETTINGS] Save response:', data);
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to save');
+      }
+
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 3000);
+    } catch (err) {
+      console.error('❌ [SETTINGS] Save error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to save');
+    } finally {
+      setSaving(false);
     }
   };
 
-  const handleBusinessUpdate = async (field: string, value: any) => {
-    try {
-      await updateBusinessSetting(field, value);
-    } catch (error) {
-      console.error('Failed to update setting:', error);
-    }
-  };
-
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
-        <p className="ml-4">Loading settings...</p>
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Debug Info */}
-      {debugInfo && (
-        <div className="bg-red-50 border border-red-200 text-red-800 p-4 m-4 rounded">
-          <h3 className="font-bold">Debug Info:</h3>
-          <pre>{JSON.stringify(debugInfo, null, 2)}</pre>
+    <div className="min-h-screen bg-gray-50 p-8">
+      {/* Header */}
+      <div className="max-w-4xl mx-auto mb-8">
+        <button
+          onClick={() => router.back()}
+          className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-4"
+        >
+          <ArrowLeft size={16} />
+          Back
+        </button>
+        <div className="flex items-center gap-3">
+          <div className="p-3 bg-blue-100 rounded-xl">
+            <Settings className="text-blue-600" size={24} />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
+            <p className="text-sm text-gray-600">{user?.pi_username}</p>
+          </div>
         </div>
-      )}
-
-      {/* Error Message */}
-      {errorMessage && (
-        <div className="bg-red-50 border border-red-200 text-red-800 p-4 m-4 rounded">
-          <strong>Error:</strong> {errorMessage}
-        </div>
-      )}
-
-      {/* Success Toast */}
-      {showSuccess && (
-        <div className="fixed top-4 right-4 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-md shadow-lg z-50">
-          Settings saved successfully!
-        </div>
-      )}
-
-      {/* State Debug */}
-      <div className="bg-blue-50 border border-blue-200 text-blue-800 p-4 m-4 rounded text-sm">
-        <strong>State:</strong>
-        <ul>
-          <li>Active Tab: {activeTab}</li>
-          <li>Personal Settings: {personalSettings ? '✅ Loaded' : '❌ Null'}</li>
-          <li>Business Settings: {businessSettings ? '✅ Loaded' : '❌ Null'}</li>
-          <li>Is Saving: {isSaving ? 'Yes' : 'No'}</li>
-          <li>User: {user ? JSON.stringify(user) : 'Not loaded'}</li>
-        </ul>
       </div>
 
-      <SettingsLayout activeTab={activeTab} onTabChange={handleTabChange}>
-        {activeTab === 'personal' && personalSettings ? (
-          <PersonalSettingsTab
-            settings={personalSettings}
-            onUpdate={handlePersonalUpdate}
-            isSaving={isSaving}
-          />
-        ) : activeTab === 'personal' ? (
-          <div className="p-8 text-center text-gray-500">
-            Personal settings not loaded. Please refresh the page.
-          </div>
-        ) : null}
+      {/* Tabs */}
+      <div className="max-w-4xl mx-auto mb-6">
+        <div className="flex gap-2">
+          <button
+            onClick={() => setActiveTab('personal')}
+            className={`px-4 py-2 rounded-lg font-medium transition-all ${
+              activeTab === 'personal'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            <User size={18} className="inline mr-2" />
+            Personal Settings
+          </button>
+          {user?.user_type === 'merchant' && (
+            <button
+              onClick={() => setActiveTab('business')}
+              className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                activeTab === 'business'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-white text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              <Building2 size={18} className="inline mr-2" />
+              Business Settings
+            </button>
+          )}
+        </div>
+      </div>
 
-        {activeTab === 'business' && businessSettings ? (
-          <BusinessSettingsTab
-            settings={businessSettings}
-            onUpdate={handleBusinessUpdate}
-            isSaving={isSaving}
-          />
-        ) : activeTab === 'business' ? (
-          <div className="p-8 text-center text-gray-500">
-            Business settings not available or not loaded.
+      {/* Messages */}
+      {success && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-4xl mx-auto mb-4 p-4 bg-green-50 border border-green-200 text-green-800 rounded-lg"
+        >
+          ✓ Settings saved successfully!
+        </motion.div>
+      )}
+
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-4xl mx-auto mb-4 p-4 bg-red-50 border border-red-200 text-red-800 rounded-lg"
+        >
+          ❌ {error}
+        </motion.div>
+      )}
+
+      {/* Personal Settings Form */}
+      {activeTab === 'personal' && (
+        <motion.form
+          onSubmit={handleSave}
+          className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm p-6 space-y-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          {/* Pi Address */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Pi Address for Cashback
+            </label>
+            <input
+              type="text"
+              value={piAddress}
+              onChange={(e) => setPiAddress(e.target.value.toUpperCase())}
+              placeholder="GABS3P5..."
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent uppercase font-mono"
+            />
+            <p className="text-sm text-gray-500 mt-1">
+              Single address for both Pi tokens and mypipos tokens
+            </p>
           </div>
-        ) : null}
-      </SettingsLayout>
+
+          {/* Cashback Preferences */}
+          <div className="border-t pt-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Cashback Configuration</h3>
+
+            <div className="space-y-4">
+              <label className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div>
+                  <span className="font-medium text-gray-900">Enable Pi Cashback</span>
+                  <p className="text-sm text-gray-500">Receive cashback in Pi tokens</p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={enablePiCashback}
+                  onChange={(e) => setEnablePiCashback(e.target.checked)}
+                  className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                />
+              </label>
+
+              <label className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div>
+                  <span className="font-medium text-gray-900">Enable mypipos Tokens</span>
+                  <p className="text-sm text-gray-500">Receive cashback in app tokens</p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={enableMypiposTokens}
+                  onChange={(e) => setEnableMypiposTokens(e.target.checked)}
+                  className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                />
+              </label>
+            </div>
+          </div>
+
+          {/* Payment Preferences */}
+          <div className="border-t pt-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Payment Preferences</h3>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Default Payment Method
+              </label>
+              <select
+                value={defaultPaymentMethod}
+                onChange={(e) => setDefaultPaymentMethod(e.target.value as any)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="pi">Pi Network</option>
+                <option value="cash">Cash</option>
+                <option value="card">Card</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Notification Preferences */}
+          <div className="border-t pt-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Notification Preferences</h3>
+
+            <div className="space-y-4">
+              <label className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div>
+                  <span className="font-medium text-gray-900">Email Notifications</span>
+                  <p className="text-sm text-gray-500">Receive updates via email</p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={emailNotifications}
+                  onChange={(e) => setEmailNotifications(e.target.checked)}
+                  className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                />
+              </label>
+
+              <label className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div>
+                  <span className="font-medium text-gray-900">Promotional Emails</span>
+                  <p className="text-sm text-gray-500">Receive offers and promotions</p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={promotionalEmails}
+                  onChange={(e) => setPromotionalEmails(e.target.checked)}
+                  className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                />
+              </label>
+            </div>
+          </div>
+
+          {/* Submit */}
+          <div className="flex justify-end pt-4 border-t">
+            <button
+              type="submit"
+              disabled={saving}
+              className="px-6 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              {saving ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save size={16} />
+                  Save Settings
+                </>
+              )}
+            </button>
+          </div>
+        </motion.form>
+      )}
+
+      {/* Business Settings (placeholder) */}
+      {activeTab === 'business' && (
+        <motion.div
+          className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm p-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <p className="text-gray-500 text-center py-8">
+            Business settings coming soon...
+          </p>
+        </motion.div>
+      )}
     </div>
   );
 }

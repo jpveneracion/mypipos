@@ -16,17 +16,16 @@ import { getAuthenticatedUser, createErrorResponse } from '@/lib/auth-api';
  */
 export async function GET(request: NextRequest) {
   try {
-    // Authenticate the user
-    const user = await getAuthenticatedUser(request);
+    // Get userId from query param (like mypiroll)
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
 
-    if (!user) {
+    if (!userId) {
       return NextResponse.json(
-        createErrorResponse('Authentication required', 401),
-        { status: 401 }
+        { success: false, error: 'userId required' },
+        { status: 400 }
       );
     }
-
-    const userId = user.id;
 
     // Fetch user settings using security function
     const result = await query(
