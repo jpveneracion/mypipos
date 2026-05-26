@@ -40,13 +40,24 @@ export const useSettingsStore = create<SettingsStore>()(
       fetchPersonalSettings: async () => {
         set({ isLoading: true, errorMessage: undefined });
         try {
+          console.log('🌐 Fetching personal settings from /api/user/settings');
           const response = await fetch('/api/user/settings');
+          console.log('📡 Response status:', response.status);
+
           if (!response.ok) {
-            throw new Error('Failed to fetch personal settings');
+            const errorData = await response.json();
+            console.error('❌ API Error:', errorData);
+            throw new Error(errorData.error || 'Failed to fetch personal settings');
           }
+
           const result = await response.json();
+          console.log('✅ API Response:', result);
+          console.log('📦 Settings data:', result.data);
+
           set({ personalSettings: result.data, isLoading: false });
+          console.log('✅ Settings stored in state');
         } catch (error) {
+          console.error('❌ Failed to fetch personal settings:', error);
           set({
             isLoading: false,
             errorMessage: error instanceof Error ? error.message : 'Unknown error'

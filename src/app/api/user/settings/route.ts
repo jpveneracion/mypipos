@@ -73,19 +73,16 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error fetching user settings:', error);
 
-    // Handle database errors
-    if (error instanceof Error) {
-      // Check for specific database error codes
-      if (error.message.includes('connection') || error.message.includes('database')) {
-        return NextResponse.json(
-          createErrorResponse('Database connection error', 503),
-          { status: 503 }
-        );
-      }
-    }
+    // Return detailed error for debugging
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : '';
 
     return NextResponse.json(
-      createErrorResponse('Failed to fetch settings', 500),
+      {
+        success: false,
+        error: errorMessage,
+        debug: process.env.NODE_ENV === 'development' ? errorStack : undefined
+      },
       { status: 500 }
     );
   }
