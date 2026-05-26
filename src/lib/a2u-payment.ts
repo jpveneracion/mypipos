@@ -188,48 +188,9 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
     const uniqueMemo = `${memo} - A2U REWARD ${transactionNumber}`;
     console.log('[A2U] Using unique memo:', uniqueMemo);
 
-    const a2uPaymentResult = await query(
-      `INSERT INTO a2u_payments (
-        transaction_number,
-        payment_id,
-        to_user_id,
-        to_user_type,
-        to_user_username,
-        to_user_pi_uid,
-        amount,
-        memo,
-        transaction_type,
-        metadata,
-        status,
-        network,
-        from_address,
-        to_address
-      ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
-      ) RETURNING *`,
-      [
-        transactionNumber,
-        '', // Will be set after Pi API call
-        user.id,
-        'customer',
-        user.username,
-        user.pi_uid,
-        amount,
-        uniqueMemo,
-        transaction_type,
-        JSON.stringify(metadata),
-        'pending',
-        'Pi Testnet',
-        'Pi Platform Wallet',
-        user.pi_wallet_address
-      ]
-    );
-
-    const a2uPayment = a2uPaymentResult.rows[0];
-
-    console.log(`[A2U] Created A2U payment record:`, a2uPayment.transaction_number);
-
-    // Step 3: Create A2U payment using Pi Network API
+    // Step 3: Create A2U payment using Pi Network API FIRST
+    // Only create database entry if Pi payment succeeds
+    let a2uPayment: any; // Declare early to avoid scoping issues
     console.log(`[A2U] Creating A2U payment via HTTP API...`);
 
     try {
@@ -268,59 +229,9 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
         const errorData = await createResponse.json().catch(() => ({}));
         const errorMessage = errorData.error || errorData.error_message;
 
-        // Handle ongoing_payment_found error - cancel and retry
+        // Handle ongoing_payment_found error
         if (errorMessage === 'ongoing_payment_found') {
-          console.log('[A2U] ⚠️ Ongoing payment found, trying to cancel and retry...');
-
-          // Try to find and cancel any ongoing payments for this user
-          const cancelResponse = await fetch(`${apiUrl}/payments`, {
-            method: 'GET',
-            headers: {
-              'Authorization': `Key ${apiKey}`,
-              'Content-Type': 'application/json',
-            }
-          });
-
-          if (cancelResponse.ok) {
-            const paymentsData = await cancelResponse.json();
-            const ongoingPayments = Array.isArray(paymentsData)
-              ? paymentsData.filter(p => p.user_uid === uid && p.status !== 'completed')
-              : [];
-
-            console.log(`[A2U] Found ${ongoingPayments.length} ongoing payments for user`);
-
-            // Cancel all ongoing payments
-            for (const payment of ongoingPayments) {
-              if (payment.identifier) {
-                console.log(`[A2U] Cancelling ongoing payment:`, payment.identifier);
-                await cancelIncompletePayment(payment.identifier, apiKey, apiUrl);
-              }
-            }
-
-            // Wait a moment for cancellation to take effect
-            await new Promise(resolve => setTimeout(resolve, 2000));
-
-            // Retry creating the payment
-            console.log('[A2U] Retrying payment creation after cancelling ongoing payments...');
-            const retryResponse = await fetch(`${apiUrl}/payments`, {
-              method: 'POST',
-              headers: {
-                'Authorization': `Key ${apiKey}`,
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(paymentArgs)
-            });
-
-            if (retryResponse.ok) {
-              const retryData = await retryResponse.json();
-              paymentId = retryData.identifier || retryData.id;
-              console.log('[A2U] ✅ Retry successful! Payment created with ID:', paymentId);
-            } else {
-              throw new Error('Still getting ongoing_payment_found after cancellation. Please wait 5 minutes and try again.');
-            }
-          } else {
-            throw new Error('Failed to check for ongoing payments. Please try again later.');
-          }
+          throw new Error('You have an incomplete payment blocking new A2U payments. This is likely the U2A payment from last night (May 25). Wait 10 minutes for it to expire, or contact Pi Network support to cancel payment ID: L4mg3hv4oNOHZQPVLSrfBdJsHgzu');
         }
         // Handle duplicate payment error - but skip if we just retried
         else if (errorData.exists === true && errorData.payment && errorMessage !== 'ongoing_payment_found') {
@@ -354,27 +265,14 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
               if (completeResponse.ok) {
                 console.log('[A2U] ✅ Successfully completed existing A2U payment');
 
-                // Update our database record
-                await query(
-                  `UPDATE a2u_payments SET
-                    payment_id = $1,
-                    txid = $2,
-                    status = 'completed',
-                    payment_completed_at = NOW(),
-                    completed_at = NOW()
-                  WHERE id = $3`,
-                  [existingPaymentId, txid, a2uPayment.id]
-                );
-
+                // Don't create database entry for completed existing payment
                 return {
                   success: true,
                   payment: {
-                    id: a2uPayment.id,
-                    transactionNumber: a2uPayment.transaction_number,
                     paymentId: existingPaymentId,
                     txid: txid,
-                    amount: a2uPayment.amount,
-                    memo: a2uPayment.memo,
+                    amount: amount,
+                    memo: memo,
                     status: 'completed',
                     toUser: {
                       id: user.id,
@@ -412,6 +310,47 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
       from: paymentData.from_address,
       to: paymentData.to_address
     });
+
+    // NOW create database entry only after successful Pi payment creation
+    const a2uPaymentResult = await query(
+      `INSERT INTO a2u_payments (
+        transaction_number,
+        payment_id,
+        to_user_id,
+        to_user_type,
+        to_user_username,
+        to_user_pi_uid,
+        amount,
+        memo,
+        transaction_type,
+        metadata,
+        status,
+        network,
+        from_address,
+        to_address
+      ) VALUES (
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
+      ) RETURNING *`,
+      [
+        transactionNumber,
+        paymentId,
+        user.id,
+        'customer',
+        user.username,
+        user.pi_uid,
+        amount,
+        uniqueMemo,
+        transaction_type,
+        JSON.stringify(metadata),
+        'pending',
+        'Pi Testnet',
+        'Pi Platform Wallet',
+        user.pi_wallet_address
+      ]
+    );
+
+    const a2uPayment = a2uPaymentResult.rows[0];
+    console.log(`[A2U] Created A2U payment record:`, a2uPayment.transaction_number);
 
       // Step 4: Submit payment to blockchain
       console.log('[A2U] Submitting to blockchain...');
@@ -462,28 +401,41 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
       console.log('[A2U] ✅ Payment completed successfully!');
 
       // Step 6: Update A2U payment record
-      await query(
-        `UPDATE a2u_payments SET
-          payment_id = $1,
-          txid = $2,
-          status = 'completed',
-          payment_completed_at = NOW(),
-          completed_at = NOW()
-        WHERE id = $3`,
-        [paymentId, txid, a2uPayment.id]
-      );
+      if (a2uPayment) {
+        await query(
+          `UPDATE a2u_payments SET
+            payment_id = $1,
+            txid = $2,
+            status = 'completed',
+            payment_completed_at = NOW(),
+            completed_at = NOW()
+          WHERE id = $3`,
+          [paymentId, txid, a2uPayment.id]
+        );
 
-      console.log(`[A2U] ✅ A2U payment completed successfully!`);
+        console.log(`[A2U] ✅ A2U payment completed successfully!`);
+      }
 
       return {
         success: true,
-        payment: {
+        payment: a2uPayment ? {
           id: a2uPayment.id,
           transactionNumber: a2uPayment.transaction_number,
           paymentId: paymentId,
           txid: txid,
           amount: a2uPayment.amount,
           memo: a2uPayment.memo,
+          status: 'completed',
+          toUser: {
+            id: user.id,
+            username: user.username,
+            piUid: user.pi_uid
+          }
+        } : {
+          paymentId: paymentId,
+          txid: txid,
+          amount: amount,
+          memo: memo,
           status: 'completed',
           toUser: {
             id: user.id,
@@ -497,11 +449,13 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
     } catch (apiError) {
       console.error('[A2U] Pi API error:', apiError);
 
-      // Update A2U payment as failed
-      await query(
-        `UPDATE a2u_payments SET status = 'failed', error_message = $1 WHERE id = $2`,
-        [apiError instanceof Error ? apiError.message : 'Unknown API error', a2uPayment.id]
-      );
+      // Only update database if we created an entry
+      if (a2uPayment) {
+        await query(
+          `UPDATE a2u_payments SET status = 'failed', error_message = $1 WHERE id = $2`,
+          [apiError instanceof Error ? apiError.message : 'Unknown API error', a2uPayment.id]
+        );
+      }
 
       return {
         success: false,
