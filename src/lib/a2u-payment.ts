@@ -131,12 +131,27 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
 
     // Get API credentials
     const apiKey = process.env.PI_API_KEY;
+    const walletPrivateKey = process.env.PI_WALLET_PRIVATE_KEY;
     const apiUrl = process.env.PI_API_URL || 'https://api.minepi.com/v2';
+
+    console.log('[A2U] API credentials check:', {
+      hasApiKey: !!apiKey,
+      hasWalletKey: !!walletPrivateKey,
+      apiKeyPrefix: apiKey ? `${apiKey.substring(0, 8)}...` : 'none',
+      walletKeyPrefix: walletPrivateKey ? `${walletPrivateKey.substring(0, 8)}...` : 'none'
+    });
 
     if (!apiKey) {
       return {
         success: false,
         error: 'Pi Network credentials not configured (PI_API_KEY)'
+      };
+    }
+
+    if (!walletPrivateKey) {
+      return {
+        success: false,
+        error: 'Pi Network wallet credentials not configured (PI_WALLET_PRIVATE_KEY) - required for A2U payments'
       };
     }
 
@@ -371,6 +386,16 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
       const paymentId = paymentData.identifier || paymentData.id;
 
       console.log('[A2U] ✅ Payment created with ID:', paymentId);
+    console.log('[A2U] Payment data:', {
+      id: paymentData.id,
+      identifier: paymentData.identifier,
+      amount: paymentData.amount,
+      memo: paymentData.memo,
+      status: paymentData.status,
+      direction: paymentData.direction,
+      from: paymentData.from_address,
+      to: paymentData.to_address
+    });
 
       // Step 4: Submit payment to blockchain
       console.log('[A2U] Submitting to blockchain...');
@@ -383,8 +408,18 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
       });
 
       if (!submitResponse.ok) {
-        const submitError = await submitResponse.json().catch(() => ({}));
-        throw new Error(submitError.error || submitError.error_message || 'Failed to submit payment');
+        const submitErrorText = await submitResponse.text();
+        console.error('[A2U] Submit failed with status:', submitResponse.status);
+        console.error('[A2U] Submit error response:', submitErrorText);
+
+        let submitError;
+        try {
+          submitError = JSON.parse(submitErrorText);
+        } catch (e) {
+          submitError = { error: submitErrorText };
+        }
+
+        throw new Error(submitError.error || submitError.error_message || `Failed to submit payment (${submitResponse.status})`);
       }
 
       const submitData = await submitResponse.json();
