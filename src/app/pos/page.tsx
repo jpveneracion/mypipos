@@ -231,6 +231,25 @@ export default function POSPage() {
         {/* Products Section */}
         <div className="flex-1 overflow-y-auto order-1 lg:order-1">
           <div className="container mx-auto px-6 py-6">
+            {/* Navigation Buttons */}
+            <div className="flex gap-3 mb-6">
+              <Button
+                variant="outline"
+                onClick={() => router.push('/mode-selection')}
+                className="border-brand-indigo-700 text-brand-indigo-300 hover:bg-brand-indigo-900/50"
+              >
+                ← Back to Mode Selection
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => router.push('/ims')}
+                className="border-brand-indigo-700 text-brand-indigo-300 hover:bg-brand-indigo-900/50"
+              >
+                <Box className="mr-2 w-4 h-4" />
+                Go to Inventory
+              </Button>
+            </div>
+
             {/* Category Filter */}
             <motion.div
               initial="hidden"

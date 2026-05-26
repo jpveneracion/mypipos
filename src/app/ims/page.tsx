@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { Product } from '@/types';
 import { useAuthStore } from '@/lib/store';
+import Header from '@/components/Header';
 import BarcodeScanner from '@/components/pos/BarcodeScanner';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -275,61 +276,42 @@ export default function IMSPage() {
         />
       )}
 
-      {/* Premium Header */}
-      <header className="relative z-50 border-b border-brand-indigo-800/50 backdrop-blur-xl bg-brand-indigo-900/30">
-        <div className="container mx-auto px-6 py-5">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <motion.div
-              initial="hidden"
-              animate="show"
-              variants={fadeUp}
-              transition={{ duration: 0.6 }}
-              className="flex items-center gap-4"
-            >
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-brand-cyan-400 to-brand-cyan-600">
-                <BarChart3 className="w-5 h-5 text-brand-dark-950" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-display font-bold text-white">
-                  Inventory Management
-                </h1>
-                <p className="text-sm text-brand-indigo-400 font-medium">
-                  Manage products and stock levels
-                </p>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial="hidden"
-              animate="show"
-              variants={fadeUp}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="flex gap-3 w-full md:w-auto"
-            >
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => setScanningBarcode(true)}
-                className="border-brand-indigo-700 text-brand-indigo-300 hover:bg-brand-indigo-900/50 hover:border-brand-cyan-500 transition-all"
-              >
-                <Scan className="mr-2 w-4 h-4" />
-                <span className="hidden sm:inline">Scan Barcode</span>
-              </Button>
-
-              <Button
-                size="lg"
-                onClick={() => setShowAddModal(true)}
-                className="bg-gradient-to-r from-brand-cyan-400 to-brand-cyan-600 text-brand-dark-950 hover:from-brand-cyan-500 hover:to-brand-cyan-700 font-semibold"
-              >
-                <Plus className="mr-2 w-5 h-5" />
-                <span className="hidden sm:inline">Add Product</span>
-              </Button>
-            </motion.div>
-          </div>
-        </div>
-      </header>
+      {/* Shared Header */}
+      <Header title="Inventory Management" subtitle="Manage products and stock levels" />
 
       <div className="container mx-auto px-6 py-8 flex-1 overflow-y-auto">
+        {/* Navigation and Action Buttons */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+          <Button
+            variant="outline"
+            onClick={() => router.push('/mode-selection')}
+            className="border-brand-indigo-700 text-brand-indigo-300 hover:bg-brand-indigo-900/50"
+          >
+            ← Back to Mode Selection
+          </Button>
+
+          <div className="flex gap-3 w-full md:w-auto">
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => setScanningBarcode(true)}
+              className="border-brand-indigo-700 text-brand-indigo-300 hover:bg-brand-indigo-900/50 hover:border-brand-cyan-500 transition-all"
+            >
+              <Scan className="mr-2 w-4 h-4" />
+              <span className="hidden sm:inline">Scan Barcode</span>
+            </Button>
+
+            <Button
+              size="lg"
+              onClick={() => setShowAddModal(true)}
+              className="bg-gradient-to-r from-brand-cyan-400 to-brand-cyan-600 text-brand-dark-950 hover:from-brand-cyan-500 hover:to-brand-cyan-700 font-semibold"
+            >
+              <Plus className="mr-2 w-5 h-5" />
+              <span className="hidden sm:inline">Add Product</span>
+            </Button>
+          </div>
+        </div>
+
         {error && (
           <div className="mb-6 p-4 bg-error-900/30 border border-error-700 rounded-xl text-error-200">
             {error}
