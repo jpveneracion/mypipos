@@ -1,0 +1,130 @@
+/**
+ * GLOBAL TYPOGRAPHY SYSTEM
+ * Mobile-first SaaS dashboard (320px-480px optimized)
+ *
+ * Usage: className="text-display-lg" or className="text-body-sm"
+ */
+
+/* ==================== DISPLAY ==================== */
+/* Page titles, hero sections */
+.text-display-xl {
+  @apply text-2xl sm:text-3xl font-bold leading-tight tracking-tight;
+}
+
+.text-display-lg {
+  @apply text-xl sm:text-2xl font-bold leading-tight tracking-tight;
+}
+
+.text-display-md {
+  @apply text-lg sm:text-xl font-bold leading-snug tracking-tight;
+}
+
+/* ==================== HEADING ==================== */
+/* Section headers, card titles */
+.text-heading-xl {
+  @apply text-base sm:text-lg font-semibold leading-snug tracking-tight;
+}
+
+.text-heading-lg {
+  @apply text-sm sm:text-base font-semibold leading-snug tracking-tight;
+}
+
+.text-heading-md {
+  @apply text-sm font-semibold leading-snug tracking-tight;
+}
+
+.text-heading-sm {
+  @apply text-xs sm:text-sm font-medium leading-tight tracking-tight;
+}
+
+/* ==================== BODY ==================== */
+/* Main content, descriptions, paragraphs */
+.text-body-lg {
+  @apply text-sm sm:text-base font-normal leading-relaxed;
+}
+
+.text-body-md {
+  @apply text-sm sm:text-sm font-normal leading-relaxed;
+}
+
+.text-body-sm {
+  @apply text-xs sm:text-sm font-normal leading-relaxed;
+}
+
+.text-body-xs {
+  @apply text-xs font-normal leading-relaxed;
+}
+
+/* ==================== LABEL ==================== */
+/* Inputs, tabs, buttons, form labels */
+.text-label-lg {
+  @apply text-sm sm:text-base font-medium leading-tight;
+}
+
+.text-label-md {
+  @apply text-sm font-medium leading-tight;
+}
+
+.text-label-sm {
+  @apply text-xs sm:text-sm font-medium leading-tight;
+}
+
+.text-label-xs {
+  @apply text-xs font-medium leading-tight;
+}
+
+/* ==================== META ==================== */
+/* Secondary info: IDs, timestamps, metadata */
+.text-meta-lg {
+  @apply text-xs sm:text-sm font-normal leading-relaxed opacity-70;
+}
+
+.text-meta-md {
+  @apply text-xs font-normal leading-relaxed opacity-70;
+}
+
+.text-meta-sm {
+  @apply text-xs font-normal leading-tight opacity-60;
+}
+
+/* ==================== MONOSPACE ==================== */
+/* Codes, TXIDs, numbers, data */
+.text-mono-lg {
+  @apply text-sm sm:text-base font-mono leading-relaxed;
+}
+
+.text-mono-md {
+  @apply text-xs sm:text-sm font-mono leading-relaxed;
+}
+
+.text-mono-sm {
+  @apply text-xs font-mono leading-tight;
+}
+
+/* ==================== BUTTON TEXT ==================== */
+.text-btn-lg {
+  @apply text-sm sm:text-base font-semibold leading-tight tracking-tight;
+}
+
+.text-btn-md {
+  @apply text-sm font-semibold leading-tight tracking-tight;
+}
+
+.text-btn-sm {
+  @apply text-xs sm:text-sm font-semibold leading-tight tracking-tight;
+}
+
+/* ==================== RESPONSIVE HELPERS ==================== */
+/* Mobile (320px-480px) - Base size is defined above */
+/* Tablet (481px-768px) - sm: prefix */
+/* Desktop (769px+) - lg: prefix when needed */
+
+@media (min-width: 769px) {
+  .text-display-xl-desktop {
+    @apply text-3xl;
+  }
+
+  .text-display-lg-desktop {
+    @apply text-2xl;
+  }
+}

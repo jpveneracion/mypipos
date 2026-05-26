@@ -7,10 +7,10 @@ import { Settings, Save, ArrowLeft, User, Building2, Wallet, Loader2 } from 'luc
 
 interface User {
   id: string;
-  pi_uid: string;
-  pi_username: string;
-  user_type?: 'customer' | 'merchant';
+  piUsername: string;
+  userType?: 'customer' | 'merchant';
   merchantId?: string;
+  role?: string;
 }
 
 interface PersonalSettings {
@@ -52,23 +52,30 @@ export default function SimpleSettingsPage() {
   useEffect(() => {
     console.log('🚀 [SETTINGS] Page mounting...');
 
-    // Get user from localStorage (like mypiroll does)
-    const stored = localStorage.getItem('user');
+    // Get user from localStorage (mypipos uses 'mypipos-auth' key)
+    const stored = localStorage.getItem('mypipos-auth');
     if (!stored) {
       router.push('/');
       return;
     }
 
     const parsed = JSON.parse(stored);
-    console.log('👤 [SETTINGS] User:', parsed);
+    console.log('👤 [SETTINGS] Auth data:', parsed);
 
-    setUser(parsed);
+    // The stored object contains user data in a nested structure
+    const userData = parsed.user || parsed.state?.user || parsed;
+    if (!userData || !userData.id) {
+      router.push('/');
+      return;
+    }
+
+    setUser(userData);
 
     // Fetch settings
     const fetchSettings = async () => {
       try {
         console.log('📡 [SETTINGS] Fetching settings...');
-        const response = await fetch(`/api/user/settings?userId=${parsed.id}`);
+        const response = await fetch(`/api/user/settings?userId=${userData.id}`);
         const data = await response.json();
         console.log('✅ [SETTINGS] Response:', data);
 
@@ -85,7 +92,7 @@ export default function SimpleSettingsPage() {
           setPromotionalEmails(s.notification_preferences?.promotional_emails ?? true);
 
           // Set default tab
-          if (parsed.user_type === 'merchant') {
+          if (userData.userType === 'merchant') {
             setActiveTab('business');
           }
         }
@@ -176,7 +183,7 @@ export default function SimpleSettingsPage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-            <p className="text-sm text-gray-600">{user?.pi_username}</p>
+            <p className="text-sm text-gray-600">{user?.piUsername}</p>
           </div>
         </div>
       </div>
@@ -195,7 +202,7 @@ export default function SimpleSettingsPage() {
             <User size={18} className="inline mr-2" />
             Personal Settings
           </button>
-          {user?.user_type === 'merchant' && (
+          {user?.userType === 'merchant' && (
             <button
               onClick={() => setActiveTab('business')}
               className={`px-4 py-2 rounded-lg font-medium transition-all ${

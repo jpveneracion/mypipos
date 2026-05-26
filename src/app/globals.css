@@ -1,89 +1,291 @@
-@import "tailwindcss";
+/* Import global typography system */
+@import './styles/typography.css';
 
-:root {
-  --background: #0D0F16;
-  --foreground: #e8eaf0;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Deep Indigo backgrounds */
+    --indigo-950: #0D0F16;
+    --indigo-900: #13141f;
+    --indigo-800: #1A1B29;
+    --indigo-600: #363c4f;
+    --indigo-500: #434a5f;
+
+    /* Vibrant Cyan (Primary CTAs) */
+    --cyan-500: #14D3C5;
+    --cyan-400: #25ede1;
+
+    /* Electric Magenta (Secondary CTAs) */
+    --magenta-500: #E91E63;
+    --magenta-600: #d11456;
+
+    /* Soft Mint (Borders & Icons) */
+    --mint-500: #DFFBF1;
+
+    /* Frosted Aqua (Glass effects) */
+    --aqua-600: #A6F1E0;
+
+    /* Deep Sky Blue (Glass backgrounds) */
+    --sky-800: #10375C;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background-color: #1A1B29;
+    color: #e8eaf0;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Safe Area Insets for Android Navigation Bar */
+  .safe-bottom {
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  }
+
+  .safe-bottom-lg {
+    padding-bottom: calc(24px + env(safe-area-inset-bottom));
+  }
+
+  /* Fallback for older browsers that don't support env() */
+  @supports not (padding: env(safe-area-inset-bottom)) {
+    .safe-bottom {
+      padding-bottom: 16px;
+    }
+
+    .safe-bottom-lg {
+      padding-bottom: 24px;
+    }
+  }
+
+  /* Max fallback for devices that need extra space */
+  .safe-bottom-max {
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+
+  h1, h2, h3 {
+    font-family: 'Playfair Display', serif;
+  }
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@layer components {
+  /* Cyan shimmer text */
+  .text-cyan-shimmer {
+    background: linear-gradient(
+      135deg,
+      #14D3C5 0%,
+      #25ede1 30%,
+      #11a79e 50%,
+      #25ede1 70%,
+      #14D3C5 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 3s linear infinite;
+  }
+
+  /* Cyan CTA button (Primary) */
+  .btn-cyan {
+    @apply relative inline-flex items-center justify-center gap-2 px-6 md:px-8 py-3 md:py-4 font-body font-semibold text-brand-indigo-950 rounded-xl overflow-hidden transition-all duration-300;
+    background: linear-gradient(135deg, #14D3C5, #11a79e, #25ede1);
+    background-size: 200% auto;
+    box-shadow: 0 0 24px rgba(20,211,197,0.35);
+    min-height: 44px; /* Better touch target */
+  }
+
+  .btn-cyan:hover {
+    background-position: right center;
+    box-shadow: 0 0 40px rgba(20,211,197,0.55);
+    transform: translateY(-2px);
+  }
+
+  .btn-cyan:active {
+    transform: translateY(0);
+  }
+
+  /* Magenta button (Secondary) */
+  .btn-magenta {
+    @apply relative inline-flex items-center justify-center gap-2 px-6 md:px-8 py-3 md:py-4 font-body font-semibold text-white rounded-xl overflow-hidden transition-all duration-300;
+    background: linear-gradient(135deg, #E91E63, #d11456);
+    background-size: 200% auto;
+    box-shadow: 0 0 24px rgba(233,30,99,0.35);
+    min-height: 44px; /* Better touch target */
+  }
+
+  .btn-magenta:hover {
+    background-position: right center;
+    box-shadow: 0 0 40px rgba(233,30,99,0.55);
+    transform: translateY(-2px);
+  }
+
+  .btn-magenta:active {
+    transform: translateY(0);
+  }
+
+  /* Ghost button */
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 font-body font-medium text-brand-indigo-300 border border-brand-indigo-600 rounded-xl transition-all duration-300;
+  }
+
+  .btn-ghost:hover {
+    @apply bg-brand-indigo-700/40 border-brand-cyan-400 text-white;
+  }
+
+  /* Glass card */
+  .glass-card {
+    background: rgba(10,35,60, 0.4); /* Deep Sky Blue @ 40% */
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(166,241,224, 0.1); /* Frosted Aqua @ 10% */
+    border-radius: 1.25rem;
+    overflow: hidden;
+  }
+
+  /* Pi Browser mobile optimization */
+  @media (max-width: 480px) {
+    .container-pi-browser {
+      padding-left: 0.25rem;
+      padding-right: 0.25rem;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .glass-card-pi-browser {
+      margin-left: 0.25rem;
+      margin-right: 0.25rem;
+      width: calc(100% - 0.5rem);
+    }
+  }
+
+  /* Mobile text overflow fixes */
+  @media (max-width: 768px) {
+    .text-truncate {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .text-break-words {
+      overflow-wrap: break-word;
+      word-wrap: break-word;
+      word-break: break-word;
+    }
+
+    .text-break-all {
+      word-break: break-all;
+    }
+
+    /* Improve touch targets for mobile */
+    .btn-touch-lg {
+      min-height: 48px;
+      min-width: 48px;
+      padding: 12px 24px;
+    }
+
+    /* Mobile-optimized glass cards */
+    .glass-card-mobile {
+      margin: 8px;
+      padding: 16px;
+    }
+
+    /* Prevent text overflow on mobile */
+    * {
+      max-width: 100%;
+    }
+
+    /* Better font sizes for mobile */
+    h1 { font-size: 1.75rem; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.25rem; }
+
+    /* Reduce horizontal padding for Pi Browser - more aggressive */
+    .px-4 { padding-left: 0.5rem; padding-right: 0.5rem; }
+    .px-6 { padding-left: 0.75rem; padding-right: 0.75rem; }
+    .px-8 { padding-left: 1rem; padding-right: 1rem; }
+
+    /* Make glass cards wider on mobile */
+    .glass-card {
+      margin-left: 0.5rem;
+      margin-right: 0.5rem;
+    }
+  }
+
+  /* Extra small screens (Pi Browser mobile) */
+  @media (max-width: 480px) {
+    /* Even more aggressive padding reduction */
+    .px-4 { padding-left: 0.25rem; padding-right: 0.25rem; }
+    .px-6 { padding-left: 0.5rem; padding-right: 0.5rem; }
+    .px-8 { padding-left: 0.75rem; padding-right: 0.75rem; }
+
+    /* Glass cards almost full width */
+    .glass-card {
+      margin-left: 0.25rem;
+      margin-right: 0.25rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    h1 { font-size: 1.5rem; }
+    h2 { font-size: 1.25rem; }
+    h3 { font-size: 1.125rem; }
+  }
+
+  /* Input styles */
+  .input-field {
+    @apply w-full px-4 py-3 rounded-xl font-body text-sm text-white placeholder-brand-indigo-400 outline-none transition-all duration-200;
+    background: rgba(26,27,41, 0.6);
+    border: 1px solid rgba(54,60,79, 0.3);
+  }
+
+  .input-field:focus {
+    border-color: rgba(20, 211, 197, 0.5);
+    box-shadow: 0 0 0 3px rgba(20, 211, 197, 0.1);
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0D0F16;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #363c4f;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #14D3C5;
+  }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-body);
+/* Noise texture overlay */
+.noise::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
 }
 
-/* Glass card effect - myPiroll style */
-.glass-card {
-  background: rgba(10,35,60, 0.4); /* Deep Sky Blue @ 40% */
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(166,241,224, 0.1); /* Frosted Aqua @ 10% */
-  border-radius: 1.25rem;
-  overflow: hidden;
-}
-
-/* Premium glass shadow effects */
-.shadow-glass {
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    0 2px 8px rgba(20, 211, 197, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-}
-
-.shadow-glass-lg {
-  box-shadow:
-    0 12px 48px rgba(0, 0, 0, 0.4),
-    0 4px 16px rgba(20, 211, 197, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
-}
-
-.shadow-glass-xl {
-  box-shadow:
-    0 16px 64px rgba(0, 0, 0, 0.5),
-    0 8px 24px rgba(20, 211, 197, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-.shadow-glass-2xl {
-  box-shadow:
-    0 24px 96px rgba(0, 0, 0, 0.6),
-    0 12px 32px rgba(20, 211, 197, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12);
-}
-
-/* Premium cyan glow effect */
-.shadow-glow {
-  box-shadow:
-    0 0 20px rgba(20, 211, 197, 0.4),
-    0 0 40px rgba(20, 211, 197, 0.2),
-    0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-/* Shimmer animation for gradient text */
-.text-cyan-shimmer {
-  background: linear-gradient(135deg, #14D3C5 0%, #11a79e 40%, #25ede1 60%, #0d8b84 100%);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: shimmer 3s linear infinite;
-}
-
-@keyframes shimmer {
-  0% { background-position: 0% center; }
-  100% { background-position: 200% center; }
-}
-
-/* Glassmorphism utility */
-.glassmorphism {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
+/* Staggered fade-up animations */
+.anim-delay-1 { animation-delay: 0.1s; }
+.anim-delay-2 { animation-delay: 0.2s; }
+.anim-delay-3 { animation-delay: 0.3s; }
+.anim-delay-4 { animation-delay: 0.4s; }
+.anim-delay-5 { animation-delay: 0.5s; }
+.anim-delay-6 { animation-delay: 0.6s; }
