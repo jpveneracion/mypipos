@@ -50,11 +50,11 @@ async function createA2UPayment(paymentArgs: PaymentArgs): Promise<string | null
   try {
     const PiNetwork = await getPiInstance();
 
-    const PI_SERVER_API_KEY = process.env.PI_SERVER_API_KEY;
+    const PI_API_KEY = process.env.PI_API_KEY;
     const PI_WALLET_PRIVATE_KEY = process.env.PI_WALLET_PRIVATE_KEY;
 
-    if (!PI_SERVER_API_KEY || !PI_WALLET_PRIVATE_KEY) {
-      throw new Error('Pi Network credentials not configured (PI_SERVER_API_KEY, PI_WALLET_PRIVATE_KEY)');
+    if (!PI_API_KEY || !PI_WALLET_PRIVATE_KEY) {
+      throw new Error('Pi Network credentials not configured (PI_API_KEY, PI_WALLET_PRIVATE_KEY)');
     }
 
     const pi = new PiNetwork(PI_SERVER_API_KEY, PI_WALLET_PRIVATE_KEY);
@@ -84,10 +84,10 @@ async function submitPaymentToBlockchain(paymentId: string): Promise<string | nu
   try {
     const PiNetwork = await getPiInstance();
 
-    const PI_SERVER_API_KEY = process.env.PI_SERVER_API_KEY;
+    const PI_API_KEY = process.env.PI_API_KEY;
     const PI_WALLET_PRIVATE_KEY = process.env.PI_WALLET_PRIVATE_KEY;
 
-    const pi = new PiNetwork(PI_SERVER_API_KEY, PI_WALLET_PRIVATE_KEY);
+    const pi = new PiNetwork(PI_API_KEY, PI_WALLET_PRIVATE_KEY);
 
     const txid = await pi.submitPayment(paymentId);
     console.log('[A2U] ✅ Payment submitted with txid:', txid);
@@ -113,10 +113,10 @@ async function completePaymentInServer(paymentId: string, txid: string): Promise
   try {
     const PiNetwork = await getPiInstance();
 
-    const PI_SERVER_API_KEY = process.env.PI_SERVER_API_KEY;
+    const PI_API_KEY = process.env.PI_API_KEY;
     const PI_WALLET_PRIVATE_KEY = process.env.PI_WALLET_PRIVATE_KEY;
 
-    const pi = new PiNetwork(PI_SERVER_API_KEY, PI_WALLET_PRIVATE_KEY);
+    const pi = new PiNetwork(PI_API_KEY, PI_WALLET_PRIVATE_KEY);
 
     const completedPayment = await pi.completePayment(paymentId, txid);
     console.log('[A2U] ✅ Payment completed:', JSON.stringify(completedPayment.status, null, 2));
