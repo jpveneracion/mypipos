@@ -14,15 +14,11 @@ import {
   User,
   ShoppingBag,
   DollarSign,
-  Store,
   Smartphone,
   FileText,
   Search,
   CreditCard,
-  Settings,
-  Package,
-  TrendingUp,
-  Award
+  Settings
 } from 'lucide-react';
 
 const fadeUp = {
@@ -132,28 +128,6 @@ export default function CustomerPage() {
                     <div>
                       <p className="text-brand-indigo-400 text-sm font-medium">Total Spent</p>
                       <p className="text-lg font-display font-bold text-brand-indigo-200">-- π</p>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            </motion.div>
-
-            <motion.div
-              initial="hidden"
-              animate="show"
-              variants={fadeUp}
-              transition={{ duration: 0.6, delay: 0.3 }}
-            >
-              <Card className="glass-card">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-brand-cyan-400/5 rounded-full blur-3xl group-hover:bg-brand-cyan-400/10 transition-all"></div>
-                <div className="relative">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-linear-to-br from-brand-cyan-400/10 to-brand-cyan-600/10 rounded-xl flex items-center justify-center border border-brand-cyan-700/30">
-                      <Store className="w-6 h-6 text-brand-cyan-400" />
-                    </div>
-                    <div>
-                      <p className="text-brand-indigo-400 text-sm font-medium">Merchants Used</p>
-                      <p className="text-lg font-display font-bold text-brand-indigo-200">--</p>
                     </div>
                   </div>
                 </div>
