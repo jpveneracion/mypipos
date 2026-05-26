@@ -5,12 +5,12 @@
 /**
  * Get the appropriate currency symbol based on environment
  * - Production (main branch): π
- * - Development (dev branch): test-π
+ * - Development (dev branch): Test-π
  */
 export function getCurrencySymbol(): string {
   // Check if we're in development environment
   if (process.env.NODE_ENV === 'development') {
-    return 'test-π';
+    return 'Test-π';
   }
 
   // For production, use standard Pi symbol

@@ -607,7 +607,7 @@ export default function IMSPage() {
                   </div>
                   <div className="bg-brand-indigo-950/50 rounded-xl p-4 text-center border border-brand-indigo-800/50">
                     <p className="text-xs text-brand-indigo-500 font-medium mb-1">Price</p>
-                    <p className="text-lg font-bold bg-gradient-to-r from-brand-cyan-400 to-brand-cyan-600 bg-clip-text text-transparent">Test-{product.price.toFixed(2)}π</p>
+                    <p className="text-lg font-bold bg-gradient-to-r from-brand-cyan-400 to-brand-cyan-600 bg-clip-text text-transparent">Test-{product.price.toFixed(7)}π</p>
                   </div>
                 </div>
 
