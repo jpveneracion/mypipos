@@ -160,30 +160,30 @@ export default function SimpleSettingsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      <div className="flex items-center justify-center min-h-screen bg-[#0D0F16]">
+        <Loader2 className="w-8 h-8 animate-spin text-[#14D3C5]" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-[#0D0F16] p-8">
       {/* Header */}
       <div className="max-w-4xl mx-auto mb-8">
         <button
           onClick={() => router.back()}
-          className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-4"
+          className="flex items-center gap-2 text-[#14D3C5] hover:text-[#25ede1] mb-4"
         >
           <ArrowLeft size={16} />
           Back
         </button>
         <div className="flex items-center gap-3">
-          <div className="p-3 bg-blue-100 rounded-xl">
-            <Settings className="text-blue-600" size={24} />
+          <div className="p-3 bg-[#14D3C5]/20 rounded-xl border border-[#14D3C5]/30">
+            <Settings className="text-[#14D3C5]" size={24} />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-            <p className="text-sm text-gray-600">{user?.piUsername}</p>
+            <h1 className="text-2xl font-bold text-white">Settings</h1>
+            <p className="text-sm text-brand-indigo-300">{user?.piUsername}</p>
           </div>
         </div>
       </div>
@@ -195,8 +195,8 @@ export default function SimpleSettingsPage() {
             onClick={() => setActiveTab('personal')}
             className={`px-4 py-2 rounded-lg font-medium transition-all ${
               activeTab === 'personal'
-                ? 'bg-blue-600 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-100'
+                ? 'bg-[#14D3C5] text-white'
+                : 'bg-brand-indigo-900/50 text-brand-indigo-300 hover:bg-brand-indigo-900/70 border border-brand-indigo-800'
             }`}
           >
             <User size={18} className="inline mr-2" />
@@ -207,8 +207,8 @@ export default function SimpleSettingsPage() {
               onClick={() => setActiveTab('business')}
               className={`px-4 py-2 rounded-lg font-medium transition-all ${
                 activeTab === 'business'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-100'
+                  ? 'bg-[#14D3C5] text-white'
+                  : 'bg-brand-indigo-900/50 text-brand-indigo-300 hover:bg-brand-indigo-900/70 border border-brand-indigo-800'
               }`}
             >
               <Building2 size={18} className="inline mr-2" />
@@ -223,7 +223,7 @@ export default function SimpleSettingsPage() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="max-w-4xl mx-auto mb-4 p-4 bg-green-50 border border-green-200 text-green-800 rounded-lg"
+          className="max-w-4xl mx-auto mb-4 p-4 bg-green-500/20 border border-green-500/30 text-green-300 rounded-lg"
         >
           ✓ Settings saved successfully!
         </motion.div>
@@ -233,7 +233,7 @@ export default function SimpleSettingsPage() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="max-w-4xl mx-auto mb-4 p-4 bg-red-50 border border-red-200 text-red-800 rounded-lg"
+          className="max-w-4xl mx-auto mb-4 p-4 bg-red-500/20 border border-red-500/30 text-red-300 rounded-lg"
         >
           ❌ {error}
         </motion.div>
@@ -243,13 +243,13 @@ export default function SimpleSettingsPage() {
       {activeTab === 'personal' && (
         <motion.form
           onSubmit={handleSave}
-          className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm p-6 space-y-6"
+          className="max-w-4xl mx-auto glass-card p-6 space-y-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
           {/* Pi Address */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-brand-indigo-300 mb-2">
               Pi Address for Cashback
             </label>
             <input
@@ -257,58 +257,58 @@ export default function SimpleSettingsPage() {
               value={piAddress}
               onChange={(e) => setPiAddress(e.target.value.toUpperCase())}
               placeholder="GABS3P5..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent uppercase font-mono"
+              className="w-full px-4 py-2 bg-brand-indigo-950/50 border border-brand-indigo-700 rounded-lg focus:ring-2 focus:ring-[#14D3C5] focus:border-[#14D3C5] uppercase font-mono text-brand-indigo-200 placeholder-brand-indigo-500"
             />
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-brand-indigo-400 mt-1">
               Single address for both Pi tokens and mypipos tokens
             </p>
           </div>
 
           {/* Cashback Preferences */}
-          <div className="border-t pt-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Cashback Configuration</h3>
+          <div className="border-t border-brand-indigo-800/50 pt-6">
+            <h3 className="text-lg font-semibold text-white mb-4">Cashback Configuration</h3>
 
             <div className="space-y-4">
-              <label className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <label className="flex items-center justify-between p-3 bg-brand-indigo-900/30 border border-brand-indigo-800/50 rounded-lg">
                 <div>
-                  <span className="font-medium text-gray-900">Enable Pi Cashback</span>
-                  <p className="text-sm text-gray-500">Receive cashback in Pi tokens</p>
+                  <span className="font-medium text-white">Enable Pi Cashback</span>
+                  <p className="text-sm text-brand-indigo-400">Receive cashback in Pi tokens</p>
                 </div>
                 <input
                   type="checkbox"
                   checked={enablePiCashback}
                   onChange={(e) => setEnablePiCashback(e.target.checked)}
-                  className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                  className="w-5 h-5 text-[#14D3C5] rounded focus:ring-[#14D3C5]"
                 />
               </label>
 
-              <label className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <label className="flex items-center justify-between p-3 bg-brand-indigo-900/30 border border-brand-indigo-800/50 rounded-lg">
                 <div>
-                  <span className="font-medium text-gray-900">Enable mypipos Tokens</span>
-                  <p className="text-sm text-gray-500">Receive cashback in app tokens</p>
+                  <span className="font-medium text-white">Enable mypipos Tokens</span>
+                  <p className="text-sm text-brand-indigo-400">Receive cashback in app tokens</p>
                 </div>
                 <input
                   type="checkbox"
                   checked={enableMypiposTokens}
                   onChange={(e) => setEnableMypiposTokens(e.target.checked)}
-                  className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                  className="w-5 h-5 text-[#14D3C5] rounded focus:ring-[#14D3C5]"
                 />
               </label>
             </div>
           </div>
 
           {/* Payment Preferences */}
-          <div className="border-t pt-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Payment Preferences</h3>
+          <div className="border-t border-brand-indigo-800/50 pt-6">
+            <h3 className="text-lg font-semibold text-white mb-4">Payment Preferences</h3>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-brand-indigo-300 mb-2">
                 Default Payment Method
               </label>
               <select
                 value={defaultPaymentMethod}
                 onChange={(e) => setDefaultPaymentMethod(e.target.value as any)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 bg-brand-indigo-950/50 border border-brand-indigo-700 rounded-lg focus:ring-2 focus:ring-[#14D3C5] focus:border-[#14D3C5] text-brand-indigo-200"
               >
                 <option value="pi">Pi Network</option>
                 <option value="cash">Cash</option>
@@ -318,44 +318,44 @@ export default function SimpleSettingsPage() {
           </div>
 
           {/* Notification Preferences */}
-          <div className="border-t pt-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Notification Preferences</h3>
+          <div className="border-t border-brand-indigo-800/50 pt-6">
+            <h3 className="text-lg font-semibold text-white mb-4">Notification Preferences</h3>
 
             <div className="space-y-4">
-              <label className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <label className="flex items-center justify-between p-3 bg-brand-indigo-900/30 border border-brand-indigo-800/50 rounded-lg">
                 <div>
-                  <span className="font-medium text-gray-900">Email Notifications</span>
-                  <p className="text-sm text-gray-500">Receive updates via email</p>
+                  <span className="font-medium text-white">Email Notifications</span>
+                  <p className="text-sm text-brand-indigo-400">Receive updates via email</p>
                 </div>
                 <input
                   type="checkbox"
                   checked={emailNotifications}
                   onChange={(e) => setEmailNotifications(e.target.checked)}
-                  className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                  className="w-5 h-5 text-[#14D3C5] rounded focus:ring-[#14D3C5]"
                 />
               </label>
 
-              <label className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <label className="flex items-center justify-between p-3 bg-brand-indigo-900/30 border border-brand-indigo-800/50 rounded-lg">
                 <div>
-                  <span className="font-medium text-gray-900">Promotional Emails</span>
-                  <p className="text-sm text-gray-500">Receive offers and promotions</p>
+                  <span className="font-medium text-white">Promotional Emails</span>
+                  <p className="text-sm text-brand-indigo-400">Receive offers and promotions</p>
                 </div>
                 <input
                   type="checkbox"
                   checked={promotionalEmails}
                   onChange={(e) => setPromotionalEmails(e.target.checked)}
-                  className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                  className="w-5 h-5 text-[#14D3C5] rounded focus:ring-[#14D3C5]"
                 />
               </label>
             </div>
           </div>
 
           {/* Submit */}
-          <div className="flex justify-end pt-4 border-t">
+          <div className="flex justify-end pt-4 border-t border-brand-indigo-800/50">
             <button
               type="submit"
               disabled={saving}
-              className="px-6 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-6 py-2.5 btn-cyan text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {saving ? (
                 <>
@@ -376,11 +376,11 @@ export default function SimpleSettingsPage() {
       {/* Business Settings (placeholder) */}
       {activeTab === 'business' && (
         <motion.div
-          className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm p-6"
+          className="max-w-4xl mx-auto glass-card p-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <p className="text-gray-500 text-center py-8">
+          <p className="text-brand-indigo-400 text-center py-8">
             Business settings coming soon...
           </p>
         </motion.div>
