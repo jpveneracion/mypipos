@@ -129,6 +129,7 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
     const piPaymentData = {
       amount: amount.toFixed(7),
       memo: memo,
+      uid: user.pi_uid,  // CRITICAL: For A2U, specify recipient's Pi UID
       metadata: {
         transaction_id: transactionNumber,
         user_id: user.id,

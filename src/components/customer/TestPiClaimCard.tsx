@@ -97,11 +97,18 @@ export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
       const userData = await userResponse.json();
       const user = userData.user;
 
+      console.log('[TEST-PI-CLAIM] User data received:', userData);
+
       if (!user || !user.pi_uid) {
+        console.error('[TEST-PI-CLAIM] User or pi_uid missing:', { user, hasUser: !!user, hasPiUid: user?.pi_uid });
         throw new Error('User does not have a Pi UID. Please authenticate with Pi Network first.');
       }
 
-      console.log('[TEST-PI-CLAIM] User details:', { username: user.username, piUid: user.pi_uid });
+      console.log('[TEST-PI-CLAIM] User details:', {
+        username: user.username,
+        piUid: user.pi_uid,
+        piWalletAddress: user.pi_wallet_address
+      });
 
       // Create A2U payment to send 1 Pi to user
       console.log('[TEST-PI-CLAIM] Creating A2U payment...');

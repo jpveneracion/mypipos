@@ -34,6 +34,16 @@ export async function POST(request: Request) {
 
     const user = userResult.rows[0];
 
+    console.log('[GET-USER-BY-ID] User found:', {
+      id: user.id,
+      username: user.username,
+      pi_uid: user.pi_uid,
+      pi_wallet_address: user.pi_wallet_address,
+      pi_uid_type: typeof user.pi_uid,
+      pi_uid_is_null: user.pi_uid === null,
+      pi_uid_length: user.pi_uid?.length
+    });
+
     return NextResponse.json({
       success: true,
       user: {

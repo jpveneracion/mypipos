@@ -13,7 +13,15 @@ export async function POST(request: Request) {
   try {
     const { uid, amount, memo, transaction_type, metadata } = await request.json();
 
-    console.log(`[A2U] Creating A2U payment:`, { uid, amount, memo, transaction_type });
+    console.log(`[A2U API] Received request:`, {
+      uid,
+      amount,
+      memo,
+      transaction_type,
+      metadata,
+      uidType: typeof uid,
+      uidLength: uid?.length
+    });
 
     // Validation
     if (!uid || !amount || !memo || !transaction_type) {
