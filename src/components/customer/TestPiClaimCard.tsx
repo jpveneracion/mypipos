@@ -53,7 +53,7 @@ export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
     }
 
     try {
-      const response = await fetch('/api/debug/reset-test-claim', {
+      const response = await fetch('/api/debug/reset-wrong-direction-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId })
@@ -355,7 +355,7 @@ export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
                   className="w-full text-xs bg-red-600/20 hover:bg-red-600/30 text-red-400 px-3 py-2 rounded flex items-center justify-center gap-2"
                 >
                   <RefreshCw className="w-3 h-3" />
-                  Reset Claim Status (Debug)
+                  Reset Wrong Payment (Debug)
                 </button>
               )}
 

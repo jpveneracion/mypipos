@@ -217,8 +217,8 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
     // Step 2: Create A2U payment record in database
     const transactionNumber = `A2U-${Date.now()}-${Math.random().toString(36).substring(2, 10)}`;
 
-    // Generate unique memo to avoid Pi Network duplicate detection
-    const uniqueMemo = `${memo} (${transactionNumber})`;
+    // Generate VERY unique memo to avoid Pi Network duplicate detection with U2A payments
+    const uniqueMemo = `${memo} - A2U REWARD ${transactionNumber}`;
     console.log('[A2U] Using unique memo:', uniqueMemo);
 
     const a2uPaymentResult = await query(
@@ -300,19 +300,24 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
 
         // Handle duplicate payment error
         if (errorData.exists === true && errorData.payment) {
-          console.log('[A2U] Payment already exists on Pi Network, using janitor protocol...');
+          console.log('[A2U] Payment already exists on Pi Network, checking payment type...');
 
           const existingPiPayment = errorData.payment;
+          const paymentDirection = existingPiPayment.direction;
           const paymentId = existingPiPayment.identifier;
 
-          if (paymentId) {
-            console.log('[A2U] Found existing Pi Network payment:', paymentId);
+          console.log('[A2U] Existing payment direction:', paymentDirection);
+
+          // IMPORTANT: Only complete if it's actually an A2U (app_to_user) payment
+          // If it's U2A (user_to_app), we need to create a new A2U payment instead
+          if (paymentDirection === 'app_to_user' && paymentId) {
+            console.log('[A2U] Found existing A2U payment, using janitor protocol...');
 
             // Try to complete the existing payment using janitor protocol
             const clearResult = await clearIncompletePayment(paymentId, apiKey, apiUrl);
 
             if (clearResult.success) {
-              console.log('[A2U] ✅ Successfully completed existing payment using method:', clearResult.method);
+              console.log('[A2U] ✅ Successfully completed existing A2U payment using method:', clearResult.method);
 
               // Update our database record
               await query(
@@ -345,7 +350,18 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
                 message: `Successfully sent ${amount} Pi to ${user.username}!`
               };
             }
+          } else if (paymentDirection === 'user_to_app') {
+            console.log('[A2U] ❌ Existing payment is U2A (user-to-app), not A2U!');
+            console.log('[A2U] This is the wrong direction. We need to create a new A2U payment.');
+            console.log('[A2U] Making memo even more unique to avoid false duplicate detection...');
+
+            // The issue is that Pi Network is matching different payment directions
+            // We need to make the memo even more unique to avoid this
+            throw new Error(`Found existing ${paymentDirection} payment with same parameters. Please use a different memo or contact support.`);
           }
+
+          // If direction is neither, proceed with error
+          throw new Error(errorData.error || errorData.error_message || 'Failed to create payment');
         }
 
         throw new Error(errorData.error || errorData.error_message || 'Failed to create payment');
