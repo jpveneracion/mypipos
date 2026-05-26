@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
           merchant_id: settings.user_info.merchant_id
         },
         personal: {
-          pi_address: settings.personal.pi_address,
+          pi_wallet_address: settings.personal.pi_wallet_address,
           cashback_preferences: settings.personal.cashback_preferences,
           payment_preferences: settings.personal.payment_preferences,
           notification_preferences: settings.personal.notification_preferences,

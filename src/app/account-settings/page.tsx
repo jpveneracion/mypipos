@@ -16,7 +16,7 @@ interface User {
 }
 
 interface PersonalSettings {
-  pi_address?: string;
+  pi_wallet_address?: string;
   cashback_preferences: {
     enable_pi_cashback: boolean;
     enable_mypipos_tokens: boolean;
@@ -86,7 +86,7 @@ export default function SimpleSettingsPage() {
           setSettings(s);
 
           // Populate form
-          setPiAddress(s.pi_address || '');
+          setPiAddress(s.pi_wallet_address || '');
           setEnablePiCashback(s.cashback_preferences?.enable_pi_cashback ?? true);
           setEnableMypiposTokens(s.cashback_preferences?.enable_mypipos_tokens ?? true);
           setDefaultPaymentMethod(s.payment_preferences?.default_payment_method || 'pi');
@@ -118,7 +118,7 @@ export default function SimpleSettingsPage() {
     try {
       const payload = {
         userId: user?.id,
-        pi_address: piAddress,
+        pi_wallet_address: piAddress,
         cashback_preferences: {
           enable_pi_cashback: enablePiCashback,
           enable_mypipos_tokens: enableMypiposTokens,

@@ -5,7 +5,7 @@ export async function PUT(request: NextRequest) {
   try {
     // Simple approach like mypiroll - get userId from body
     const body = await request.json();
-    const { userId, pi_address, cashback_preferences, payment_preferences, notification_preferences } = body;
+    const { userId, pi_wallet_address, cashback_preferences, payment_preferences, notification_preferences } = body;
 
     if (!userId) {
       return NextResponse.json(
@@ -15,10 +15,10 @@ export async function PUT(request: NextRequest) {
     }
 
     // Update each field individually
-    if (pi_address !== undefined) {
+    if (pi_wallet_address !== undefined) {
       await query(
-        'UPDATE users SET pi_address = $1, updated_at = NOW() WHERE id = $2',
-        [pi_address, userId]
+        'UPDATE users SET pi_wallet_address = $1, updated_at = NOW() WHERE id = $2',
+        [pi_wallet_address, userId]
       );
     }
 

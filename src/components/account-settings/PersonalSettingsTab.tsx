@@ -72,10 +72,10 @@ export default function PersonalSettingsTab({
               </label>
               <input
                 type="text"
-                value={settings.personal.pi_address || ''}
-                onChange={(e) => handleUpdate('pi_address', e.target.value)}
+                value={settings.personal.pi_wallet_address || ''}
+                onChange={(e) => handleUpdate('pi_wallet_address', e.target.value)}
                 placeholder="Enter your Pi address"
-                disabled={isSaving || editingField === 'pi_address'}
+                disabled={isSaving || editingField === 'pi_wallet_address'}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
               />
               <p className="mt-2 text-sm text-gray-500">

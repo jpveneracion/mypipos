@@ -60,7 +60,7 @@ export interface PersonalSettings {
     merchant_id?: string;
   };
   personal: {
-    pi_address?: string;
+    pi_wallet_address?: string;
     cashback_preferences: CashbackPreferences;
     payment_preferences: PaymentPreferences;
     notification_preferences: NotificationPreferences;
@@ -250,7 +250,7 @@ export interface AuditLogResponse {
  */
 
 export type PersonalSettingsField =
-  | 'pi_address'
+  | 'pi_wallet_address'
   | 'cashback_preferences'
   | 'payment_preferences'
   | 'notification_preferences'
