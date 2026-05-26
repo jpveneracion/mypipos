@@ -38,26 +38,16 @@ export default function BusinessSettingsTab({
                 Enabled Payment Methods
               </label>
               <div className="space-y-2">
-                {['pi', 'cash', 'card'].map((method) => (
-                  <label key={method} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={settings.business.payment_methods.enabled_methods.includes(method as any)}
-                      onChange={(e) => {
-                        const enabled = e.target.checked
-                          ? [...settings.business.payment_methods.enabled_methods, method as any]
-                          : settings.business.payment_methods.enabled_methods.filter(m => m !== method);
-                        handleUpdate('payment_methods', {
-                          ...settings.business.payment_methods,
-                          enabled_methods: enabled
-                        });
-                      }}
-                      disabled={isSaving}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    />
-                    <span className="ml-2 capitalize">{method}</span>
-                  </label>
-                ))}
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={true}
+                    disabled={true}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 opacity-50"
+                  />
+                  <span className="ml-2">Pi Network</span>
+                  <span className="ml-2 text-xs text-gray-500">(Only payment method accepted)</span>
+                </label>
               </div>
             </div>
 
@@ -66,18 +56,13 @@ export default function BusinessSettingsTab({
                 Default Payment Method
               </label>
               <select
-                value={settings.business.payment_methods.default_method}
-                onChange={(e) => handleUpdate('payment_methods', {
-                  ...settings.business.payment_methods,
-                  default_method: e.target.value
-                })}
-                disabled={isSaving}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                value="pi"
+                disabled={true}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
               >
                 <option value="pi">Pi Network</option>
-                <option value="cash">Cash</option>
-                <option value="card">Card</option>
               </select>
+              <p className="mt-1 text-xs text-gray-500">Pi Network is the only accepted payment method</p>
             </div>
           </div>
         </div>
@@ -356,18 +341,13 @@ export default function BusinessSettingsTab({
                 Payment Method
               </label>
               <select
-                value={settings.business.billing_info.payment_method}
-                onChange={(e) => handleUpdate('billing_info', {
-                  ...settings.business.billing_info,
-                  payment_method: e.target.value
-                })}
-                disabled={isSaving}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                value="pi"
+                disabled={true}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
               >
                 <option value="pi">Pi Network</option>
-                <option value="cash">Cash</option>
-                <option value="card">Card</option>
               </select>
+              <p className="mt-1 text-xs text-gray-500">Billing only accepts Pi Network payments</p>
             </div>
 
             <div className="flex items-center justify-between">
