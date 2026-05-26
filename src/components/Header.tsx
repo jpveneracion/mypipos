@@ -5,6 +5,7 @@ import ContextSwitcher from './ContextSwitcher';
 import { useRouter } from 'next/navigation';
 import { Settings } from 'lucide-react';
 import Link from 'next/link';
+import { AnimatedLogoSmall } from './brand/AnimatedLogo';
 
 interface HeaderProps {
   title?: string;
@@ -21,20 +22,20 @@ export default function Header({ title, subtitle }: HeaderProps) {
   };
 
   return (
-    <header className="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-40">
+    <header className="glass-card border-b border-[#14D3C5]/20 sticky top-0 z-40">
       <div className="container mx-auto px-4">
         <div className="py-4">
           {/* Main Header Row */}
           <div className="flex items-center justify-between gap-4">
             {/* Logo and Title */}
             <div className="flex items-center gap-3">
-              <div className="text-3xl">🥧</div>
+              <AnimatedLogoSmall size={40} />
               <div>
-                <h1 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-white">
+                <h1 className="text-xl md:text-2xl font-bold text-white">
                   {title || 'myPiPOS'}
                 </h1>
                 {subtitle && (
-                  <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-xs md:text-sm text-brand-indigo-200">
                     {subtitle}
                   </p>
                 )}
@@ -47,7 +48,7 @@ export default function Header({ title, subtitle }: HeaderProps) {
               {isAuthenticated && (
                 <Link
                   href="/account-settings"
-                  className="flex items-center space-x-1 px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors"
+                  className="flex items-center space-x-1 px-3 py-2 rounded-lg hover:bg-[#14D3C5]/20 text-brand-indigo-300 hover:text-white transition-colors"
                   title="Account Settings"
                 >
                   <Settings className="h-5 w-5" />
@@ -62,21 +63,21 @@ export default function Header({ title, subtitle }: HeaderProps) {
               {isAuthenticated && user && (
                 <div className="flex items-center gap-2 md:gap-3">
                   <div className="hidden sm:block text-right">
-                    <div className="text-sm font-medium text-gray-800 dark:text-white">
+                    <div className="text-sm font-medium text-white">
                       {user.piUsername}
                     </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400 capitalize">
+                    <div className="text-xs text-brand-indigo-400 capitalize">
                       {user.role}
                     </div>
                   </div>
 
-                  <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-sm md:text-base shadow-md">
+                  <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-[#14D3C5] to-[#11a79e] rounded-full flex items-center justify-center text-white font-bold text-sm md:text-base shadow-glow">
                     {user.piUsername.charAt(0).toUpperCase()}
                   </div>
 
                   <button
                     onClick={handleLogout}
-                    className="p-2 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 transition-colors duration-200"
+                    className="p-2 text-brand-indigo-400 hover:text-red-400 transition-colors duration-200"
                     aria-label="Logout"
                     title="Logout"
                   >
