@@ -70,6 +70,46 @@ For testing without Pi Network authentication, use the built-in admin system:
 
 **⚠️ Note:** Development mode bypasses Pi Network authentication for testing purposes only. Use secure authentication in production.
 
+## 🔧 Account Settings
+
+Users can access their account settings by clicking the "Settings" button in the header navigation or navigating directly to `/account-settings`.
+
+### Features
+
+#### Personal Settings (All Users)
+- **Profile Management**: View and update username, email, and personal information
+- **Cashback Configuration**: Set up Pi Network address to receive cashback in:
+  - Pi tokens (original Pi Network cryptocurrency)
+  - mypipos tokens (platform-specific rewards)
+- **Payment Preferences**: Choose default payment method for faster checkout
+- **Notification Settings**: Control email and promotional notification preferences
+
+#### Business Settings (Merchants Only)
+- **Business Information**: Display and manage company details
+- **Payment Methods**: Configure which payment methods to accept (Pi Network, cash, etc.)
+- **Store Hours**: Set weekly operating hours and availability
+- **Staff Permissions**: Define role-based access controls for cashiers and managers
+- **Billing Information**: Manage billing address and tax information
+- **API Keys**: Configure third-party service integrations
+- **Analytics Preferences**: Set up reporting and analytics options
+
+### Access Control
+
+- **Personal Settings**: Available to all authenticated users
+- **Business Settings**: Available only to users with merchant roles (`merchant_admin`, `merchant_staff`)
+- **Business Settings Updates**: Requires `merchant_admin` role for security
+
+### API Documentation
+
+For detailed API endpoint documentation, including request/response formats and examples, see [`docs/settings-api.md`](docs/settings-api.md).
+
+### Security Features
+
+- **Row-Level Security**: Multi-tenant data isolation ensures users can only access their own settings
+- **Audit Logging**: All settings changes are logged with user ID, IP address, timestamp, and changed values
+- **Role-Based Access**: Strict permission enforcement for business settings modifications
+- **Input Validation**: Field validation and sanitization on all updates
+
 ## 🚀 Getting Started
 
 ### Prerequisites
@@ -245,6 +285,12 @@ For barcode scanning functionality:
 - `GET /api/stats` - Get business statistics and analytics
 - `GET /api/merchant` - Get merchant settings
 - `PATCH /api/merchant` - Update merchant settings
+
+### Account Settings
+- `GET /api/user/settings` - Get user account settings
+- `PUT /api/user/settings/update` - Update personal settings
+- `GET /api/merchant/settings` - Get business settings (merchant only)
+- `PUT /api/merchant/settings/update` - Update business settings (merchant admin only)
 
 ### Database
 The system uses a revolutionary universal product architecture:
