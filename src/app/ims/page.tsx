@@ -348,49 +348,49 @@ export default function IMSPage() {
           </Card>
 
           <Card className="glass-card">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-brand-cyan-400/5 rounded-full blur-3xl group-hover:bg-brand-cyan-400/10 transition-all"></div>
-            <div className="relative p-4">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <p className="text-brand-indigo-400 text-sm font-medium mb-1">Total Value</p>
-                  <p className="text-2xl font-display font-bold text-brand-indigo-200">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-brand-cyan-400/5 rounded-full blur-2xl group-hover:bg-brand-cyan-400/10 transition-all"></div>
+            <div className="relative p-3">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex-1 min-w-0">
+                  <p className="text-brand-indigo-400 text-xs font-medium mb-1 truncate">Total Value</p>
+                  <p className="text-lg md:text-xl font-display font-bold text-brand-indigo-200 truncate">
                     {totalValue.toFixed(7)} Test-π
                   </p>
                 </div>
-                <div className="w-10 h-10 bg-gradient-to-br from-brand-cyan-400/10 to-brand-cyan-600/10 rounded-2xl flex items-center justify-center border border-brand-cyan-700/30">
-                  <DollarSign className="w-5 h-5 text-brand-cyan-400" />
+                <div className="w-8 h-8 bg-gradient-to-br from-brand-cyan-400/10 to-brand-cyan-600/10 rounded-xl flex items-center justify-center border border-brand-cyan-700/30 shrink-0">
+                  <DollarSign className="w-4 h-4 text-brand-cyan-400" />
                 </div>
               </div>
             </div>
           </Card>
 
           <Card className="glass-card">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-warning-400/5 rounded-full blur-3xl group-hover:bg-warning-400/10 transition-all"></div>
-            <div className="relative p-4">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <p className="text-brand-indigo-400 text-sm font-medium mb-1">Low Stock</p>
-                  <p className="text-2xl font-display font-bold text-warning-400">{lowStockProducts.length}</p>
+            <div className="absolute top-0 right-0 w-20 h-20 bg-warning-400/5 rounded-full blur-2xl group-hover:bg-warning-400/10 transition-all"></div>
+            <div className="relative p-3">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex-1 min-w-0">
+                  <p className="text-brand-indigo-400 text-xs font-medium mb-1 truncate">Low Stock</p>
+                  <p className="text-lg md:text-xl font-display font-bold text-warning-400">{lowStockProducts.length}</p>
                 </div>
-                <div className="w-10 h-10 bg-gradient-to-br from-warning-400/10 to-amber-400/10 rounded-2xl flex items-center justify-center border border-warning-700/30">
-                  <AlertTriangle className="w-5 h-5 text-warning-400" />
+                <div className="w-8 h-8 bg-gradient-to-br from-warning-400/10 to-amber-400/10 rounded-xl flex items-center justify-center border border-warning-700/30 shrink-0">
+                  <AlertTriangle className="w-4 h-4 text-warning-400" />
                 </div>
               </div>
             </div>
           </Card>
 
           <Card className="glass-card">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-error-400/5 rounded-full blur-3xl group-hover:bg-error-400/10 transition-all"></div>
-            <div className="relative p-4">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <p className="text-brand-indigo-400 text-sm font-medium mb-1">Out of Stock</p>
-                  <p className="text-2xl font-display font-bold text-error-400">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-error-400/5 rounded-full blur-2xl group-hover:bg-error-400/10 transition-all"></div>
+            <div className="relative p-3">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex-1 min-w-0">
+                  <p className="text-brand-indigo-400 text-xs font-medium mb-1 truncate">Out of Stock</p>
+                  <p className="text-lg md:text-xl font-display font-bold text-error-400">
                     {products.filter(p => p.stock === 0).length}
                   </p>
                 </div>
-                <div className="w-10 h-10 bg-gradient-to-br from-error-400/10 to-red-400/10 rounded-2xl flex items-center justify-center border border-error-700/30">
-                  <AlertCircle className="w-5 h-5 text-error-400" />
+                <div className="w-8 h-8 bg-gradient-to-br from-error-400/10 to-red-400/10 rounded-xl flex items-center justify-center border border-error-700/30 shrink-0">
+                  <AlertCircle className="w-4 h-4 text-error-400" />
                 </div>
               </div>
             </div>
@@ -544,7 +544,13 @@ export default function IMSPage() {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button className="text-brand-cyan-400 hover:text-brand-cyan-300 mr-3 transition-colors">
+                          <button
+                            onClick={() => {
+                              console.log('Edit product:', product.id);
+                              alert(`Edit functionality coming soon for product: ${product.name}`);
+                            }}
+                            className="text-brand-cyan-400 hover:text-brand-cyan-300 mr-3 transition-colors"
+                          >
                             <Edit className="w-4 h-4 inline" />
                           </button>
                           <button
@@ -612,7 +618,15 @@ export default function IMSPage() {
                 </div>
 
                 <div className="flex gap-2 p-6 pt-0">
-                  <Button size="sm" className="flex-1 bg-gradient-to-r from-brand-cyan-400 to-brand-cyan-600 text-brand-dark-950 font-semibold">
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      // For now, just log - will implement edit functionality
+                      console.log('Edit product:', product.id);
+                      alert(`Edit functionality coming soon for product: ${product.name}`);
+                    }}
+                    className="flex-1 bg-gradient-to-r from-brand-cyan-400 to-brand-cyan-600 text-brand-dark-950 font-semibold"
+                  >
                     <Edit className="w-4 h-4 mr-1" />
                     Edit
                   </Button>
