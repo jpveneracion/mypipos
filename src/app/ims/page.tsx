@@ -354,7 +354,7 @@ export default function IMSPage() {
                 <div>
                   <p className="text-brand-indigo-400 text-sm font-medium mb-1">Total Value</p>
                   <p className="text-2xl font-display font-bold text-brand-indigo-200">
-                    Test-{totalValue.toFixed(2)}π
+                    Test-{totalValue.toFixed(7)}π
                   </p>
                 </div>
                 <div className="w-10 h-10 bg-gradient-to-br from-brand-cyan-400/10 to-brand-cyan-600/10 rounded-2xl flex items-center justify-center border border-brand-cyan-700/30">
@@ -536,7 +536,7 @@ export default function IMSPage() {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-brand-indigo-200 font-bold">{product.stock}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-bold bg-gradient-to-r from-brand-cyan-400 to-brand-cyan-600 bg-clip-text text-transparent">Test-{product.price.toFixed(2)}π</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-bold bg-gradient-to-r from-brand-cyan-400 to-brand-cyan-600 bg-clip-text text-transparent">Test-{product.price.toFixed(7)}π</td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex items-center gap-2 px-3 py-1.5 text-xs font-bold rounded-full border ${stockStatus.color}`}>
                             <stockStatus.icon className="w-3.5 h-3.5" />

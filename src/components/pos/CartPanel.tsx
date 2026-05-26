@@ -54,7 +54,7 @@ const CartPanel = React.forwardRef<HTMLDivElement, CartPanelProps>(({ onCheckout
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
                       <h4 className="font-semibold text-neutral-900 dark:text-white text-sm line-clamp-1">{item.product.name}</h4>
-                      <p className="text-primary-600 dark:text-primary-400 font-bold">${item.product.price.toFixed(2)}</p>
+                      <p className="text-primary-600 dark:text-primary-400 font-bold">${item.product.price.toFixed(7)}</p>
                     </div>
                     <button onClick={() => removeItem(item.product.id)} className="text-error-600 hover:text-error-700 transition-colors p-1">
                       <Trash2 className="h-4 w-4" />
@@ -71,7 +71,7 @@ const CartPanel = React.forwardRef<HTMLDivElement, CartPanelProps>(({ onCheckout
                         <Plus className="h-4 w-4" />
                       </button>
                     </div>
-                    <p className="font-bold text-neutral-900 dark:text-white">${(item.product.price * item.quantity).toFixed(2)}</p>
+                    <p className="font-bold text-neutral-900 dark:text-white">${(item.product.price * item.quantity).toFixed(7)}</p>
                   </div>
                 </div>
               ))}
@@ -83,13 +83,13 @@ const CartPanel = React.forwardRef<HTMLDivElement, CartPanelProps>(({ onCheckout
           <div className="p-4 space-y-3 border-t border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900/50">
             <div className="space-y-2">
               <div className="flex justify-between text-sm text-neutral-600 dark:text-neutral-400">
-                <span>Subtotal</span><span>${subtotal.toFixed(2)}</span>
+                <span>Subtotal</span><span>${subtotal.toFixed(7)}</span>
               </div>
               <div className="flex justify-between text-sm text-neutral-600 dark:text-neutral-400">
-                <span>Tax (8%)</span><span>${tax.toFixed(2)}</span>
+                <span>Tax (8%)</span><span>${tax.toFixed(7)}</span>
               </div>
               <div className="flex justify-between text-xl font-bold text-neutral-900 dark:text-white pt-2 border-t border-neutral-200 dark:border-neutral-700">
-                <span>Total</span><span className="text-primary-600 dark:text-primary-400">${total.toFixed(2)}</span>
+                <span>Total</span><span className="text-primary-600 dark:text-primary-400">${total.toFixed(7)}</span>
               </div>
             </div>
 

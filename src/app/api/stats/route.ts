@@ -15,17 +15,17 @@ const generateStats = (merchantId: string) => {
     sales: {
       today: {
         total_sales: Math.floor(Math.random() * 50) + 20,
-        total_revenue: parseFloat((Math.random() * 500 + 200).toFixed(2)),
-        average_order_value: parseFloat((Math.random() * 20 + 10).toFixed(2))
+        total_revenue: parseFloat((Math.random() * 500 + 200).toFixed(7)),
+        average_order_value: parseFloat((Math.random() * 20 + 10).toFixed(7))
       },
       week: {
         total_sales: Math.floor(Math.random() * 300) + 150,
-        total_revenue: parseFloat((Math.random() * 3000 + 1500).toFixed(2)),
+        total_revenue: parseFloat((Math.random() * 3000 + 1500).toFixed(7)),
         growth_percentage: parseFloat((Math.random() * 20 - 5).toFixed(1))
       },
       month: {
         total_sales: Math.floor(Math.random() * 1000) + 500,
-        total_revenue: parseFloat((Math.random() * 10000 + 5000).toFixed(2)),
+        total_revenue: parseFloat((Math.random() * 10000 + 5000).toFixed(7)),
         growth_percentage: parseFloat((Math.random() * 25 - 5).toFixed(1))
       }
     },
@@ -33,7 +33,7 @@ const generateStats = (merchantId: string) => {
       total_products: Math.floor(Math.random() * 200) + 100,
       low_stock_items: Math.floor(Math.random() * 10) + 3,
       out_of_stock: Math.floor(Math.random() * 3),
-      total_value: parseFloat((Math.random() * 5000 + 2000).toFixed(2))
+      total_value: parseFloat((Math.random() * 5000 + 2000).toFixed(7))
     },
     customers: {
       total_unique: Math.floor(Math.random() * 500) + 200,
@@ -43,12 +43,12 @@ const generateStats = (merchantId: string) => {
     payments: {
       pi_network: {
         count: Math.floor(Math.random() * 40) + 15,
-        amount: parseFloat((Math.random() * 400 + 150).toFixed(2)),
+        amount: parseFloat((Math.random() * 400 + 150).toFixed(7)),
         percentage: parseFloat((Math.random() * 20 + 70).toFixed(1))
       },
       other: {
         count: Math.floor(Math.random() * 10) + 5,
-        amount: parseFloat((Math.random() * 100 + 50).toFixed(2)),
+        amount: parseFloat((Math.random() * 100 + 50).toFixed(7)),
         percentage: parseFloat((Math.random() * 20 + 10).toFixed(1))
       }
     }

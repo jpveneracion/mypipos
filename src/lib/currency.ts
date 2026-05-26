@@ -22,7 +22,7 @@ export function getCurrencySymbol(): string {
  */
 export function formatPrice(amount: number): string {
   const symbol = getCurrencySymbol();
-  return `${symbol}${amount.toFixed(2)}`;
+  return `${symbol}${amount.toFixed(7)}`;
 }
 
 /**
@@ -30,5 +30,5 @@ export function formatPrice(amount: number): string {
  */
 export function formatPriceSuffix(amount: number): string {
   const symbol = getCurrencySymbol();
-  return `${amount.toFixed(2)}${symbol}`;
+  return `${amount.toFixed(7)}${symbol}`;
 }
