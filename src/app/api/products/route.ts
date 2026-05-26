@@ -4,6 +4,7 @@ import {
   getProductByBarcode,
   searchMerchantProducts,
   createProductForMerchant,
+  updateProductForMerchant,
   deleteProductFromMerchant,
 } from '@/lib/db-products';
 
@@ -139,6 +140,108 @@ export async function POST(request: NextRequest) {
       {
         success: false,
         error: 'Failed to create product',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * PUT /api/products
+ * Update an existing product for a merchant
+ */
+export async function PUT(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const merchantId = searchParams.get('merchant_id');
+    const productId = searchParams.get('product_id');
+
+    if (!merchantId || !productId) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'merchant_id and product_id are required'
+        },
+        { status: 400 }
+      );
+    }
+
+    const body = await request.json();
+    const {
+      user_id,
+      name,
+      description,
+      barcode,
+      sku,
+      price,
+      cost,
+      category,
+      stock,
+      minStock,
+      image,
+    } = body;
+
+    // Validate that at least one field is being updated
+    if (
+      name === undefined &&
+      description === undefined &&
+      barcode === undefined &&
+      sku === undefined &&
+      price === undefined &&
+      cost === undefined &&
+      category === undefined &&
+      stock === undefined &&
+      minStock === undefined &&
+      image === undefined
+    ) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'No fields provided for update'
+        },
+        { status: 400 }
+      );
+    }
+
+    // Update product
+    const result = await updateProductForMerchant({
+      merchantId,
+      productId,
+      userId: user_id || merchantId, // Fallback to merchantId if user_id not provided
+      name,
+      description,
+      barcode,
+      sku,
+      price: price ? parseFloat(price) : undefined,
+      cost: cost ? parseFloat(cost) : undefined,
+      category,
+      stock: stock ? parseInt(stock) : undefined,
+      minStock: minStock ? parseInt(minStock) : undefined,
+      image,
+    });
+
+    if (!result) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Product not found'
+        },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      product: formatProductForResponse(result),
+      message: 'Product updated successfully'
+    });
+  } catch (error) {
+    console.error('Product update error:', error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Failed to update product',
         details: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }

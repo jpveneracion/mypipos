@@ -437,6 +437,268 @@ export async function updateProductInventory(params: {
 }
 
 /**
+ * Update a product for a merchant
+ * Handles updates to universal product, merchant product, and inventory
+ */
+export async function updateProductForMerchant(params: {
+  merchantId: string;
+  productId: string;
+  userId: string;
+  name?: string;
+  description?: string;
+  barcode?: string;
+  sku?: string;
+  price?: number;
+  cost?: number;
+  category?: string;
+  stock?: number;
+  minStock?: number;
+  image?: string;
+}): Promise<ProductWithMerchantData | null> {
+  const {
+    merchantId,
+    productId,
+    userId,
+    name,
+    description,
+    barcode,
+    sku,
+    price,
+    cost,
+    category,
+    stock,
+    minStock,
+    image,
+  } = params;
+
+  return transaction(async (client) => {
+    // 1. Look up category by name if provided
+    let categoryId = null;
+    if (category) {
+      const slug = category.toLowerCase().replace(/\s+/g, '-');
+      const categoryResult = await client.query(
+        'SELECT create_category_if_not_exists($1, $2, $3) as category_id',
+        [category, slug, `Products in ${category} category`]
+      );
+      categoryId = categoryResult.rows[0].category_id;
+    }
+
+    // 2. Update universal product fields
+    const productUpdates: string[] = [];
+    const productValues: any[] = [];
+    let productParamIndex = 1;
+
+    if (name !== undefined) {
+      productUpdates.push(`name = $${productParamIndex++}`);
+      productValues.push(name);
+    }
+    if (description !== undefined) {
+      productUpdates.push(`description = $${productParamIndex++}`);
+      productValues.push(description);
+    }
+    if (barcode !== undefined) {
+      productUpdates.push(`barcode = $${productParamIndex++}`);
+      productValues.push(barcode);
+    }
+    if (categoryId !== null) {
+      productUpdates.push(`universal_category_id = $${productParamIndex++}`);
+      productValues.push(categoryId);
+    }
+    if (image !== undefined) {
+      productUpdates.push(`main_image_url = $${productParamIndex++}`);
+      productValues.push(image);
+    }
+
+    if (productUpdates.length > 0) {
+      productUpdates.push(`updated_at = NOW()`);
+      productValues.push(productId);
+      const productResult = await client.query(
+        `UPDATE products
+         SET ${productUpdates.join(', ')}
+         WHERE id = $${productParamIndex++} AND deleted_at IS NULL
+         RETURNING *`,
+        productValues
+      );
+
+      if (productResult.rows.length === 0) {
+        throw new Error('Product not found');
+      }
+    }
+
+    // 3. Update merchant product fields
+    const merchantUpdates: string[] = [];
+    const merchantValues: any[] = [];
+    let merchantParamIndex = 1;
+
+    if (sku !== undefined) {
+      merchantUpdates.push(`merchant_sku = $${merchantParamIndex++}`);
+      merchantValues.push(sku);
+    }
+    if (barcode !== undefined) {
+      merchantUpdates.push(`merchant_barcode = $${merchantParamIndex++}`);
+      merchantValues.push(barcode);
+    }
+    if (price !== undefined) {
+      merchantUpdates.push(`price = $${merchantParamIndex++}`);
+      merchantValues.push(price);
+    }
+    if (cost !== undefined) {
+      merchantUpdates.push(`cost = $${merchantParamIndex++}`);
+      merchantValues.push(cost);
+    }
+
+    if (merchantUpdates.length > 0) {
+      merchantUpdates.push(`updated_at = NOW()`);
+      merchantValues.push(merchantId, productId);
+      const merchantResult = await client.query(
+        `UPDATE merchant_products
+         SET ${merchantUpdates.join(', ')}
+         WHERE merchant_id = $${merchantParamIndex++} AND product_id = $${merchantParamIndex++}
+         AND deleted_at IS NULL
+         RETURNING *`,
+        merchantValues
+      );
+
+      if (merchantResult.rows.length === 0) {
+        throw new Error('Merchant product not found');
+      }
+    }
+
+    // 4. Update inventory if stock or minStock is provided
+    if (stock !== undefined || minStock !== undefined) {
+      const inventoryUpdates: string[] = [];
+      const inventoryValues: any[] = [];
+      let inventoryParamIndex = 1;
+
+      if (stock !== undefined) {
+        inventoryUpdates.push(`current_stock = $${inventoryParamIndex++}`);
+        inventoryValues.push(stock);
+      }
+      if (minStock !== undefined) {
+        inventoryUpdates.push(`low_stock_threshold = $${inventoryParamIndex++}`);
+        inventoryValues.push(minStock);
+      }
+
+      if (inventoryUpdates.length > 0) {
+        inventoryUpdates.push(`updated_at = NOW()`);
+        inventoryValues.push(merchantId, productId);
+        await client.query(
+          `UPDATE merchant_inventory
+           SET ${inventoryUpdates.join(', ')}
+           WHERE merchant_id = $${inventoryParamIndex++} AND product_id = $${inventoryParamIndex++}`,
+          inventoryValues
+        );
+      }
+    }
+
+    // 5. Fetch and return the updated product data
+    const result = await client.query(
+      `SELECT
+        p.*,
+        uc.name as category_name,
+        mp.id as merchant_product_id,
+        mp.merchant_id,
+        mp.product_id,
+        mp.merchant_sku,
+        mp.merchant_barcode,
+        mp.price,
+        mp.cost,
+        mp.display_name,
+        mp.display_description,
+        mp.display_image_url,
+        mp.is_visible,
+        mp.status as merchant_status,
+        mp.created_at as merchant_created_at,
+        mp.updated_at as merchant_updated_at,
+        mp.created_by,
+        mi.id as inventory_id,
+        mi.current_stock,
+        mi.reserved_stock,
+        mi.available_stock,
+        mi.low_stock_threshold,
+        mi.reorder_quantity,
+        mi.max_stock,
+        mi.average_cost,
+        mi.total_value,
+        mi.location_id,
+        mi.bin_location,
+        mi.shelf_location,
+        mi.last_restocked_at,
+        mi.last_counted_at,
+        mi.updated_at as inventory_updated_at
+      FROM products p
+      INNER JOIN merchant_products mp ON p.id = mp.product_id
+      LEFT JOIN universal_categories uc ON p.universal_category_id = uc.id
+      LEFT JOIN merchant_inventory mi ON mp.merchant_id = mi.merchant_id AND mp.product_id = mi.product_id
+      WHERE mp.merchant_id = $1 AND mp.product_id = $2
+        AND mp.deleted_at IS NULL
+        AND p.deleted_at IS NULL`,
+      [merchantId, productId]
+    );
+
+    if (result.rows.length === 0) {
+      throw new Error('Failed to fetch updated product');
+    }
+
+    const row = result.rows[0];
+    return {
+      product: {
+        id: row.id,
+        name: row.name,
+        description: row.description,
+        universal_sku: row.universal_sku,
+        barcode: row.barcode,
+        category_id: row.category_id,
+        universal_category_id: row.universal_category_id,
+        category_name: row.category_name,
+        main_image_url: row.main_image_url,
+        status: row.status,
+        created_at: row.created_at,
+        updated_at: row.updated_at,
+        created_by: row.created_by,
+        metadata: row.metadata,
+      },
+      merchantProduct: {
+        id: row.merchant_product_id,
+        merchant_id: row.merchant_id,
+        product_id: row.product_id,
+        merchant_sku: row.merchant_sku,
+        merchant_barcode: row.merchant_barcode,
+        price: row.price,
+        cost: row.cost,
+        display_name: row.display_name,
+        display_description: row.display_description,
+        display_image_url: row.display_image_url,
+        is_visible: row.is_visible,
+        status: row.merchant_status,
+        created_at: row.merchant_created_at,
+        updated_at: row.merchant_updated_at,
+        created_by: row.created_by,
+      },
+      inventory: row.inventory_id ? {
+        id: row.inventory_id,
+        merchant_id: row.merchant_id,
+        product_id: row.product_id,
+        current_stock: row.current_stock,
+        reserved_stock: row.reserved_stock,
+        available_stock: row.available_stock,
+        low_stock_threshold: row.low_stock_threshold,
+        reorder_quantity: row.reorder_quantity,
+        max_stock: row.max_stock,
+        average_cost: row.average_cost,
+        total_value: row.total_value,
+        location_id: row.location_id,
+        bin_location: row.bin_location,
+        shelf_location: row.shelf_location,
+        last_restocked_at: row.last_restocked_at,
+        last_counted_at: row.last_counted_at,
+        updated_at: row.inventory_updated_at,
+      } : null,
+    };
+  });
+}
+
+/**
  * Delete product from merchant catalog (soft delete)
  */
 export async function deleteProductFromMerchant(merchantId: string, productId: string): Promise<boolean> {

@@ -55,7 +55,8 @@ export default function IMSPage() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [showAddModal, setShowAddModal] = useState(false);
-  const [scanningBarcode, setScanningBarcode] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [scannedBarcode, setScannedBarcode] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -250,6 +251,63 @@ export default function IMSPage() {
     } catch (err) {
       console.error('Error deleting product:', err);
       setError('Failed to connect to server');
+    }
+  };
+
+  const handleEditProduct = (product: Product) => {
+    setEditingProduct(product);
+    setShowEditModal(true);
+  };
+
+  const handleUpdateProduct = async (formData: {
+    name: string;
+    price: string;
+    sku: string;
+    stock: string;
+    minStock: string;
+    barcode?: string;
+    category?: string;
+    description?: string;
+  }) => {
+    if (!merchantId || !user?.id || !editingProduct?.id) {
+      alert('Authentication required');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/products?merchant_id=${merchantId}&product_id=${editingProduct.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: user.id,
+          name: formData.name,
+          price: parseFloat(formData.price),
+          sku: formData.sku,
+          barcode: formData.barcode || undefined,
+          stock: parseInt(formData.stock),
+          minStock: parseInt(formData.minStock),
+          category: formData.category || undefined,
+          description: formData.description || undefined,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setShowEditModal(false);
+        setEditingProduct(null);
+        loadProducts();
+      } else {
+        setError(data.error || 'Failed to update product');
+      }
+    } catch (err) {
+      console.error('Error updating product:', err);
+      setError('Failed to connect to server');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -545,10 +603,7 @@ export default function IMSPage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-xs font-medium">
                           <button
-                            onClick={() => {
-                              console.log('Edit product:', product.id);
-                              alert(`Edit functionality coming soon for product: ${product.name}`);
-                            }}
+                            onClick={() => handleEditProduct(product)}
                             className="text-brand-cyan-400 hover:text-brand-cyan-300 mr-3 transition-colors"
                           >
                             <Edit className="w-4 h-4 inline" />
@@ -620,11 +675,7 @@ export default function IMSPage() {
                 <div className="flex gap-2 p-6 pt-0">
                   <Button
                     size="sm"
-                    onClick={() => {
-                      // For now, just log - will implement edit functionality
-                      console.log('Edit product:', product.id);
-                      alert(`Edit functionality coming soon for product: ${product.name}`);
-                    }}
+                    onClick={() => handleEditProduct(product)}
                     className="flex-1 bg-gradient-to-r from-brand-cyan-400 to-brand-cyan-600 text-brand-dark-950 font-semibold"
                   >
                     <Edit className="w-4 h-4 mr-1" />
@@ -915,6 +966,227 @@ export default function IMSPage() {
                       </>
                     ) : (
                       'Add Product'
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Product Modal */}
+      {showEditModal && editingProduct && (
+        <div className="fixed inset-0 bg-black/95 backdrop-blur-sm flex items-center justify-center p-3 z-50">
+          <div className="bg-brand-indigo-900 backdrop-blur-xl border border-brand-indigo-700 rounded-2xl shadow-glass-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-gradient-to-r from-brand-cyan-400 to-brand-cyan-600 border-b border-brand-cyan-700 p-6 rounded-t-2xl">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-display font-bold text-brand-dark-950">Edit Product</h2>
+                <button
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setEditingProduct(null);
+                  }}
+                  className="text-brand-dark-950/80 hover:text-brand-dark-950 text-lg md:text-xl font-bold"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6">
+              {error && (
+                <div className="mb-4 p-3 bg-error-900/30 border border-error-700 rounded-xl text-error-200 text-sm">
+                  {error}
+                </div>
+              )}
+
+              <form
+                className="space-y-5"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const formData = new FormData(e.currentTarget);
+                  handleUpdateProduct({
+                    name: formData.get('name') as string,
+                    price: formData.get('price') as string,
+                    sku: formData.get('sku') as string,
+                    stock: formData.get('stock') as string,
+                    minStock: formData.get('minStock') as string,
+                    barcode: formData.get('barcode') as string,
+                    category: formData.get('category') as string,
+                    description: formData.get('description') as string,
+                  });
+                }}
+              >
+                <div>
+                  <label className="block text-sm font-bold text-brand-indigo-300 mb-2">Product Name</label>
+                  <Input
+                    type="text"
+                    name="name"
+                    defaultValue={editingProduct.name}
+                    className="w-full bg-brand-indigo-950/50 border-brand-indigo-700 text-brand-indigo-200 placeholder-brand-indigo-500 focus:border-brand-cyan-500 focus:ring-2 focus:ring-brand-cyan-500/20"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block text-sm font-bold text-brand-indigo-300 mb-2">Price (up to 7 decimals for micro-transactions)</label>
+                    <Input
+                      type="number"
+                      step="0.0000001"
+                      min="0"
+                      name="price"
+                      defaultValue={editingProduct.price}
+                      className="w-full bg-brand-indigo-950/50 border-brand-indigo-700 text-brand-indigo-200 placeholder-brand-indigo-500 focus:border-brand-cyan-500 focus:ring-2 focus:ring-brand-cyan-500/20"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-brand-indigo-300 mb-2">SKU</label>
+                    <Input
+                      type="text"
+                      name="sku"
+                      defaultValue={editingProduct.sku}
+                      className="w-full bg-brand-indigo-950/50 border-brand-indigo-700 text-brand-indigo-200 placeholder-brand-indigo-500 focus:border-brand-cyan-500 focus:ring-2 focus:ring-brand-cyan-500/20"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block text-sm font-bold text-brand-indigo-300 mb-2">Stock</label>
+                    <Input
+                      type="number"
+                      name="stock"
+                      defaultValue={editingProduct.stock}
+                      className="w-full bg-brand-indigo-950/50 border-brand-indigo-700 text-brand-indigo-200 placeholder-brand-indigo-500 focus:border-brand-cyan-500 focus:ring-2 focus:ring-brand-cyan-500/20"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-brand-indigo-300 mb-2">Min Stock</label>
+                    <Input
+                      type="number"
+                      name="minStock"
+                      defaultValue={editingProduct.minStock}
+                      className="w-full bg-brand-indigo-950/50 border-brand-indigo-700 text-brand-indigo-200 placeholder-brand-indigo-500 focus:border-brand-cyan-500 focus:ring-2 focus:ring-brand-cyan-500/20"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-brand-indigo-300 mb-2">Barcode</label>
+                  <Input
+                    type="text"
+                    name="barcode"
+                    defaultValue={editingProduct.barcode || ''}
+                    placeholder="Optional"
+                    className="w-full bg-brand-indigo-950/50 border-brand-indigo-700 text-brand-indigo-200 placeholder-brand-indigo-500 focus:border-brand-cyan-500 focus:ring-2 focus:ring-brand-cyan-500/20"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-brand-indigo-300 mb-2">Category</label>
+                  {showNewCategoryInput ? (
+                    <div className="flex gap-2">
+                      <Input
+                        type="text"
+                        placeholder="Enter new category name"
+                        value={newCategoryName}
+                        onChange={(e) => setNewCategoryName(e.target.value)}
+                        className="flex-1 bg-brand-indigo-950/50 border-brand-indigo-700 text-brand-indigo-200 placeholder-brand-indigo-500 focus:border-brand-cyan-500 focus:ring-2 focus:ring-brand-cyan-500/20"
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter' && newCategoryName.trim()) {
+                            e.preventDefault();
+                            addNewCategory(newCategoryName.trim());
+                          }
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        onClick={() => addNewCategory(newCategoryName.trim())}
+                        disabled={!newCategoryName.trim()}
+                        className="bg-brand-cyan-400 text-brand-dark-950 hover:bg-brand-cyan-500"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          setShowNewCategoryInput(false);
+                          setNewCategoryName('');
+                        }}
+                        className="border-brand-indigo-700 text-brand-indigo-400"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <select
+                        name="category"
+                        defaultValue={editingProduct.category || ''}
+                        className="flex-1 px-4 py-3 border border-brand-indigo-700 rounded-xl focus:ring-2 focus:ring-brand-cyan-500 bg-brand-indigo-950/50 text-brand-indigo-200 focus:border-brand-cyan-500"
+                      >
+                        <option value="">Select category</option>
+                        {categories.filter(c => c !== 'All').map(cat => (
+                          <option key={cat} value={cat}>{cat}</option>
+                        ))}
+                      </select>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setShowNewCategoryInput(true)}
+                        className="border-brand-cyan-700 text-brand-cyan-400 hover:bg-brand-cyan-900/30 whitespace-nowrap"
+                        title="Add new category"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-brand-indigo-300 mb-2">Description</label>
+                  <textarea
+                    name="description"
+                    defaultValue={editingProduct.description || ''}
+                    className="w-full px-4 py-3 border border-brand-indigo-700 rounded-xl focus:ring-2 focus:ring-brand-cyan-500 bg-brand-indigo-950/50 text-brand-indigo-200 focus:border-brand-cyan-500"
+                    rows={3}
+                    placeholder="Optional"
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={isSubmitting}
+                    onClick={() => {
+                      setShowEditModal(false);
+                      setEditingProduct(null);
+                      setError(null);
+                    }}
+                    className="flex-1 border-brand-indigo-700 text-brand-indigo-400 hover:bg-brand-indigo-900/50"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="flex-1 bg-gradient-to-r from-brand-cyan-400 to-brand-cyan-600 text-brand-dark-950 hover:from-brand-cyan-500 hover:to-brand-cyan-700 font-semibold shadow-lg shadow-brand-cyan-500/20"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Updating...
+                      </>
+                    ) : (
+                      'Update Product'
                     )}
                   </Button>
                 </div>
