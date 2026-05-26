@@ -334,18 +334,34 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
           if (paymentId) {
             console.log('[A2U] Found existing payment ID:', paymentId);
 
-            // Try to submit and complete the existing payment
+            // Check if payment already has a txid
+            const existingTxid = existingPayment?.transaction?.txid;
+            const isVerified = existingPayment?.status?.transaction_verified;
+
+            console.log('[A2U] Payment status:', {
+              hasTxid: !!existingTxid,
+              txid: existingTxid,
+              isVerified: isVerified,
+              developerCompleted: existingPayment?.status?.developer_completed
+            });
+
             const PiNetwork = await getPiNetworkClass();
             const pi = new PiNetwork(apiKey, walletPrivateKey);
 
-            // Submit to blockchain
-            console.log('[A2U] Submitting existing payment to blockchain...');
-            const txid = await pi.submitPayment(paymentId);
-            console.log('[A2U] ✅ Payment submitted with TXID:', txid);
+            let finalTxid = existingTxid;
+
+            // Only submit if no txid exists
+            if (!existingTxid) {
+              console.log('[A2U] Submitting existing payment to blockchain...');
+              finalTxid = await pi.submitPayment(paymentId);
+              console.log('[A2U] ✅ Payment submitted with TXID:', finalTxid);
+            } else {
+              console.log('[A2U] Payment already has txid, skipping submit...');
+            }
 
             // Complete payment
             console.log('[A2U] Completing existing payment...');
-            await pi.completePayment(paymentId, txid);
+            await pi.completePayment(paymentId, finalTxid);
             console.log('[A2U] ✅ Payment completed');
 
             // Update database record
@@ -357,7 +373,7 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
                 payment_completed_at = NOW(),
                 completed_at = NOW()
               WHERE id = $3`,
-              [paymentId, txid, a2uPayment.id]
+              [paymentId, finalTxid, a2uPayment.id]
             );
 
             return {
@@ -366,7 +382,7 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
                 id: a2uPayment.id,
                 transactionNumber: a2uPayment.transaction_number,
                 paymentId: paymentId,
-                txid: txid,
+                txid: finalTxid,
                 amount: a2uPayment.amount,
                 memo: a2uPayment.memo,
                 status: 'completed',
