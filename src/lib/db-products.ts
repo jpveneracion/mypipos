@@ -108,10 +108,10 @@ export async function createProductForMerchant(params: {
     if (category) {
       const slug = category.toLowerCase().replace(/\s+/g, '-');
       const categoryResult = await client.query(
-        'SELECT create_category_if_not_exists($1, $2, $3) as category_id',
+        'SELECT create_category_if_not_exists($1, $2, $3) as category_row',
         [category, slug, `Products in ${category} category`]
       );
-      categoryId = categoryResult.rows[0].category_id;
+      categoryId = categoryResult.rows[0].category_row.id;
     }
 
     // Check if product with this barcode already exists
@@ -477,10 +477,10 @@ export async function updateProductForMerchant(params: {
     if (category) {
       const slug = category.toLowerCase().replace(/\s+/g, '-');
       const categoryResult = await client.query(
-        'SELECT create_category_if_not_exists($1, $2, $3) as category_id',
+        'SELECT create_category_if_not_exists($1, $2, $3) as category_row',
         [category, slug, `Products in ${category} category`]
       );
-      categoryId = categoryResult.rows[0].category_id;
+      categoryId = categoryResult.rows[0].category_row.id;
     }
 
     // 2. Update universal product fields
