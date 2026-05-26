@@ -292,18 +292,18 @@ export function QRCodeInvoiceWorkflow({ merchantId, registerId }: { merchantId: 
                 <div key={stepInfo.step} className="flex flex-col items-center">
                   <div className={`
                     w-12 h-12 rounded-full flex items-center justify-center
-                    ${isActive ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-400'}
-                    ${isCompleted ? 'bg-green-600 text-white' : ''}
+                    ${isActive ? 'bg-[#14D3C5] text-white' : 'bg-brand-indigo-900/50 text-brand-indigo-400'}
+                    ${isCompleted ? 'bg-green-500 text-white' : ''}
                   `}>
                     <stepInfo.icon className="h-6 w-6" />
                   </div>
-                  <div className="text-xs text-center mt-2 max-w-25">
+                  <div className="text-xs text-center mt-2 max-w-25 text-brand-indigo-300">
                     {stepInfo.label}
                   </div>
                   {index < 3 && (
                     <div className={`
                       h-1 w-16 mt-6 -mb-6
-                      ${isCurrentStep ? 'bg-blue-600' : 'bg-gray-200'}
+                      ${isCurrentStep ? 'bg-[#14D3C5]' : 'bg-brand-indigo-900/50'}
                     `} />
                   )}
                 </div>
@@ -313,22 +313,22 @@ export function QRCodeInvoiceWorkflow({ merchantId, registerId }: { merchantId: 
 
           {/* Current Invoice Info */}
           {currentInvoice && workflow !== 'idle' && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+            <div className="bg-[#14D3C5]/20 border border-[#14D3C5]/30 rounded-lg p-4 mb-4">
               <div className="flex items-center justify-between mb-3">
                 <div>
-                  <div className="text-sm text-blue-800">Invoice</div>
-                  <div className="font-bold text-blue-900">{currentInvoice.invoiceNumber}</div>
+                  <div className="text-sm text-brand-indigo-300">Invoice</div>
+                  <div className="font-bold text-white">{currentInvoice.invoiceNumber}</div>
                 </div>
                 <div className="text-right">
-                  <div className="text-sm text-blue-800">Customer</div>
-                  <div className="font-semibold text-blue-900">{currentInvoice.customer.username}</div>
+                  <div className="text-sm text-brand-indigo-300">Customer</div>
+                  <div className="font-semibold text-white">{currentInvoice.customer.username}</div>
                 </div>
               </div>
 
               {currentInvoice.items.length > 0 && (
-                <div className="text-sm text-blue-700">
-                  <div className="font-semibold">Items: {currentInvoice.items.length}</div>
-                  <div>Total: {currentInvoice.total.toFixed(7)} Pi</div>
+                <div className="text-sm text-brand-indigo-300">
+                  <div className="font-semibold text-white">Items: {currentInvoice.items.length}</div>
+                  <div className="text-[#14D3C5]">Total: {currentInvoice.total.toFixed(7)} Pi</div>
                 </div>
               )}
             </div>
@@ -398,25 +398,25 @@ export function QRCodeInvoiceWorkflow({ merchantId, registerId }: { merchantId: 
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Current Invoice Summary */}
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h4 className="font-semibold mb-2">Current Invoice</h4>
+            <div className="bg-brand-indigo-900/30 backdrop-blur-xl border border-brand-indigo-800/50 rounded-lg p-4">
+              <h4 className="font-semibold text-brand-indigo-200 mb-2">Current Invoice</h4>
               <div className="space-y-1 text-sm">
-                <div>Items: {currentInvoice.items.length}</div>
-                <div>Subtotal: {currentInvoice.subtotal.toFixed(7)} Pi</div>
-                <div>Tax: {currentInvoice.tax.toFixed(7)} Pi</div>
-                <div className="font-bold text-lg">Total: {currentInvoice.total.toFixed(7)} Pi</div>
+                <div className="text-brand-indigo-300">Items: {currentInvoice.items.length}</div>
+                <div className="text-brand-indigo-300">Subtotal: {currentInvoice.subtotal.toFixed(7)} Pi</div>
+                <div className="text-brand-indigo-300">Tax: {currentInvoice.tax.toFixed(7)} Pi</div>
+                <div className="font-bold text-lg text-white">Total: {currentInvoice.total.toFixed(7)} Pi</div>
               </div>
             </div>
 
             {/* Items List */}
             {currentInvoice.items.length > 0 && (
-              <div className="border-t pt-4">
-                <h4 className="font-semibold mb-2">Scanned Items</h4>
+              <div className="border-t border-brand-indigo-800/50 pt-4">
+                <h4 className="font-semibold text-brand-indigo-200 mb-2">Scanned Items</h4>
                 <div className="space-y-2">
                   {currentInvoice.items.map((item, index) => (
-                    <div key={item.id} className="flex justify-between text-sm p-2 bg-white border rounded">
+                    <div key={item.id} className="flex justify-between text-sm p-2 bg-brand-indigo-900/30 border border-brand-indigo-800/50 rounded text-brand-indigo-200">
                       <span>{index + 1}. {item.productName} × {item.quantity}</span>
-                      <span className="font-medium">{item.totalPrice.toFixed(7)} Pi</span>
+                      <span className="font-medium text-[#14D3C5]">{item.totalPrice.toFixed(7)} Pi</span>
                     </div>
                   ))}
                 </div>
