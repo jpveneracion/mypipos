@@ -140,14 +140,14 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
 
       // Get API credentials
       const apiKey = process.env.PI_API_KEY;
-      const walletSeed = process.env.PI_WALLET_PRIVATE_SEED;
+      const walletPrivateKey = process.env.PI_WALLET_PRIVATE_KEY;
 
-      if (!apiKey || !walletSeed) {
-        throw new Error('Pi Network credentials not configured (PI_API_KEY, PI_WALLET_PRIVATE_SEED)');
+      if (!apiKey || !walletPrivateKey) {
+        throw new Error('Pi Network credentials not configured (PI_API_KEY, PI_WALLET_PRIVATE_KEY)');
       }
 
       console.log('[A2U] Initializing Pi SDK with credentials...');
-      const pi = new PiNetwork(apiKey, walletSeed);
+      const pi = new PiNetwork(apiKey, walletPrivateKey);
       console.log('[A2U] Pi SDK initialized');
 
       // Step 2a: Create payment using SDK
