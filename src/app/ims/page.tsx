@@ -57,6 +57,7 @@ export default function IMSPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [scanningBarcode, setScanningBarcode] = useState(false);
   const [scannedBarcode, setScannedBarcode] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
