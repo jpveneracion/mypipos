@@ -57,7 +57,7 @@ async function createA2UPayment(paymentArgs: PaymentArgs): Promise<string | null
       throw new Error('Pi Network credentials not configured (PI_API_KEY, PI_WALLET_PRIVATE_KEY)');
     }
 
-    const pi = new PiNetwork(PI_SERVER_API_KEY, PI_WALLET_PRIVATE_KEY);
+    const pi = new PiNetwork(PI_API_KEY, PI_WALLET_PRIVATE_KEY);
     console.log('[A2U] Pi SDK initialized');
 
     const paymentId = await pi.createPayment(paymentArgs);
