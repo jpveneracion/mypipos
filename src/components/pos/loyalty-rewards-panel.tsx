@@ -153,7 +153,7 @@ export function LoyaltyRewardsPanel({
               customerPiUid={customerPiUid}
               amount={loyaltyRewardAmount}
               memo={`Loyalty reward - ${loyaltyData.rewardTier} tier cashback`}
-              transactionType="reward"
+              transactionType="customer_reward"
               onSuccess={handleRewardSuccess}
               onError={(error) => console.error('Reward failed:', error)}
             />
@@ -189,7 +189,7 @@ export function LoyaltyRewardsPanel({
               customerPiUid={customerPiUid}
               amount={customRewardAmount}
               memo={rewardReason || 'Custom reward from myPiPOS'}
-              transactionType="reward"
+              transactionType="customer_reward"
               onSuccess={handleRewardSuccess}
               onError={(error) => console.error('Custom reward failed:', error)}
               disabled={!customRewardAmount || !rewardReason}

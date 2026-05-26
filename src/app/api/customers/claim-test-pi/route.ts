@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
       uid: user.pi_uid,
       amount: 1.00,
       memo: 'Test Pi Claim - One-time pioneer bonus',
-      transaction_type: 'reward',
+      transaction_type: 'customer_reward',
       metadata: {
         reward_type: 'test_pi_claim',
         user_id: userId,
@@ -120,7 +120,7 @@ export async function GET(request: NextRequest) {
     const existingClaimResult = await query(
       `SELECT * FROM a2u_payments
        WHERE to_user_id = $1
-       AND transaction_type = 'reward'
+       AND transaction_type = 'customer_reward'
        AND metadata->>'reward_type' = 'test_pi_claim'
        AND status = 'completed'
        LIMIT 1`,

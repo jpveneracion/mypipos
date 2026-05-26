@@ -9,7 +9,7 @@ export interface A2UPaymentRequest {
   uid: string;
   amount: number;
   memo: string;
-  transaction_type: 'refund' | 'reward' | 'payout';
+  transaction_type: 'merchant_payout' | 'customer_refund' | 'customer_reward' | 'staff_payout' | 'affiliate_payout' | 'platform_payout';
   metadata?: Record<string, any>;
 }
 
@@ -28,7 +28,7 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
     }
 
     // Validate transaction type
-    const validTransactionTypes = ['refund', 'reward', 'payout'];
+    const validTransactionTypes = ['merchant_payout', 'customer_refund', 'customer_reward', 'staff_payout', 'affiliate_payout', 'platform_payout'];
     if (!validTransactionTypes.includes(transaction_type)) {
       return {
         success: false,

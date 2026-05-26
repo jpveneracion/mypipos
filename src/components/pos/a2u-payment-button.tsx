@@ -11,7 +11,7 @@ interface A2UPaymentButtonProps {
   customerPiUid: string;
   amount: number;
   memo: string;
-  transactionType: 'refund' | 'reward' | 'payout';
+  transactionType: 'merchant_payout' | 'customer_refund' | 'customer_reward' | 'staff_payout' | 'affiliate_payout' | 'platform_payout';
   onSuccess?: (result: any) => void;
   onError?: (error: string) => void;
   disabled?: boolean;
@@ -81,11 +81,17 @@ export function A2UPaymentButton({
     }
 
     switch (transactionType) {
-      case 'refund':
+      case 'customer_refund':
         return 'Process Refund';
-      case 'reward':
+      case 'customer_reward':
         return 'Send Reward';
-      case 'payout':
+      case 'merchant_payout':
+        return 'Pay Merchant';
+      case 'staff_payout':
+        return 'Pay Staff';
+      case 'affiliate_payout':
+        return 'Pay Affiliate';
+      case 'platform_payout':
         return 'Send Payment';
       default:
         return 'Send Payment';

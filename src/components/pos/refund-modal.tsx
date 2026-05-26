@@ -158,7 +158,7 @@ export function RefundModal({ isOpen, onClose, saleDetails }: RefundModalProps) 
               customerPiUid={saleDetails.customer_pi_uid}
               amount={refundAmount}
               memo={`Refund for sale #${saleDetails.transaction_number}: ${refundReason}`}
-              transactionType="refund"
+              transactionType="customer_refund"
               onSuccess={handleRefundSuccess}
               onError={handleRefundError}
               disabled={!isValidRefund}

@@ -108,7 +108,7 @@ async function sendBirthdayBonus(customerPiUid: string, customerName: string) {
       uid: customerPiUid,
       amount: bonusAmount,
       memo: `🎂 Happy Birthday ${customerName}! Enjoy your bonus Pi!`,
-      transaction_type: 'reward',
+      transaction_type: 'customer_reward',
       metadata: {
         reward_type: 'birthday_bonus',
         customer_name: customerName
@@ -132,7 +132,7 @@ async function processReferralBonus(referrerId: string, newCustomerName: string)
       uid: referrer.pi_uid,
       amount: bonusAmount,
       memo: `Referral bonus - you referred ${newCustomerName}! 🎉`,
-      transaction_type: 'reward',
+      transaction_type: 'customer_reward',
       metadata: {
         reward_type: 'referral_bonus',
         referred_customer: newCustomerName
@@ -169,7 +169,7 @@ async function completeSaleWithCommission(saleData: any) {
           uid: cashier.pi_uid,
           amount: commissionAmount,
           memo: `Sales commission - ${commissionRate * 100}% of sale #${sale.transaction_number}`,
-          transaction_type: 'payout',
+          transaction_type: 'staff_payout',
           metadata: {
             commission_type: 'sales_commission',
             sale_id: sale.id,
@@ -208,7 +208,7 @@ async function processSaleWithCashback(sale: any, currentPromotion: any) {
         uid: sale.customer_pi_uid,
         amount: cashbackAmount,
         memo: 'Weekend Cashback Event - 5% back on your purchase!',
-        transaction_type: 'reward',
+        transaction_type: 'customer_reward',
         metadata: {
           promotion_type: 'weekend_cashback',
           promotion_id: currentPromotion.id,
@@ -278,7 +278,7 @@ async function checkAndRewardCustomer(customerId: string, newPurchase: any) {
         uid: newPurchase.customer_pi_uid,
         amount: 0.5,
         memo: 'Welcome bonus! Thank you for your first purchase! 🎉',
-        transaction_type: 'reward',
+        transaction_type: 'customer_reward',
         metadata: { reward_type: 'first_purchase_bonus' }
       })
     });
@@ -293,7 +293,7 @@ async function checkAndRewardCustomer(customerId: string, newPurchase: any) {
         uid: newPurchase.customer_pi_uid,
         amount: 1.0,
         memo: `Congratulations! This is your ${history.purchases.length}th purchase! 🎊`,
-        transaction_type: 'reward',
+        transaction_type: 'customer_reward',
         metadata: { reward_type: 'milestone_reward', milestone: history.purchases.length }
       })
     });
@@ -309,7 +309,7 @@ async function checkAndRewardCustomer(customerId: string, newPurchase: any) {
         uid: newPurchase.customer_pi_uid,
         amount: 2.0,
         memo: 'VIP Customer! You\'ve spent 100+ Pi with us! 👑',
-        transaction_type: 'reward',
+        transaction_type: 'customer_reward',
         metadata: { reward_type: 'vip_milestone', total_spent: totalSpent }
       })
     });

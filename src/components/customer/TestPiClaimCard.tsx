@@ -113,7 +113,7 @@ export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
           uid: user.pi_uid,
           amount: 1.00,
           memo: 'Test Pi Claim - One-time pioneer bonus',
-          transaction_type: 'reward',
+          transaction_type: 'customer_reward',
           metadata: {
             reward_type: 'test_pi_claim',
             user_id: userId,
