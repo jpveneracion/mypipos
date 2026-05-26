@@ -93,7 +93,7 @@ export default function CustomerPage() {
           </motion.div>
 
           {/* Stats Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
             <motion.div
               initial="hidden"
               animate="show"
