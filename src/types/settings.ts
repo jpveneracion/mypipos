@@ -48,12 +48,25 @@ export interface PurchaseHistorySettings {
 }
 
 export interface PersonalSettings {
-  pi_address?: string;
-  cashback_preferences: CashbackPreferences;
-  payment_preferences: PaymentPreferences;
-  notification_preferences: NotificationPreferences;
-  saved_addresses: SavedAddress[];
-  purchase_history_settings: PurchaseHistorySettings;
+  profile: {
+    username: string;
+    email?: string;
+    first_name?: string;
+    last_name?: string;
+    phone?: string;
+    pi_username: string;
+    user_type: string;
+    role: string;
+    merchant_id?: string;
+  };
+  personal: {
+    pi_address?: string;
+    cashback_preferences: CashbackPreferences;
+    payment_preferences: PaymentPreferences;
+    notification_preferences: NotificationPreferences;
+    saved_addresses: SavedAddress[];
+    purchase_history_settings: PurchaseHistorySettings;
+  };
 }
 
 /**
@@ -165,13 +178,16 @@ export interface AnalyticsConfig {
 }
 
 export interface BusinessSettings {
-  payment_methods: PaymentMethodsConfig;
-  store_hours: StoreHours;
-  store_locations: StoreLocation[];
-  staff_permissions: StaffPermissions;
-  billing_info: BillingInfo;
-  api_keys: Record<string, string>;
-  analytics_config: AnalyticsConfig;
+  merchant_id?: string;
+  business: {
+    payment_methods: PaymentMethodsConfig;
+    store_hours: StoreHours;
+    store_locations: StoreLocation[];
+    staff_permissions: StaffPermissions;
+    billing_info: BillingInfo;
+    api_keys: Record<string, string>;
+    analytics_config: AnalyticsConfig;
+  };
 }
 
 /**

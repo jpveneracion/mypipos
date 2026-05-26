@@ -42,13 +42,13 @@ export default function BusinessSettingsTab({
                   <label key={method} className="flex items-center">
                     <input
                       type="checkbox"
-                      checked={settings.payment_methods.enabled_methods.includes(method as any)}
+                      checked={settings.business.payment_methods.enabled_methods.includes(method as any)}
                       onChange={(e) => {
                         const enabled = e.target.checked
-                          ? [...settings.payment_methods.enabled_methods, method as any]
-                          : settings.payment_methods.enabled_methods.filter(m => m !== method);
+                          ? [...settings.business.payment_methods.enabled_methods, method as any]
+                          : settings.business.payment_methods.enabled_methods.filter(m => m !== method);
                         handleUpdate('payment_methods', {
-                          ...settings.payment_methods,
+                          ...settings.business.payment_methods,
                           enabled_methods: enabled
                         });
                       }}
@@ -66,9 +66,9 @@ export default function BusinessSettingsTab({
                 Default Payment Method
               </label>
               <select
-                value={settings.payment_methods.default_method}
+                value={settings.business.payment_methods.default_method}
                 onChange={(e) => handleUpdate('payment_methods', {
-                  ...settings.payment_methods,
+                  ...settings.business.payment_methods,
                   default_method: e.target.value
                 })}
                 disabled={isSaving}
@@ -88,7 +88,7 @@ export default function BusinessSettingsTab({
         <div className="p-6">
           <h2 className="text-xl font-semibold mb-4">Store Hours</h2>
           <div className="space-y-3">
-            {Object.entries(settings.store_hours).map(([day, hours]) => (
+            {Object.entries(settings.business.store_hours).map(([day, hours]) => (
               <div key={day} className="flex items-center justify-between">
                 <div className="flex-1">
                   <label className="text-sm font-medium text-gray-700 capitalize">
@@ -104,7 +104,7 @@ export default function BusinessSettingsTab({
                 </div>
                 <button
                   onClick={() => handleUpdate('store_hours', {
-                    ...settings.store_hours,
+                    ...settings.business.store_hours,
                     [day]: {
                       ...hours,
                       closed: !hours.closed
@@ -141,9 +141,9 @@ export default function BusinessSettingsTab({
                 Default Cashier Role
               </label>
               <select
-                value={settings.staff_permissions.default_cashier_role}
+                value={settings.business.staff_permissions.default_cashier_role}
                 onChange={(e) => handleUpdate('staff_permissions', {
-                  ...settings.staff_permissions,
+                  ...settings.business.staff_permissions,
                   default_cashier_role: e.target.value
                 })}
                 disabled={isSaving}
@@ -163,19 +163,19 @@ export default function BusinessSettingsTab({
               </div>
               <button
                 onClick={() => handleUpdate('staff_permissions', {
-                  ...settings.staff_permissions,
-                  allow_manager_analytics: !settings.staff_permissions.allow_manager_analytics
+                  ...settings.business.staff_permissions,
+                  allow_manager_analytics: !settings.business.staff_permissions.allow_manager_analytics
                 })}
                 disabled={isSaving}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  settings.staff_permissions.allow_manager_analytics
+                  settings.business.staff_permissions.allow_manager_analytics
                     ? 'bg-blue-600'
                     : 'bg-gray-200'
                 }`}
               >
                 <span
                   className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    settings.staff_permissions.allow_manager_analytics
+                    settings.business.staff_permissions.allow_manager_analytics
                       ? 'translate-x-6'
                       : 'translate-x-1'
                   }`}
@@ -192,19 +192,19 @@ export default function BusinessSettingsTab({
               </div>
               <button
                 onClick={() => handleUpdate('staff_permissions', {
-                  ...settings.staff_permissions,
-                  allow_manager_inventory: !settings.staff_permissions.allow_manager_inventory
+                  ...settings.business.staff_permissions,
+                  allow_manager_inventory: !settings.business.staff_permissions.allow_manager_inventory
                 })}
                 disabled={isSaving}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  settings.staff_permissions.allow_manager_inventory
+                  settings.business.staff_permissions.allow_manager_inventory
                     ? 'bg-blue-600'
                     : 'bg-gray-200'
                 }`}
               >
                 <span
                   className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    settings.staff_permissions.allow_manager_inventory
+                    settings.business.staff_permissions.allow_manager_inventory
                       ? 'translate-x-6'
                       : 'translate-x-1'
                   }`}
@@ -221,19 +221,19 @@ export default function BusinessSettingsTab({
               </div>
               <button
                 onClick={() => handleUpdate('staff_permissions', {
-                  ...settings.staff_permissions,
-                  allow_staff_discounts: !settings.staff_permissions.allow_staff_discounts
+                  ...settings.business.staff_permissions,
+                  allow_staff_discounts: !settings.business.staff_permissions.allow_staff_discounts
                 })}
                 disabled={isSaving}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  settings.staff_permissions.allow_staff_discounts
+                  settings.business.staff_permissions.allow_staff_discounts
                     ? 'bg-blue-600'
                     : 'bg-gray-200'
                 }`}
               >
                 <span
                   className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    settings.staff_permissions.allow_staff_discounts
+                    settings.business.staff_permissions.allow_staff_discounts
                       ? 'translate-x-6'
                       : 'translate-x-1'
                   }`}
@@ -258,19 +258,19 @@ export default function BusinessSettingsTab({
               </div>
               <button
                 onClick={() => handleUpdate('analytics_config', {
-                  ...settings.analytics_config,
-                  enable_analytics: !settings.analytics_config.enable_analytics
+                  ...settings.business.analytics_config,
+                  enable_analytics: !settings.business.analytics_config.enable_analytics
                 })}
                 disabled={isSaving}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  settings.analytics_config.enable_analytics
+                  settings.business.analytics_config.enable_analytics
                     ? 'bg-blue-600'
                     : 'bg-gray-200'
                 }`}
               >
                 <span
                   className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    settings.analytics_config.enable_analytics
+                    settings.business.analytics_config.enable_analytics
                       ? 'translate-x-6'
                       : 'translate-x-1'
                   }`}
@@ -286,9 +286,9 @@ export default function BusinessSettingsTab({
                 type="number"
                 min="1"
                 max="365"
-                value={settings.analytics_config.retention_days}
+                value={settings.business.analytics_config.retention_days}
                 onChange={(e) => handleUpdate('analytics_config', {
-                  ...settings.analytics_config,
+                  ...settings.business.analytics_config,
                   retention_days: parseInt(e.target.value) || 30
                 })}
                 disabled={isSaving}
@@ -308,13 +308,13 @@ export default function BusinessSettingsTab({
                   <label key={role} className="flex items-center">
                     <input
                       type="checkbox"
-                      checked={settings.analytics_config.export_permissions.includes(role as any)}
+                      checked={settings.business.analytics_config.export_permissions.includes(role as any)}
                       onChange={(e) => {
                         const permissions = e.target.checked
-                          ? [...settings.analytics_config.export_permissions, role as any]
-                          : settings.analytics_config.export_permissions.filter(r => r !== role);
+                          ? [...settings.business.analytics_config.export_permissions, role as any]
+                          : settings.business.analytics_config.export_permissions.filter(r => r !== role);
                         handleUpdate('analytics_config', {
-                          ...settings.analytics_config,
+                          ...settings.business.analytics_config,
                           export_permissions: permissions
                         });
                       }}
@@ -341,9 +341,9 @@ export default function BusinessSettingsTab({
               </label>
               <input
                 type="email"
-                value={settings.billing_info.invoice_email}
+                value={settings.business.billing_info.invoice_email}
                 onChange={(e) => handleUpdate('billing_info', {
-                  ...settings.billing_info,
+                  ...settings.business.billing_info,
                   invoice_email: e.target.value
                 })}
                 disabled={isSaving}
@@ -356,9 +356,9 @@ export default function BusinessSettingsTab({
                 Payment Method
               </label>
               <select
-                value={settings.billing_info.payment_method}
+                value={settings.business.billing_info.payment_method}
                 onChange={(e) => handleUpdate('billing_info', {
-                  ...settings.billing_info,
+                  ...settings.business.billing_info,
                   payment_method: e.target.value
                 })}
                 disabled={isSaving}
@@ -379,19 +379,19 @@ export default function BusinessSettingsTab({
               </div>
               <button
                 onClick={() => handleUpdate('billing_info', {
-                  ...settings.billing_info,
-                  tax_exempt: !settings.billing_info.tax_exempt
+                  ...settings.business.billing_info,
+                  tax_exempt: !settings.business.billing_info.tax_exempt
                 })}
                 disabled={isSaving}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  settings.billing_info.tax_exempt
+                  settings.business.billing_info.tax_exempt
                     ? 'bg-blue-600'
                     : 'bg-gray-200'
                 }`}
               >
                 <span
                   className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    settings.billing_info.tax_exempt
+                    settings.business.billing_info.tax_exempt
                       ? 'translate-x-6'
                       : 'translate-x-1'
                   }`}

@@ -72,7 +72,7 @@ export default function PersonalSettingsTab({
               </label>
               <input
                 type="text"
-                value={settings.cashback_preferences.pi_address || ''}
+                value={settings.personal.pi_address || ''}
                 onChange={(e) => handleUpdate('pi_address', e.target.value)}
                 placeholder="Enter your Pi address"
                 disabled={isSaving || editingField === 'pi_address'}
@@ -92,19 +92,19 @@ export default function PersonalSettingsTab({
               </div>
               <button
                 onClick={() => handleUpdate('cashback_preferences', {
-                  ...settings.cashback_preferences,
-                  enable_pi_cashback: !settings.cashback_preferences.enable_pi_cashback
+                  ...settings.personal.cashback_preferences,
+                  enable_pi_cashback: !settings.personal.cashback_preferences.enable_pi_cashback
                 })}
                 disabled={isSaving}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  settings.cashback_preferences.enable_pi_cashback
+                  settings.personal.cashback_preferences.enable_pi_cashback
                     ? 'bg-blue-600'
                     : 'bg-gray-200'
                 }`}
               >
                 <span
                   className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    settings.cashback_preferences.enable_pi_cashback
+                    settings.personal.cashback_preferences.enable_pi_cashback
                       ? 'translate-x-6'
                       : 'translate-x-1'
                   }`}
@@ -121,19 +121,19 @@ export default function PersonalSettingsTab({
               </div>
               <button
                 onClick={() => handleUpdate('cashback_preferences', {
-                  ...settings.cashback_preferences,
-                  enable_mypipos_tokens: !settings.cashback_preferences.enable_mypipos_tokens
+                  ...settings.personal.cashback_preferences,
+                  enable_mypipos_tokens: !settings.personal.cashback_preferences.enable_mypipos_tokens
                 })}
                 disabled={isSaving}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  settings.cashback_preferences.enable_mypipos_tokens
+                  settings.personal.cashback_preferences.enable_mypipos_tokens
                     ? 'bg-blue-600'
                     : 'bg-gray-200'
                 }`}
               >
                 <span
                   className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    settings.cashback_preferences.enable_mypipos_tokens
+                    settings.personal.cashback_preferences.enable_mypipos_tokens
                       ? 'translate-x-6'
                       : 'translate-x-1'
                   }`}
@@ -153,9 +153,9 @@ export default function PersonalSettingsTab({
               Default Payment Method
             </label>
             <select
-              value={settings.payment_preferences.default_payment_method}
+              value={settings.personal.payment_preferences.default_payment_method}
               onChange={(e) => handleUpdate('payment_preferences', {
-                ...settings.payment_preferences,
+                ...settings.personal.payment_preferences,
                 default_payment_method: e.target.value
               })}
               disabled={isSaving}
@@ -183,19 +183,19 @@ export default function PersonalSettingsTab({
               </div>
               <button
                 onClick={() => handleUpdate('notification_preferences', {
-                  ...settings.notification_preferences,
-                  email_notifications: !settings.notification_preferences.email_notifications
+                  ...settings.personal.notification_preferences,
+                  email_notifications: !settings.personal.notification_preferences.email_notifications
                 })}
                 disabled={isSaving}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  settings.notification_preferences.email_notifications
+                  settings.personal.notification_preferences.email_notifications
                     ? 'bg-blue-600'
                     : 'bg-gray-200'
                 }`}
               >
                 <span
                   className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    settings.notification_preferences.email_notifications
+                    settings.personal.notification_preferences.email_notifications
                       ? 'translate-x-6'
                       : 'translate-x-1'
                   }`}
@@ -212,19 +212,19 @@ export default function PersonalSettingsTab({
               </div>
               <button
                 onClick={() => handleUpdate('notification_preferences', {
-                  ...settings.notification_preferences,
-                  promotional_emails: !settings.notification_preferences.promotional_emails
+                  ...settings.personal.notification_preferences,
+                  promotional_emails: !settings.personal.notification_preferences.promotional_emails
                 })}
                 disabled={isSaving}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  settings.notification_preferences.promotional_emails
+                  settings.personal.notification_preferences.promotional_emails
                     ? 'bg-blue-600'
                     : 'bg-gray-200'
                 }`}
               >
                 <span
                   className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    settings.notification_preferences.promotional_emails
+                    settings.personal.notification_preferences.promotional_emails
                       ? 'translate-x-6'
                       : 'translate-x-1'
                   }`}
