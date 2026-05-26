@@ -756,11 +756,13 @@ export default function IMSPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-sm font-bold text-brand-indigo-300 mb-2">Price</label>
+                    <label className="block text-sm font-bold text-brand-indigo-300 mb-2">Price (up to 7 decimals for micro-transactions)</label>
                     <Input
                       type="number"
-                      step="0.01"
+                      step="0.0000001"
+                      min="0"
                       name="price"
+                      placeholder="0.0000007"
                       className="w-full bg-brand-indigo-950/50 border-brand-indigo-700 text-brand-indigo-200 placeholder-brand-indigo-500 focus:border-brand-cyan-500 focus:ring-2 focus:ring-brand-cyan-500/20"
                       required
                     />
