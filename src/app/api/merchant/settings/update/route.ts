@@ -16,14 +16,14 @@ export async function PUT(request: NextRequest) {
   try {
     // Get authenticated user
     const session = await getAuthenticatedUser(request);
-    if (!session?.user?.id) {
+    if (!session?.id) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
       );
     }
 
-    const userId = session.user.id;
+    const userId = session.id;
     const body = await request.json();
     const { field, value } = body;
 
@@ -81,9 +81,9 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     console.error('Error updating business settings:', error);
 
-    if (error.message?.includes('Invalid business settings field')) {
+    if (error instanceof Error && error.message?.includes('Invalid business settings field')) {
       return NextResponse.json(
-        { error: 'Invalid field name', field: body?.field },
+        { error: 'Invalid field name' },
         { status: 400 }
       );
     }
