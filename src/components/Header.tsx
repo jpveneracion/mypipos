@@ -3,6 +3,8 @@
 import { useAuthStore } from '@/lib/store';
 import ContextSwitcher from './ContextSwitcher';
 import { useRouter } from 'next/navigation';
+import { Settings } from 'lucide-react';
+import Link from 'next/link';
 
 interface HeaderProps {
   title?: string;
@@ -41,6 +43,18 @@ export default function Header({ title, subtitle }: HeaderProps) {
 
             {/* Right Side: Context Switcher & User Info */}
             <div className="flex items-center gap-3 md:gap-4">
+              {/* Settings Link */}
+              {isAuthenticated && (
+                <Link
+                  href="/account-settings"
+                  className="flex items-center space-x-1 px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors"
+                  title="Account Settings"
+                >
+                  <Settings className="h-5 w-5" />
+                  <span className="hidden sm:inline">Settings</span>
+                </Link>
+              )}
+
               {/* Context Switcher - only shows if user has merchantId */}
               <ContextSwitcher />
 
