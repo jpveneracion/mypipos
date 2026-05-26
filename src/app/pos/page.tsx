@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { useAuthStore } from '@/lib/store';
 import { useCartStore } from '@/lib/store';
 import { Product } from '@/types';
+import Header from '@/components/Header';
 import BarcodeScanner from '@/components/pos/BarcodeScanner';
 import { Button } from '@/components/ui/Button';
 import { getCurrencySymbol, formatPrice } from '@/lib/currency';
@@ -223,47 +224,8 @@ export default function POSPage() {
         />
       )}
 
-      {/* Premium Header */}
-      <header className="relative z-50 border-b border-brand-indigo-800/50 backdrop-blur-xl bg-brand-indigo-900/30">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              className="flex items-center gap-3"
-            >
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-linear-to-br from-brand-cyan-400 to-brand-cyan-600 shadow-glow">
-                <ShoppingCart className="w-6 h-6 text-brand-dark-950" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-display font-bold bg-linear-to-r from-brand-cyan-400 to-brand-cyan-600 bg-clip-text text-transparent">
-                  POS Terminal
-                </h1>
-                <p className="text-xs text-brand-indigo-400 font-medium">
-                  Point of Sale System
-                </p>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              <Button
-                variant="outline"
-                size="md"
-                onClick={() => router.push('/ims')}
-                className="border-brand-indigo-700 text-brand-indigo-300 hover:bg-brand-indigo-900/50 hover:border-brand-cyan-500 transition-all"
-              >
-                <Box className="mr-2 w-4 h-4" />
-                Inventory
-              </Button>
-            </motion.div>
-          </div>
-        </div>
-      </header>
+      {/* Shared Header */}
+      <Header title="POS Terminal" subtitle="Point of Sale System" />
 
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* Products Section */}

@@ -8,7 +8,59 @@
 
 BEGIN;
 
--- First, update the security function to use pi_wallet_address instead of pi_address
+-- First, copy any data from pi_address to pi_wallet_address for users who have it
+UPDATE users
+SET pi_wallet_address = COALESCE(pi_address, pi_wallet_address)
+WHERE pi_address IS NOT NULL AND pi_wallet_address IS NULL;
+
+-- Update the security function that fetches settings to use pi_wallet_address
+CREATE OR REPLACE FUNCTION get_user_account_settings(p_user_id UUID)
+RETURNS JSONB
+SET search_path = public
+SECURITY DEFINER
+LANGUAGE SQL
+AS $$
+    SELECT jsonb_build_object(
+        'personal', jsonb_build_object(
+            'pi_wallet_address', u.pi_wallet_address,
+            'cashback_preferences', u.cashback_preferences,
+            'payment_preferences', u.payment_preferences,
+            'notification_preferences', u.notification_preferences,
+            'saved_addresses', u.saved_addresses,
+            'purchase_history_settings', u.purchase_history_settings
+        ),
+        'business', CASE
+            WHEN u.merchant_id IS NOT NULL THEN
+                jsonb_build_object(
+                    'payment_methods', m.payment_methods,
+                    'store_hours', m.store_hours,
+                    'store_locations', m.store_locations,
+                    'staff_permissions', m.staff_permissions,
+                    'billing_info', m.billing_info,
+                    'api_keys', m.api_keys,
+                    'analytics_config', m.analytics_config
+                )
+            ELSE NULL
+        END,
+        'user_info', jsonb_build_object(
+            'id', u.id,
+            'username', u.username,
+            'pi_username', u.pi_username,
+            'email', u.email,
+            'first_name', u.first_name,
+            'last_name', u.last_name,
+            'phone', u.phone,
+            'user_type', u.user_type,
+            'role', u.role,
+            'merchant_id', u.merchant_id
+        )
+    )
+    FROM users u
+    LEFT JOIN merchants m ON u.merchant_id = m.id
+    WHERE u.id = p_user_id;
+$$;
+
+-- Update the security function to use pi_wallet_address instead of pi_address
 CREATE OR REPLACE FUNCTION update_personal_settings(
     p_user_id UUID,
     p_settings_field VARCHAR(100),
@@ -64,60 +116,8 @@ BEGIN
 END;
 $$;
 
--- Copy any data from pi_address to pi_wallet_address for users who have it
-UPDATE users
-SET pi_wallet_address = COALESCE(pi_address, pi_wallet_address)
-WHERE pi_address IS NOT NULL AND pi_wallet_address IS NULL;
-
--- Update the security function that fetches settings to use pi_wallet_address
-CREATE OR REPLACE FUNCTION get_user_account_settings(p_user_id UUID)
-RETURNS JSONB
-SET search_path = public
-SECURITY DEFINER
-LANGUAGE SQL
-AS $$
-    SELECT jsonb_build_object(
-        'personal', jsonb_build_object(
-            'pi_wallet_address', u.pi_wallet_address,
-            'cashback_preferences', u.cashback_preferences,
-            'payment_preferences', u.payment_preferences,
-            'notification_preferences', u.notification_preferences,
-            'saved_addresses', u.saved_addresses,
-            'purchase_history_settings', u.purchase_history_settings
-        ),
-        'business', CASE
-            WHEN u.merchant_id IS NOT NULL THEN
-                jsonb_build_object(
-                    'payment_methods', m.payment_methods,
-                    'store_hours', m.store_hours,
-                    'store_locations', m.store_locations,
-                    'staff_permissions', m.staff_permissions,
-                    'billing_info', m.billing_info,
-                    'api_keys', m.api_keys,
-                    'analytics_config', m.analytics_config
-                )
-            ELSE NULL
-        END,
-        'user_info', jsonb_build_object(
-            'id', u.id,
-            'username', u.username,
-            'pi_username', u.pi_username,
-            'email', u.email,
-            'first_name', u.first_name,
-            'last_name', u.last_name,
-            'phone', u.phone,
-            'user_type', u.user_type,
-            'role', u.role,
-            'merchant_id', u.merchant_id
-        )
-    )
-    FROM users u
-    LEFT JOIN merchants m ON u.merchant_id = m.id
-    WHERE u.id = p_user_id;
-$$;
-
--- Now drop the redundant pi_address column
-ALTER TABLE users DROP COLUMN IF EXISTS pi_address;
+-- Now drop the redundant pi_address column with CASCADE to handle dependencies
+ALTER TABLE users DROP COLUMN IF EXISTS pi_address CASCADE;
 
 -- Update the comment on pi_wallet_address to reflect its dual purpose
 COMMENT ON COLUMN users.pi_wallet_address IS 'Pi Network wallet address for receiving A2U payments and cashback rewards';
