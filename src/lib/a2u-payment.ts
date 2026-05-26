@@ -278,10 +278,58 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
       // Handle duplicate payment error
       if (sdkError?.response?.data?.exists === true) {
         console.log('[A2U] Payment already exists, attempting to complete it...');
+        console.log('[A2U] Existing payment data:', JSON.stringify(sdkError.response.data, null, 2));
 
         try {
           const existingPayment = sdkError.response.data.payment;
-          const paymentId = existingPayment?.payment_id || existingPayment?.id;
+          console.log('[A2U] Payment object:', existingPayment);
+          console.log('[A2U] Payment ID candidates:', {
+            payment_id: existingPayment?.payment_id,
+            id: existingPayment?.id,
+            identifier: existingPayment?.identifier
+          });
+
+          const paymentId = existingPayment?.payment_id || existingPayment?.id || existingPayment?.identifier;
+
+          // Check if the existing payment is already completed
+          if (existingPayment?.status === 'completed' || existingPayment?.txid) {
+            console.log('[A2U] Existing payment is already completed:', existingPayment);
+
+            // Update our database record to match
+            await query(
+              `UPDATE a2u_payments SET
+                payment_id = $1,
+                txid = $2,
+                status = 'completed',
+                payment_completed_at = NOW(),
+                completed_at = NOW()
+              WHERE id = $3`,
+              [
+                paymentId,
+                existingPayment?.txid || null,
+                a2uPayment.id
+              ]
+            );
+
+            return {
+              success: true,
+              payment: {
+                id: a2uPayment.id,
+                transactionNumber: a2uPayment.transaction_number,
+                paymentId: paymentId,
+                txid: existingPayment?.txid,
+                amount: a2uPayment.amount,
+                memo: a2uPayment.memo,
+                status: 'completed',
+                toUser: {
+                  id: user.id,
+                  username: user.username,
+                  piUid: user.pi_uid
+                }
+              },
+              message: `Successfully sent ${amount} Pi to ${user.username}!`
+            };
+          }
 
           if (paymentId) {
             console.log('[A2U] Found existing payment ID:', paymentId);
@@ -333,7 +381,26 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
           }
         } catch (completionError: any) {
           console.error('[A2U] Failed to complete existing payment:', completionError);
+          console.error('[A2U] Completion error details:', {
+            message: completionError?.message,
+            response: completionError?.response?.data,
+            status: completionError?.response?.status,
+            stack: completionError?.stack
+          });
+
+          // Return a more specific error message
+          await query(
+            `UPDATE a2u_payments SET status = 'failed', error_message = $1 WHERE id = $2`,
+            [`Payment already exists but could not be completed: ${completionError?.message || 'Unknown error'}`, a2uPayment.id]
+          );
+
+          return {
+            success: false,
+            error: `Payment already exists on Pi Network. Please contact support with transaction ID: ${a2uPayment.transaction_number}`
+          };
         }
+      } else {
+        console.error('[A2U] No payment ID found in existing payment object');
       }
 
       // Update A2U payment as failed
