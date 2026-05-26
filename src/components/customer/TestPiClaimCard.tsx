@@ -73,6 +73,32 @@ export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
     }
   };
 
+  const cancelIncompletePayment = async () => {
+    if (!confirm('Cancel any incomplete A2U payments? This will allow you to try claiming again.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/debug/cancel-incomplete-a2u-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert(data.message);
+        // Refresh claim status after cancellation
+        checkClaimStatus();
+      } else {
+        alert('Failed to cancel: ' + data.error);
+      }
+    } catch (error) {
+      alert('Error cancelling payment: ' + String(error));
+    }
+  };
+
   const handleClaim = async () => {
     let isPaymentInProgress = false;
 
@@ -358,6 +384,14 @@ export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
                   Reset Wrong Payment (Debug)
                 </button>
               )}
+
+              <button
+                onClick={cancelIncompletePayment}
+                className="w-full text-xs bg-orange-600/20 hover:bg-orange-600/30 text-orange-400 px-3 py-2 rounded flex items-center justify-center gap-2"
+              >
+                <RefreshCw className="w-3 h-3" />
+                Cancel Incomplete Payment (Debug)
+              </button>
 
               <div className="bg-brand-indigo-900/20 p-2 rounded text-xs text-brand-indigo-300">
                 <p className="font-bold mb-1">🔗 Debug API:</p>
