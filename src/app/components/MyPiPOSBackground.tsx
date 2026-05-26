@@ -3,14 +3,14 @@
 import { motion } from "framer-motion"
 
 /**
- * myPiPOS Animated Background
+ * myPiPOS Animated Background (Pi Orb Design)
  *
- * Ocean Deep theme animated background.
+ * Original animated background with floating orbs.
  * Features:
  * - Cyan radial gradient
- * - Floating cyan/teal particles
+ * - Floating animated dots (cyan + purple)
  * - Grid pattern for depth
- * - Subtle breathing animation
+ * - Breathing animation
  */
 export default function MyPiPOSBackground() {
   return (
@@ -25,7 +25,7 @@ export default function MyPiPOSBackground() {
         }}
       />
 
-      {/* Cyan glowing core */}
+      {/* Glowing orb */}
       <motion.div
         className="absolute -top-24 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full"
         style={{
@@ -46,32 +46,32 @@ export default function MyPiPOSBackground() {
         }}
       />
 
-      {/* Floating particles */}
+      {/* Floating dots */}
       {[
         { top: "20%", left: "8%", size: 6, color: "#14D3C5", delay: 0 },
-        { top: "60%", left: "5%", size: 4, color: "#25ede1", delay: 1 },
+        { top: "60%", left: "5%", size: 4, color: "#a78bfa", delay: 1 },
         { top: "35%", right: "10%", size: 5, color: "#14D3C5", delay: 2 },
-        { top: "70%", right: "8%", size: 3, color: "#A6F1E0", delay: 1.5 },
+        { top: "70%", right: "8%", size: 3, color: "#a78bfa", delay: 1.5 },
         { top: "85%", left: "25%", size: 4, color: "#14D3C5", delay: 0.5 },
-      ].map((particle, i) => (
+      ].map((orb, i) => (
         <motion.div
           key={i}
           className="absolute rounded-full"
           style={{
-            top: particle.top,
-            left: particle.left,
-            right: particle.right,
-            width: particle.size * 2,
-            height: particle.size * 2,
-            background: particle.color,
-            boxShadow: `0 0 ${particle.size * 4}px ${particle.color}`,
+            top: orb.top,
+            left: orb.left,
+            right: orb.right,
+            width: orb.size * 2,
+            height: orb.size * 2,
+            background: orb.color,
+            boxShadow: `0 0 ${orb.size * 4}px ${orb.color}`,
             opacity: 0.6,
           }}
           animate={{ y: [0, -12, 0], opacity: [0.4, 0.8, 0.4] }}
           transition={{
             duration: 4 + i,
             repeat: Infinity,
-            delay: particle.delay,
+            delay: orb.delay,
             ease: "easeInOut",
           }}
         />

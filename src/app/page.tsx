@@ -2,40 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
 import { useAuthStore } from '@/lib/store';
-import { Button } from '@/components/ui/Button';
+import FeatureSlider from '@/components/ui/FeatureSlider';
 import LoginModal from '@/components/auth/LoginModal';
-import { ArrowRight, Check } from 'lucide-react';
-import { ShoppingBag } from 'lucide-react';
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0 }
-};
-
-interface LoginButtonProps {
-  isLoading: boolean;
-  disabled: boolean;
-  onClick: () => void;
-  className?: string;
-}
-
-function LoginButton({ isLoading, disabled, onClick, className = '' }: LoginButtonProps) {
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className={`px-6 md:px-8 py-3 md:py-4 rounded-xl text-base font-semibold transition-all disabled:opacity-50 flex items-center justify-center gap-2 ${className}`}
-      style={{
-        background: 'linear-gradient(135deg, #14D3C5, #11a79e)',
-        color: '#0D0F16'
-      }}
-    >
-      {isLoading ? 'Connecting to Pi...' : 'Login with Pi'}
-    </button>
-  );
-}
+import { AnimatedLogo } from '@/components/brand/AnimatedLogo';
 
 export default function Home() {
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -45,12 +15,6 @@ export default function Home() {
 
   useEffect(() => {
     if (isAuthenticated && user && !isRouting) {
-      if (!user.onboardingComplete) {
-        setIsRouting(true);
-        router.push('/onboarding');
-        return;
-      }
-
       setIsRouting(true);
 
       if (merchantId) {
@@ -61,196 +25,148 @@ export default function Home() {
     }
   }, [isAuthenticated, user, merchantId, router, isRouting]);
 
-  const handleLogin = async () => {
-    setShowLoginModal(true);
-  };
-
-  const scrollToFlow = () => {
-    document.getElementById('flow')?.scrollIntoView({ behavior: 'smooth' });
+  const handleLoginSuccess = (method: string) => {
+    console.log('Login successful:', method);
   };
 
   return (
-    <div className="relative min-h-[100dvh] bg-[#0D0F16] overflow-hidden pb-[env(safe-area-inset-bottom)]">
+    <div className="min-h-screen flex flex-col bg-transparent">
 
-      {/* Navbar */}
-      <nav className="relative z-20 px-2 sm:px-4 md:px-8 py-8">
-        <div className="w-full max-w-7xl mx-auto flex items-center justify-center">
-          <motion.div
-            initial={{ y: -10, opacity: 0 }}
-            animate={{
-              y: [0, -8, 0],
-              opacity: [0, 1, 1],
-            }}
-            transition={{
-              duration: 0.6,
-              ease: "easeOut"
-            }}
-            className="relative flex justify-center items-center gap-4"
-          >
-            <div className="w-12 h-12 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #14D3C5, #11a79e)' }}>
-              <ShoppingBag className="w-6 h-6 text-[#0D0F16]" />
-            </div>
-          </motion.div>
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      <section className="relative z-10 px-2 sm:px-4 md:px-8 py-12 md:py-24">
-        <div className="w-full max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            {/* Left Content */}
-            <motion.div
-              initial="hidden"
-              animate="show"
-              variants={fadeUp}
-              transition={{ duration: 0.6 }}
-            >
-              <motion.h1
-                initial="hidden"
-                animate="show"
-                variants={fadeUp}
-                transition={{ duration: 0.6, delay: 0.1 }}
-                className="font-display text-2xl md:text-3xl lg:text-4xl font-bold text-white leading-[1.2] mb-6"
-              >
-                Commerce, rebuilt for the{' '}
-                <span className="text-cyan-shimmer">Pi ecosystem.</span>
-              </motion.h1>
-
-              <motion.p
-                initial="hidden"
-                animate="show"
-                variants={fadeUp}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="font-body text-brand-indigo-200 text-base md:text-lg mb-8 leading-relaxed max-w-xl"
-              >
-                Universal commerce network where Pioneers connect once and access every myPiPOS merchant worldwide — no re-registration, ever.
-              </motion.p>
-
-              <motion.div
-                initial="hidden"
-                animate="show"
-                variants={fadeUp}
-                transition={{ duration: 0.6, delay: 0.3 }}
-                className="flex flex-col sm:flex-row items-stretch gap-3 sm:gap-4"
-              >
-                <LoginButton
-                  isLoading={false}
-                  disabled={false}
-                  onClick={handleLogin}
-                />
-                <button
-                  onClick={scrollToFlow}
-                  className="px-6 md:px-8 py-3 md:py-4 rounded-xl text-base font-semibold border border-brand-indigo-700 text-brand-indigo-300 hover:border-brand-indigo-600 hover:text-brand-indigo-200 transition-all"
-                >
-                  View Commerce Process <ArrowRight className="inline ml-1" size={18} />
-                </button>
-              </motion.div>
-            </motion.div>
-
-            {/* Right - Empty/Placeholder */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="hidden lg:block"
-            >
-              {/* Placeholder for future visual element */}
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Status Strip */}
-      <section className="relative z-10 px-2 sm:px-4 md:px-8 py-6 border-y border-brand-indigo-800/50">
-        <div className="w-full max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row items-start justify-start gap-3 md:gap-8">
-            <div className="flex items-center gap-2 text-sm">
-              <span>🚧</span>
-              <span className="text-brand-indigo-300">Multi-merchant commerce features are coming soon.</span>
-            </div>
-            <div className="hidden md:block w-px h-4 bg-brand-indigo-700" />
-            <div className="flex items-center gap-2 text-sm">
-              <span>✅</span>
-              <span className="text-brand-indigo-300">Core universal commerce system is live with secure architecture from day one.</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Current Flow Section */}
-      <section id="flow" className="relative z-10 px-2 sm:px-4 md:px-8 py-16 md:py-24 bg-brand-indigo-900/30">
-        <div className="max-w-6xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="font-display text-xl md:text-2xl font-bold text-white mb-4">
-              Commerce that already works—today.
-            </h2>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {[
-              { step: '1', text: 'Pioneer creates Pi account once' },
-              { step: '2', text: 'Access any myPiPOS merchant' },
-              { step: '3', text: 'Shop with seamless checkout' },
-              { step: '4', text: 'Pay with Pi Network' },
-              { step: '5', text: 'Build universal purchase history' },
-              { step: '6', text: 'Access everywhere, forever' },
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.05 }}
-                className="glass-card p-5"
-              >
-                <span className="inline-block px-3 py-1 rounded-lg text-sm font-bold mb-3" style={{ background: 'linear-gradient(135deg, #14D3C5, #11a79e)', color: '#0D0F16' }}>
-                  {item.step}
-                </span>
-                <p className="font-body text-brand-indigo-200 text-sm leading-relaxed">
-                  {item.text}
+      {/* Splash Screen Content */}
+      <div className="flex-1 flex flex-col">
+        {/* Header */}
+        <header className="py-8 px-6 relative z-20">
+          <div className="max-w-6xl mx-auto flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <AnimatedLogo size={48} />
+              <div>
+                <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#14D3C5] to-[#11a79e]">
+                  myPiPOS
+                </h1>
+                <p className="text-xs text-brand-indigo-300">
+                  Universal Pi Commerce Network 🌍
                 </p>
-              </motion.div>
-            ))}
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowLoginModal(true)}
+              className="glass-card px-6 py-2 rounded-full font-medium transition-all hover:scale-105 text-white"
+            >
+              Login
+            </button>
           </div>
+        </header>
 
-          <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="font-body text-brand-indigo-400 text-sm text-center mt-8"
-          >
-            End-to-end universal commerce flow—fully functional, from day one.
-          </motion.p>
-        </div>
-      </section>
-
-      {/* Footer Line */}
-      <section className="relative z-10 px-2 sm:px-4 md:px-8 py-12 border-t border-brand-indigo-800/50">
-        <div className="max-w-7xl mx-auto">
-          <p className="font-body text-brand-indigo-400 text-sm text-center">
-            Designed with universal commerce in mind from day one.
-          </p>
-
-          <div className="flex flex-col md:flex-row items-center justify-center gap-4 mt-6 text-xs text-brand-indigo-500">
-            <span>© 2026 myPiPOS</span>
-            <span className="hidden md:inline">•</span>
-            <a href="#" className="hover:text-brand-indigo-300 transition-colors">Terms of Service</a>
-            <span className="hidden md:inline">•</span>
-            <a href="#" className="hover:text-brand-indigo-300 transition-colors">Privacy Policy</a>
+        {/* Feature Slider */}
+        <div className="flex-1 flex items-center justify-center px-4 py-8">
+          <div className="w-full max-w-6xl">
+            <FeatureSlider />
           </div>
         </div>
-      </section>
+
+        {/* Bottom CTA Section */}
+        <div className="py-12 px-6">
+          <div className="max-w-6xl mx-auto">
+            {/* Universal Customer Base Banner */}
+            <div className="glass-card rounded-2xl p-8 mb-8 shadow-glass-xl relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#14D3C5]/10 to-[#11a79e]/10"></div>
+              <div className="relative z-10 text-center text-white">
+                <div className="text-6xl mb-4">🌍</div>
+                <h2 className="text-3xl font-bold mb-4">
+                  One Pi Account = Every myPiPOS Merchant
+                </h2>
+                <p className="text-xl mb-6 text-brand-indigo-200">
+                  Pioneers create ONE customer account that works at ALL myPiPOS merchants - no re-registration needed!
+                </p>
+
+                <div className="glass-card rounded-lg p-4 mb-6 max-w-2xl mx-auto">
+                  <p className="text-sm font-semibold mb-2">🎯 How it works:</p>
+                  <p className="text-sm text-brand-indigo-200">
+                    Shop at Merchant A today → Visit Merchant B tomorrow → <strong className="text-white">Same account, no new signup</strong>
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
+                  <div className="glass-card rounded-lg p-4">
+                    <div className="text-3xl font-bold">🥧</div>
+                    <div className="text-sm font-medium">Pioneers connect once</div>
+                  </div>
+                  <div className="glass-card rounded-lg p-4">
+                    <div className="text-3xl font-bold">🏪</div>
+                    <div className="text-sm font-medium">Access all merchants</div>
+                  </div>
+                  <div className="glass-card rounded-lg p-4">
+                    <div className="text-3xl font-bold">🚀</div>
+                    <div className="text-sm font-medium">No new accounts needed</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Main CTA */}
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-white mb-4">
+                Join the Universal Pi Commerce Network
+              </h2>
+              <p className="text-xl text-brand-indigo-200 mb-8">
+                Connect with millions of Pi Pioneers and merchants worldwide
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <button
+                  onClick={() => setShowLoginModal(true)}
+                  className="btn-cyan text-lg font-bold py-4 px-8 rounded-full shadow-glow transform transition hover:scale-105"
+                >
+                  🥧 Get Started with Pi
+                </button>
+
+                <button
+                  onClick={() => setShowLoginModal(true)}
+                  className="glass-card text-white font-bold py-4 px-8 rounded-full text-lg transform transition hover:scale-105 border-2 border-[#14D3C5]/30 hover:border-[#14D3C5]/60"
+                >
+                  🔐 Desktop IMS Login
+                </button>
+              </div>
+            </div>
+
+            {/* Benefits Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-8">
+              <div className="glass-card rounded-lg p-4 text-center">
+                <div className="text-3xl mb-2">⚡</div>
+                <div className="text-sm font-semibold text-white">Instant Setup</div>
+                <div className="text-xs text-brand-indigo-300">Start selling in minutes</div>
+              </div>
+              <div className="glass-card rounded-lg p-4 text-center">
+                <div className="text-3xl mb-2">🔒</div>
+                <div className="text-sm font-semibold text-white">Secure Pi Auth</div>
+                <div className="text-xs text-brand-indigo-300">Blockchain-protected</div>
+              </div>
+              <div className="glass-card rounded-lg p-4 text-center">
+                <div className="text-3xl mb-2">🌐</div>
+                <div className="text-sm font-semibold text-white">Global Network</div>
+                <div className="text-xs text-brand-indigo-300">Millions of Pioneers</div>
+              </div>
+              <div className="glass-card rounded-lg p-4 text-center">
+                <div className="text-3xl mb-2">💰</div>
+                <div className="text-sm font-semibold text-white">Pi Payments</div>
+                <div className="text-xs text-brand-indigo-300">Native cryptocurrency</div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="text-center text-brand-indigo-400 text-sm">
+              <p>© 2026 myPiPOS - Universal Pi Commerce Network</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Login Modal */}
       <LoginModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
-        onLoginSuccess={() => {}}
+        onLoginSuccess={handleLoginSuccess}
       />
     </div>
   );

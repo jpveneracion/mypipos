@@ -153,6 +153,10 @@
     border: 1px solid rgba(166,241,224, 0.1); /* Frosted Aqua @ 10% */
     border-radius: 1.25rem;
     overflow: hidden;
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.3),
+      0 2px 8px rgba(20, 211, 197, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
   }
 
   /* Pi Browser mobile optimization */

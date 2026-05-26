@@ -14,37 +14,37 @@ const features: Feature[] = [
     icon: '🌍',
     title: 'Universal Customer Base',
     description: 'Connect once to access millions of Pi Pioneers worldwide - every myPiPOS merchant shares the same customer network!',
-    color: 'from-primary-500 to-secondary-600'
+    color: 'from-[#14D3C5] to-[#11a79e]'
   },
   {
     icon: '📱',
     title: 'Mobile-First POS',
     description: 'Lightning-fast checkout optimized for smartphones and tablets with touch-friendly interface',
-    color: 'from-primary-500 to-accent-600'
+    color: 'from-[#25ede1] to-[#14D3C5]'
   },
   {
     icon: '🥧',
     title: 'One Login, All Merchants',
     description: 'Pioneers connect their Pi account once and become customers of every myPiPOS merchant instantly',
-    color: 'from-secondary-500 to-primary-600'
+    color: 'from-[#11a79e] to-[#25ede1]'
   },
   {
     icon: '📊',
     title: 'Smart Inventory',
     description: 'Real-time stock tracking with low stock alerts and automated reorder notifications',
-    color: 'from-accent-500 to-error-600'
+    color: 'from-[#14D3C5] to-[#25ede1]'
   },
   {
     icon: '🚀',
     title: 'Instant Market Access',
     description: 'Join myPiPOS and immediately tap into the global Pi Network ecosystem of millions of active users',
-    color: 'from-secondary-500 to-accent-600'
+    color: 'from-[#25ede1] to-[#14D3C5]'
   },
   {
     icon: '⚡',
     title: 'Network Effect Growth',
     description: 'As more merchants join, your customer base grows exponentially - the power of shared Pi Network connectivity',
-    color: 'from-warning-500 to-warning-600'
+    color: 'from-[#14D3C5] to-[#11a79e]'
   }
 ];
 
@@ -89,7 +89,7 @@ export default function FeatureSlider() {
               <h3 className={`text-4xl font-bold mb-4 bg-gradient-to-r ${feature.color} bg-clip-text text-transparent`}>
                 {feature.title}
               </h3>
-              <p className="text-xl text-neutral-700 leading-relaxed">
+              <p className="text-xl text-brand-indigo-200 leading-relaxed">
                 {feature.description}
               </p>
             </div>
@@ -100,7 +100,7 @@ export default function FeatureSlider() {
       {/* Navigation Arrows */}
       <button
         onClick={prevSlide}
-        className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-neutral-800 p-3 rounded-full shadow-soft transition-all hover:scale-110"
+        className="absolute left-4 top-1/2 -translate-y-1/2 glass-card text-white p-3 rounded-full transition-all hover:scale-110 hover:bg-white/20"
         aria-label="Previous feature"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -110,7 +110,7 @@ export default function FeatureSlider() {
 
       <button
         onClick={nextSlide}
-        className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-neutral-800 p-3 rounded-full shadow-soft transition-all hover:scale-110"
+        className="absolute right-4 top-1/2 -translate-y-1/2 glass-card text-white p-3 rounded-full transition-all hover:scale-110 hover:bg-white/20"
         aria-label="Next feature"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -126,8 +126,8 @@ export default function FeatureSlider() {
             onClick={() => setCurrentSlide(index)}
             className={`w-3 h-3 rounded-full transition-all ${
               index === currentSlide
-                ? 'bg-primary-600 w-8'
-                : 'bg-neutral-300 hover:bg-neutral-400'
+                ? 'bg-[#14D3C5] w-8'
+                : 'bg-brand-indigo-600 hover:bg-brand-indigo-500'
             }`}
             aria-label={`Go to slide ${index + 1}`}
           />
