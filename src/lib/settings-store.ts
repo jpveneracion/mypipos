@@ -44,8 +44,8 @@ export const useSettingsStore = create<SettingsStore>()(
           if (!response.ok) {
             throw new Error('Failed to fetch personal settings');
           }
-          const data = await response.json();
-          set({ personalSettings: data, isLoading: false });
+          const result = await response.json();
+          set({ personalSettings: result.data, isLoading: false });
         } catch (error) {
           set({
             isLoading: false,
@@ -63,8 +63,8 @@ export const useSettingsStore = create<SettingsStore>()(
           if (!response.ok) {
             throw new Error('Failed to fetch business settings');
           }
-          const data = await response.json();
-          set({ businessSettings: data, isLoading: false });
+          const result = await response.json();
+          set({ businessSettings: result.data, isLoading: false });
         } catch (error) {
           set({
             isLoading: false,
@@ -94,7 +94,13 @@ export const useSettingsStore = create<SettingsStore>()(
           // Update local state with new value
           set((state) => ({
             personalSettings: state.personalSettings
-              ? { ...state.personalSettings, [field]: value }
+              ? {
+                  ...state.personalSettings,
+                  personal: {
+                    ...state.personalSettings.personal,
+                    [field]: value
+                  }
+                }
               : null,
             isSaving: false,
             saveStatus: 'success'
@@ -131,7 +137,13 @@ export const useSettingsStore = create<SettingsStore>()(
           // Update local state with new value
           set((state) => ({
             businessSettings: state.businessSettings
-              ? { ...state.businessSettings, [field]: value }
+              ? {
+                  ...state.businessSettings,
+                  business: {
+                    ...state.businessSettings.business,
+                    [field]: value
+                  }
+                }
               : null,
             isSaving: false,
             saveStatus: 'success'
