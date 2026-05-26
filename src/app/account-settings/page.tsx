@@ -375,16 +375,115 @@ export default function SimpleSettingsPage() {
         </motion.form>
       )}
 
-      {/* Business Settings (placeholder) */}
+      {/* Business Settings */}
       {activeTab === 'business' && (
         <motion.div
-          className="max-w-4xl mx-auto glass-card p-6"
+          className="max-w-4xl mx-auto"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <p className="text-brand-indigo-400 text-center py-8">
-            Business settings coming soon...
-          </p>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 space-y-6">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Business Settings</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              Configure your merchant business settings and preferences
+            </p>
+
+            {/* Payment Methods */}
+            <div className="border-b pb-6">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Payment Methods</h3>
+              <div className="space-y-3">
+                <label className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <input
+                    type="checkbox"
+                    defaultChecked={true}
+                    className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                  />
+                  <div>
+                    <span className="font-medium text-gray-900 dark:text-white">Pi Network</span>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Accept Pi payments</p>
+                  </div>
+                </label>
+
+                <label className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <input
+                    type="checkbox"
+                    defaultChecked={true}
+                    className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                  />
+                  <div>
+                    <span className="font-medium text-gray-900 dark:text-white">Cash</span>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Accept cash payments</p>
+                  </div>
+                </label>
+
+                <label className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <input
+                    type="checkbox"
+                    defaultChecked={true}
+                    className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                  />
+                  <div>
+                    <span className="font-medium text-gray-900 dark:text-white">Card</span>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Accept card payments</p>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            {/* Store Hours */}
+            <div className="border-b pb-6">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Store Hours</h3>
+              <div className="space-y-2">
+                {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
+                  <div key={day} className="flex items-center justify-between p-2">
+                    <span className="text-gray-700 dark:text-gray-300">{day}</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">9:00 AM - 5:00 PM</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Notifications */}
+            <div className="pb-6">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Notifications</h3>
+              <div className="space-y-3">
+                <label className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <input
+                    type="checkbox"
+                    defaultChecked={true}
+                    className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                  />
+                  <div>
+                    <span className="font-medium text-gray-900 dark:text-white">Email Notifications</span>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Receive business updates via email</p>
+                  </div>
+                </label>
+
+                <label className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <input
+                    type="checkbox"
+                    defaultChecked={false}
+                    className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                  />
+                  <div>
+                    <span className="font-medium text-gray-900 dark:text-white">Sales Reports</span>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Daily sales summary reports</p>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            {/* Save Button */}
+            <div className="flex justify-end pt-4 border-t">
+              <button
+                type="button"
+                className="px-6 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 flex items-center gap-2"
+              >
+                <Save size={16} />
+                Save Business Settings
+              </button>
+            </div>
+          </div>
         </motion.div>
       )}
     </div>
