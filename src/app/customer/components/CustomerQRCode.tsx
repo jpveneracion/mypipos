@@ -121,7 +121,7 @@ export default function CustomerQRCode({ user }: CustomerQRCodeProps) {
               <img
                 src={qrCodeUrl}
                 alt="Payment QR Code"
-                className="relative w-72 h-72 bg-white rounded-2xl shadow-glass border-2 border-[#14D3C5]/30 group-hover:scale-105 transition-transform duration-300"
+                className="relative w-72 h-72 bg-brand-indigo-900/30 rounded-2xl shadow-glass border-2 border-[#14D3C5]/30 group-hover:scale-105 transition-transform duration-300"
               />
             </div>
           )}

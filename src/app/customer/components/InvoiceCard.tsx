@@ -194,7 +194,7 @@ export default function InvoiceCard({ invoice, merchantName, onPaymentInitiated 
                   px-6 py-3 font-semibold rounded-lg shadow-glow hover:shadow-glass-lg
                   transition-all duration-200 flex items-center gap-2
                   ${isProcessingPayment
-                    ? 'bg-gray-600 cursor-not-allowed'
+                    ? 'bg-brand-indigo-800 cursor-not-allowed'
                     : 'btn-cyan text-white'
                   }
                 `}
@@ -219,7 +219,7 @@ export default function InvoiceCard({ invoice, merchantName, onPaymentInitiated 
                   px-6 py-3 font-semibold rounded-lg shadow-glow hover:shadow-glass-lg
                   transition-all duration-200 flex items-center gap-2
                   ${isProcessingPayment
-                    ? 'bg-gray-600 cursor-not-allowed'
+                    ? 'bg-brand-indigo-800 cursor-not-allowed'
                     : 'bg-red-500 hover:bg-red-600 text-white'
                   }
                 `}
