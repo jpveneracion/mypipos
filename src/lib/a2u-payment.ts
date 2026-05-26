@@ -1,9 +1,30 @@
 /**
  * A2U Payment Library
- * Shared logic for processing A2U (App-to-User) payments
+ * Uses pi-backend SDK for proper A2U (App-to-User) payments
  */
 
 import { query } from '@/lib/db';
+
+// Dynamic import for pi-backend (only available server-side)
+let PiNetworkClass: any = null;
+
+async function getPiNetworkClass() {
+  if (PiNetworkClass) return PiNetworkClass;
+
+  try {
+    if (typeof window !== 'undefined') {
+      throw new Error('pi-backend can only be used server-side');
+    }
+
+    const piBackend = await import('pi-backend');
+    // Handle both default export and named export
+    PiNetworkClass = (piBackend as any).default || piBackend;
+    return PiNetworkClass;
+  } catch (error) {
+    console.error('[A2U] Failed to import pi-backend:', error);
+    throw new Error('pi-backend package not available. Install it with: npm install pi-backend');
+  }
+}
 
 export interface A2UPaymentRequest {
   uid: string;
@@ -67,18 +88,6 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
       };
     }
 
-    // Get API credentials
-    const apiKey = process.env.PI_API_KEY;
-    const apiWalletAddress = process.env.PI_WALLET_ADDRESS;
-    const piApiUrl = process.env.PI_API_URL || 'https://api.minepi.com/v2';
-
-    if (!apiKey) {
-      return {
-        success: false,
-        error: 'Pi Network API key not configured'
-      };
-    }
-
     // Step 1: Create A2U payment record in database
     const transactionNumber = `A2U-${Date.now()}-${Math.random().toString(36).substring(2, 10)}`;
 
@@ -103,9 +112,9 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
       ) RETURNING *`,
       [
         transactionNumber,
-        '', // Will be set after Pi API call
+        '', // Will be set after Pi SDK call
         user.id,
-        'customer', // Default to customer
+        'customer',
         user.username,
         user.pi_uid,
         amount,
@@ -114,7 +123,7 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
         JSON.stringify(metadata),
         'pending',
         'Pi Testnet',
-        apiWalletAddress,
+        'Pi Platform Wallet', // Using SDK handles wallet address
         user.pi_wallet_address
       ]
     );
@@ -123,117 +132,104 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
 
     console.log(`[A2U] Created A2U payment record:`, a2uPayment.transaction_number);
 
-    // Step 2: Create payment on Pi Network
-    console.log(`[A2U] Creating payment on Pi Network...`);
+    // Step 2: Use pi-backend SDK for A2U payment
+    console.log(`[A2U] Using pi-backend SDK for A2U payment...`);
 
-    const piPaymentData = {
-      amount: amount.toFixed(7),
-      memo: memo,
-      uid: user.pi_uid,  // CRITICAL: For A2U, specify recipient's Pi UID
-      metadata: {
-        transaction_id: transactionNumber,
-        user_id: user.id,
-        ...metadata
+    try {
+      const PiNetwork = await getPiNetworkClass();
+
+      // Get API credentials
+      const apiKey = process.env.PI_API_KEY;
+      const walletSeed = process.env.PI_WALLET_PRIVATE_SEED;
+
+      if (!apiKey || !walletSeed) {
+        throw new Error('Pi Network credentials not configured (PI_API_KEY, PI_WALLET_PRIVATE_SEED)');
       }
-    };
 
-    const piApiResponse = await fetch(`${piApiUrl}/payments`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Key ${apiKey}`,
-      },
-      body: JSON.stringify(piPaymentData)
-    });
+      console.log('[A2U] Initializing Pi SDK with credentials...');
+      const pi = new PiNetwork(apiKey, walletSeed);
+      console.log('[A2U] Pi SDK initialized');
 
-    if (!piApiResponse.ok) {
-      const errorText = await piApiResponse.text();
-      console.error(`[A2U] Pi API error:`, errorText);
+      // Step 2a: Create payment using SDK
+      console.log('[A2U] Step 1: Creating A2U payment...');
+      const paymentArgs = {
+        amount: amount.toFixed(7),
+        memo: memo,
+        uid: user.pi_uid,  // CRITICAL: Recipient's Pi UID
+        metadata: {
+          transaction_id: transactionNumber,
+          user_id: user.id,
+          ...metadata
+        }
+      };
+
+      console.log('[A2U] Payment args:', {
+        amount: paymentArgs.amount,
+        memo: paymentArgs.memo,
+        uid: paymentArgs.uid,
+        hasUid: !!paymentArgs.uid
+      });
+
+      const paymentId = await pi.createPayment(paymentArgs);
+      console.log('[A2U] ✅ Payment created with ID:', paymentId);
+
+      // Step 2b: Submit payment to blockchain
+      console.log('[A2U] Step 2: Submitting to blockchain...');
+      const txid = await pi.submitPayment(paymentId);
+      console.log('[A2U] ✅ Payment submitted with TXID:', txid);
+
+      // Step 2c: Complete payment
+      console.log('[A2U] Step 3: Completing payment...');
+      const completedPayment = await pi.completePayment(paymentId, txid);
+      console.log('[A2U] ✅ Payment completed:', completedPayment.status);
+
+      // Step 3: Update A2U payment record
+      await query(
+        `UPDATE a2u_payments SET
+          payment_id = $1,
+          txid = $2,
+          status = 'completed',
+          payment_completed_at = NOW(),
+          completed_at = NOW()
+        WHERE id = $3`,
+        [paymentId, txid, a2uPayment.id]
+      );
+
+      console.log(`[A2U] ✅ A2U payment completed successfully!`);
+
+      return {
+        success: true,
+        payment: {
+          id: a2uPayment.id,
+          transactionNumber: a2uPayment.transaction_number,
+          paymentId: paymentId,
+          txid: txid,
+          amount: a2uPayment.amount,
+          memo: a2uPayment.memo,
+          status: 'completed',
+          toUser: {
+            id: user.id,
+            username: user.username,
+            piUid: user.pi_uid
+          }
+        },
+        message: `Successfully sent ${amount} Pi to ${user.username}!`
+      };
+
+    } catch (sdkError) {
+      console.error('[A2U] Pi SDK error:', sdkError);
 
       // Update A2U payment as failed
       await query(
         `UPDATE a2u_payments SET status = 'failed', error_message = $1 WHERE id = $2`,
-        [errorText, a2uPayment.id]
+        [(sdkError as Error).message, a2uPayment.id]
       );
 
       return {
         success: false,
-        error: `Failed to create payment on Pi Network: ${errorText}`
+        error: `Pi Network SDK error: ${(sdkError as Error).message}`
       };
     }
-
-    const piApiResult = await piApiResponse.json();
-    console.log(`[A2U] Pi Network payment created:`, piApiResult);
-
-    // Step 3: Update A2U payment with Pi Network payment ID
-    await query(
-      `UPDATE a2u_payments SET
-        payment_id = $1,
-        status = 'creating'
-      WHERE id = $2`,
-      [piApiResult.payment_id || piApiResult.identifier, a2uPayment.id]
-    );
-
-    // Step 4: Submit payment to blockchain
-    console.log(`[A2U] Submitting payment to blockchain...`);
-
-    const submitResponse = await fetch(`${piApiUrl}/payments/${piApiResult.payment_id || piApiResult.identifier}/submit`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Key ${apiKey}`,
-      }
-    });
-
-    if (!submitResponse.ok) {
-      const errorText = await submitResponse.text();
-      console.error(`[A2U] Submit error:`, errorText);
-
-      await query(
-        `UPDATE a2u_payments SET status = 'failed', error_message = $1 WHERE id = $2`,
-        [`Submit failed: ${errorText}`, a2uPayment.id]
-      );
-
-      return {
-        success: false,
-        error: `Failed to submit payment: ${errorText}`
-      };
-    }
-
-    const submitResult = await submitResponse.json();
-    console.log(`[A2U] Payment submitted to blockchain:`, submitResult);
-
-    // Step 5: Update A2U payment as completed
-    await query(
-      `UPDATE a2u_payments SET
-        status = 'completed',
-        txid = $1,
-        payment_completed_at = NOW(),
-        completed_at = NOW()
-      WHERE id = $2`,
-      [submitResult.txid, a2uPayment.id]
-    );
-
-    console.log(`[A2U] ✅ A2U payment completed successfully!`);
-
-    return {
-      success: true,
-      payment: {
-        id: a2uPayment.id,
-        transactionNumber: a2uPayment.transaction_number,
-        paymentId: piApiResult.payment_id || piApiResult.identifier,
-        txid: submitResult.txid,
-        amount: a2uPayment.amount,
-        memo: a2uPayment.memo,
-        status: 'completed',
-        toUser: {
-          id: user.id,
-          username: user.username,
-          piUid: user.pi_uid
-        }
-      },
-      message: `Successfully sent ${amount} Pi to ${user.username}!`
-    };
 
   } catch (error) {
     console.error('[A2U] Error:', error);
