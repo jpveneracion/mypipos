@@ -24,11 +24,21 @@ export default function ContextSwitcher({ className = '' }: ContextSwitcherProps
 
     setContext(newContext);
 
-    // Redirect based on context
+    // Smart routing - stay on current page if possible, redirect only if needed
+    const currentPath = window.location.pathname;
+
     if (newContext === 'merchant') {
-      router.push('/mode-selection');
+      // If currently on a customer-only page, go to merchant home
+      if (currentPath === '/customer') {
+        router.push('/mode-selection');
+      }
+      // Otherwise stay on current page (it might work for both contexts)
     } else {
-      router.push('/customer');
+      // If switching to customer
+      if (currentPath.startsWith('/pos') || currentPath.startsWith('/ims') || currentPath === '/mode-selection') {
+        router.push('/customer');
+      }
+      // Otherwise stay on current page
     }
 
     setIsOpen(false);
