@@ -53,6 +53,7 @@ export default function POSPage() {
     id: string;
     name?: string;
     piUsername?: string;
+    invoiceId?: string; // Store draft invoice ID for adding items
   } | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
@@ -169,7 +170,13 @@ export default function POSPage() {
       addDebug(`Scanner mode: ${scannerMode}`);
       addDebug(`Products available: ${products.length}`);
       addDebug(`Selected customer: ${selectedCustomer?.name || 'None'}`);
-      addDebug(`Scanner show state: ${showScanner}`);
+      addDebug(`Customer invoice ID: ${selectedCustomer?.invoiceId || 'None'}`);
+
+      if (!selectedCustomer?.invoiceId) {
+        const errorMsg = 'Please scan a customer QR code first before scanning items.';
+        addDebug(`No customer selected: ${errorMsg}`);
+        throw new Error(errorMsg);
+      }
 
       setActionError(null);
       setIsProcessing(true);
@@ -178,16 +185,48 @@ export default function POSPage() {
       addDebug(`Found product: ${product ? product.name : 'NOT FOUND'}`);
 
       if (product) {
-        // Product exists - add to cart
-        addDebug(`Adding product to cart: ${product.name}`);
-        addItem(product);
-        addDebug('Product added, closing scanner');
-        setShowScanner(false);
-        addDebug('Scanner closed, state should be false');
+        // Product exists - add to customer's draft invoice via API
+        addDebug(`Adding product to invoice: ${product.name}`);
+        addDebug(`Calling scan-item API with invoiceId: ${selectedCustomer.invoiceId}`);
+
+        const response = await fetch('/api/pos/scan-item', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            invoiceId: selectedCustomer.invoiceId,
+            productId: product.id,
+            productName: product.name,
+            quantity: 1,
+            price: product.price,
+            merchantId: merchantId
+          })
+        });
+
+        const data = await response.json();
+        addDebug(`API response: ${JSON.stringify(data)}`);
+
+        if (data.success) {
+          addDebug(`✅ Item added to invoice successfully`);
+          addDebug(`Message: ${data.message}`);
+          setShowScanner(false);
+
+          // Show success message
+          alert(`✅ ${data.message}`);
+
+          // Also add to local cart for display purposes
+          addItem(product);
+          addDebug('Item added to local cart for display');
+        } else {
+          const errorMsg = `Failed to add item to invoice: ${data.error || 'Unknown error'}`;
+          addDebug(`API error: ${errorMsg}`);
+          throw new Error(errorMsg);
+        }
       } else {
         // Product doesn't exist - show error
         const errorMsg = `Product with barcode "${barcode}" not found in your inventory.\n\nPlease scan a valid product barcode.`;
-        addDebug(`Product not found, throwing error: ${errorMsg}`);
+        addDebug(`Product not found: ${errorMsg}`);
         throw new Error(errorMsg);
       }
     } catch (error) {
@@ -200,40 +239,66 @@ export default function POSPage() {
       setIsProcessing(false);
       addDebug('=== BARCODE SCAN END ===');
     }
-  }, [products, addItem, scannerMode, selectedCustomer, showScanner, addDebug]); // Dependencies for useCallback
+  }, [products, addItem, scannerMode, selectedCustomer, merchantId, addDebug]); // Dependencies for useCallback
 
   const handleCustomerQRScanned = useCallback(async (customerData: string) => {
     try {
       addDebug('=== CUSTOMER QR SCAN START ===');
       addDebug(`Customer data scanned: ${customerData}`);
       addDebug(`Scanner mode: ${scannerMode}`);
+      addDebug(`Calling backend API to validate customer...`);
 
       setActionError(null);
       setIsProcessing(true);
 
-      const mockCustomer = {
-        id: customerData,
-        name: customerData.includes('@') ? customerData.split('@')[0] : 'Customer',
-        piUsername: customerData.includes('@') ? customerData : `@${customerData}`,
-      };
+      // Call backend API to validate customer and create draft invoice
+      const response = await fetch('/api/pos/scan-customer-qr', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          customerPiUid: customerData,
+          merchantId: merchantId,
+          registerId: 'pos-terminal-1'
+        })
+      });
 
-      addDebug(`Created mock customer: ${mockCustomer.name}`);
-      setSelectedCustomer(mockCustomer);
-      addDebug('Customer set, closing scanner');
-      setShowScanner(false);
-      addDebug('Scanner closed');
+      const data = await response.json();
+      addDebug(`API response received: ${JSON.stringify(data)}`);
 
-      alert(`Customer identified: ${mockCustomer.name}`);
-      addDebug('=== CUSTOMER QR SCAN END ===');
+      if (data.success) {
+        // Valid customer - link to draft invoice
+        addDebug(`Valid customer found: ${data.invoice.customer.username}`);
+        const validCustomer = {
+          id: data.invoice.customer.id,
+          name: data.invoice.customer.name,
+          piUsername: data.invoice.customer.pi_uid,
+          invoiceId: data.invoice.id // Store the draft invoice ID for adding items
+        };
+
+        setSelectedCustomer(validCustomer);
+        addDebug(`Customer linked to draft invoice: ${data.invoice.id}`);
+        setShowScanner(false);
+        addDebug('Scanner closed');
+
+        alert(`Customer identified: ${validCustomer.name}`);
+        addDebug('=== CUSTOMER QR SCAN END ===');
+      } else {
+        // Invalid customer or API error
+        addDebug(`Customer validation failed: ${data.error}`);
+        throw new Error(data.error || 'Customer not found. Please scan a valid Pi Network QR code.');
+      }
     } catch (error) {
       addDebug('=== CUSTOMER SCAN ERROR ===');
       addDebug(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
       const errorMessage = error instanceof Error ? error.message : 'Failed to identify customer';
       setActionError(errorMessage);
+      // Don't close scanner on error - let them try again
     } finally {
       setIsProcessing(false);
     }
-  }, [scannerMode, addDebug]); // Dependencies for useCallback
+  }, [scannerMode, merchantId, addDebug]); // Dependencies for useCallback
 
   // Memoized scanner handlers to prevent remounting (defined after main handlers to avoid circular dependencies)
   const handleScannerScan = useCallback((barcode: string) => {
