@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { AlertCircle, RefreshCw, Home } from 'lucide-react';
 
 export default function Error({
@@ -10,6 +10,8 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const [storedError, setStoredError] = useState<any>(null);
+
   useEffect(() => {
     // Log the entire error object for debugging
     console.error('=== APPLICATION ERROR ===');
@@ -18,14 +20,37 @@ export default function Error({
     console.error('Error stack:', error.stack);
     console.error('Error digest:', error.digest);
     console.error('Full error object:', error);
-    console.error('Error keys:', Object.keys(error));
+    console.error('Error keys:', error ? Object.keys(error) : 'No error object');
     console.error('========================');
+
+    // Try to get more detailed error info from sessionStorage
+    try {
+      const lastError = sessionStorage.getItem('lastError');
+      const lastRejection = sessionStorage.getItem('lastRejection');
+
+      if (lastError) {
+        console.log('Found stored error:', lastError);
+        setStoredError(JSON.parse(lastError));
+      }
+      if (lastRejection) {
+        console.log('Found stored rejection:', lastRejection);
+        if (!storedError) {
+          setStoredError(JSON.parse(lastRejection));
+        }
+      }
+
+      // Clear stored errors after reading
+      sessionStorage.removeItem('lastError');
+      sessionStorage.removeItem('lastRejection');
+    } catch (e) {
+      console.error('Failed to read stored error info:', e);
+    }
   }, [error]);
 
   // Extract all possible error information with fallbacks
-  const errorName = error?.name || 'Unknown Error';
-  const errorMessage = error?.message || 'An unexpected error occurred';
-  const errorStack = error?.stack || '';
+  const errorName = storedError?.type || error?.name || 'Unknown Error';
+  const errorMessage = storedError?.message || error?.message || 'An unexpected error occurred';
+  const errorStack = storedError?.stack || error?.stack || '';
   const errorDigest = error?.digest;
 
   // Get all error properties for debugging
@@ -35,6 +60,7 @@ export default function Error({
   // Log for debugging
   console.log('=== ERROR RENDER DEBUG ===');
   console.log('Error object:', error);
+  console.log('Stored error:', storedError);
   console.log('Error name:', errorName);
   console.log('Error message:', errorMessage);
   console.log('Error keys:', errorKeys);
@@ -62,6 +88,11 @@ export default function Error({
           <p className="text-brand-magenta-400 text-sm font-mono break-words">
             {errorMessage}
           </p>
+          {storedError?.filename && (
+            <p className="text-brand-indigo-500 text-xs mt-2">
+              File: {storedError.filename}:{storedError.lineno}:{storedError.colno}
+            </p>
+          )}
           {errorDigest && (
             <p className="text-brand-indigo-500 text-xs mt-2">
               Error ID: {errorDigest}
@@ -88,6 +119,12 @@ export default function Error({
                     <p className="text-brand-cyan-400 text-xs font-semibold mb-1">message:</p>
                     <p className="text-brand-indigo-400 text-xs font-mono break-words">{errorMessage}</p>
                   </div>
+                  {storedError?.filename && (
+                    <div className="bg-brand-indigo-900/50 rounded p-2">
+                      <p className="text-brand-cyan-400 text-xs font-semibold mb-1">location:</p>
+                      <p className="text-brand-indigo-400 text-xs font-mono break-words">{storedError.filename}:{storedError.lineno}:{storedError.colno}</p>
+                    </div>
+                  )}
                   {errorDigest && (
                     <div className="bg-brand-indigo-900/50 rounded p-2">
                       <p className="text-brand-cyan-400 text-xs font-semibold mb-1">digest:</p>
@@ -96,7 +133,7 @@ export default function Error({
                   )}
                   <div className="bg-brand-indigo-900/50 rounded p-2">
                     <p className="text-brand-cyan-400 text-xs font-semibold mb-1">All Keys ({errorKeys.length}):</p>
-                    <p className="text-brand-indigo-400 text-xs font-mono break-words">{errorKeys.join(', ')}</p>
+                    <p className="text-brand-indigo-400 text-xs font-mono break-words">{errorKeys.join(', ') || 'No keys found'}</p>
                   </div>
                 </div>
               </div>

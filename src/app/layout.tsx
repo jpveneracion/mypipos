@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Script from 'next/script';
 import MyPiPOSBackground from "./components/MyPiPOSBackground";
+import GlobalErrorHandlers from "@/components/GlobalErrorHandlers";
 import { DM_Sans, JetBrains_Mono, Playfair_Display } from 'next/font/google';
 
 const dmSans = DM_Sans({
@@ -39,6 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="browser-mode" content="application" />
       </head>
       <body suppressHydrationWarning>
+        <GlobalErrorHandlers />
         <div className="fixed inset-0" />
         <MyPiPOSBackground />
         <div className="relative z-10 pb-[env(safe-area-inset-bottom)]">{children}</div>
