@@ -60,6 +60,7 @@ export default function IMSPage() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [currentIpfsHash, setCurrentIpfsHash] = useState<string>('');
+  const [newProductIpfsHash, setNewProductIpfsHash] = useState<string>('');
   const [scanningBarcode, setScanningBarcode] = useState(false);
   const [scannedBarcode, setScannedBarcode] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
@@ -213,6 +214,7 @@ export default function IMSPage() {
           minStock: parseInt(formData.minStock),
           category: formData.category || undefined,
           description: formData.description || undefined,
+          ipfs_hash: newProductIpfsHash || undefined,
         }),
       });
 
@@ -221,6 +223,7 @@ export default function IMSPage() {
       if (data.success) {
         setShowAddModal(false);
         setScannedBarcode('');
+        setNewProductIpfsHash('');
         loadProducts();
       } else {
         setError(data.error || 'Failed to create product');
@@ -266,6 +269,10 @@ export default function IMSPage() {
 
   const handlePhotoUploadSuccess = (ipfsHash: string) => {
     setCurrentIpfsHash(ipfsHash);
+  };
+
+  const handleNewProductPhotoUploadSuccess = (ipfsHash: string) => {
+    setNewProductIpfsHash(ipfsHash);
   };
 
   const handleUpdateProduct = async (formData: {
@@ -766,6 +773,7 @@ export default function IMSPage() {
                   onClick={() => {
                     setShowAddModal(false);
                     setScannedBarcode('');
+                    setNewProductIpfsHash('');
                   }}
                   className="text-brand-dark-950/80 hover:text-brand-dark-950 text-lg md:text-xl font-bold"
                 >
@@ -962,6 +970,15 @@ export default function IMSPage() {
                   />
                 </div>
 
+                <div>
+                  <label className="block text-sm font-bold text-brand-indigo-300 mb-2">Product Photo</label>
+                  <ProductPhotoUpload
+                    merchantId={merchantId || ''}
+                    onUploadSuccess={handleNewProductPhotoUploadSuccess}
+                    disabled={isSubmitting}
+                  />
+                </div>
+
                 <div className="flex gap-3 pt-4">
                   <Button
                     type="button"
@@ -970,6 +987,7 @@ export default function IMSPage() {
                     onClick={() => {
                       setShowAddModal(false);
                       setScannedBarcode('');
+                      setNewProductIpfsHash('');
                       setError(null);
                     }}
                     className="flex-1 border-brand-indigo-700 text-brand-indigo-400 hover:bg-brand-indigo-900/50"
