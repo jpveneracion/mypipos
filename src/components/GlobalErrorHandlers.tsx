@@ -6,14 +6,19 @@ export default function GlobalErrorHandlers() {
   useEffect(() => {
     // Handle unhandled errors
     const handleError = (event: ErrorEvent) => {
-      console.error('=== GLOBAL ERROR HANDLER ===');
+      console.error('╔══════════════════════════════════════╗');
+      console.error('║   GLOBAL ERROR HANDLER TRIGGERED    ║');
+      console.error('╚══════════════════════════════════════╝');
       console.error('Error message:', event.message);
       console.error('Error filename:', event.filename);
       console.error('Error line:', event.lineno);
       console.error('Error column:', event.colno);
       console.error('Error object:', event.error);
       console.error('Event type:', event.type);
-      console.error('============================');
+      console.error('Timestamp:', new Date().toISOString());
+      console.error('╔══════════════════════════════════════╗');
+      console.error('║       END GLOBAL ERROR LOG          ║');
+      console.error('╚══════════════════════════════════════╝');
 
       // Store error info in sessionStorage for the error page to display
       try {
@@ -33,11 +38,16 @@ export default function GlobalErrorHandlers() {
 
     // Handle unhandled promise rejections
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      console.error('=== UNHANDLED PROMISE REJECTION ===');
+      console.error('╔══════════════════════════════════════╗');
+      console.error('║  UNHANDLED PROMISE REJECTION        ║');
+      console.error('╚══════════════════════════════════════╝');
       console.error('Reason:', event.reason);
       console.error('Promise:', event.promise);
       console.error('Event type:', event.type);
-      console.error('====================================');
+      console.error('Timestamp:', new Date().toISOString());
+      console.error('╔══════════════════════════════════════╗');
+      console.error('║       END PROMISE REJECTION LOG     ║');
+      console.error('╚══════════════════════════════════════╝');
 
       // Store rejection info
       try {

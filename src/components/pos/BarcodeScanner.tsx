@@ -77,11 +77,17 @@ export default function BarcodeScanner({ onScan, onClose, mode = 'product' }: Ba
             { facingMode: "environment" },
             config,
             (decodedText: string) => {
+              console.log('=== BARCODE SCANNER SUCCESS CALLBACK ===');
+              console.log('Decoded text:', decodedText);
+              console.log('About to call onScan callback...');
+              console.log('Scanner state before callback:', { scanning, scannerInitialized });
               onScan(decodedText);
+              console.log('onScan callback completed');
               stopScanner();
               setScanning(false);
               setError(null);
               setCameraFailed(false);
+              console.log('Scanner cleanup completed');
             },
             () => {}
           );
@@ -263,15 +269,23 @@ export default function BarcodeScanner({ onScan, onClose, mode = 'product' }: Ba
   }
 
   async function handleFileSelect(event: React.ChangeEvent<HTMLInputElement>) {
+    console.log('=== FILE SELECT HANDLER ===');
     const file = event.target.files?.[0];
+    console.log('File selected:', file ? file.name : 'No file');
     if (!file) return;
 
     try {
+      console.log('Starting file scan...');
       const html5QrCode = new Html5Qrcode("file-scanner-" + Date.now());
       const decodedText = await html5QrCode.scanFile(file, true);
+      console.log('File scan result:', decodedText);
+      console.log('About to call onScan callback...');
       onScan(decodedText);
+      console.log('onScan callback completed, calling onClose...');
       onClose();
+      console.log('File select handler completed');
     } catch (err) {
+      console.error('=== FILE SCAN ERROR ===');
       console.error('Error scanning file:', err);
       alert('Failed to scan barcode from image. Please ensure the barcode is clearly visible and try again.');
     }

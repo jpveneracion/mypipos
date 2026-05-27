@@ -150,37 +150,56 @@ export default function POSPage() {
 
   const handleBarcodeScanned = async (barcode: string) => {
     try {
+      console.log('=== BARCODE SCAN START ===');
+      console.log('Barcode scanned:', barcode);
+      console.log('Current scanner mode:', scannerMode);
+      console.log('Current products:', products.length);
+      console.log('Selected customer:', selectedCustomer);
+      console.log('Scanner show state:', showScanner);
+
       setActionError(null);
       setIsProcessing(true);
 
-      console.log('Processing barcode scan:', barcode);
-
       const product = products.find(p => p.barcode === barcode);
+      console.log('Found product:', product ? product.name : 'NOT FOUND');
 
       if (product) {
         // Product exists - add to cart
+        console.log('Adding product to cart:', product.name);
         addItem(product);
+        console.log('Product added, closing scanner');
         setShowScanner(false);
+        console.log('Scanner closed, state should be false');
       } else {
         // Product doesn't exist - show error
-        throw new Error(`Product with barcode "${barcode}" not found in your inventory.\n\nPlease scan a valid product barcode.`);
+        const errorMsg = `Product with barcode "${barcode}" not found in your inventory.\n\nPlease scan a valid product barcode.`;
+        console.error('Product not found, throwing error');
+        throw new Error(errorMsg);
       }
     } catch (error) {
-      console.error('Barcode scan error:', error);
+      console.error('=== BARCODE SCAN ERROR ===');
+      console.error('Error object:', error);
+      console.error('Error message:', error instanceof Error ? error.message : 'Unknown error');
+      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack');
+      console.error('========================');
+
       const errorMessage = error instanceof Error ? error.message : 'Failed to process barcode scan';
       setActionError(errorMessage);
       // Don't close the scanner on error - let merchant try again
     } finally {
       setIsProcessing(false);
+      console.log('=== BARCODE SCAN END ===');
     }
   };
 
   const handleCustomerQRScanned = async (customerData: string) => {
     try {
+      console.log('=== CUSTOMER QR SCAN START ===');
+      console.log('Customer data scanned:', customerData);
+      console.log('Current scanner mode:', scannerMode);
+
       setActionError(null);
       setIsProcessing(true);
-
-      console.log('Scanned customer data:', customerData);
 
       const mockCustomer = {
         id: customerData,
@@ -188,11 +207,20 @@ export default function POSPage() {
         piUsername: customerData.includes('@') ? customerData : `@${customerData}`,
       };
 
+      console.log('Created mock customer:', mockCustomer);
       setSelectedCustomer(mockCustomer);
+      console.log('Customer set, closing scanner');
       setShowScanner(false);
+      console.log('Scanner closed');
+
       alert(`Customer identified: ${mockCustomer.name}`);
+      console.log('=== CUSTOMER QR SCAN END ===');
     } catch (error) {
-      console.error('Customer scan error:', error);
+      console.error('=== CUSTOMER SCAN ERROR ===');
+      console.error('Error object:', error);
+      console.error('Error message:', error instanceof Error ? error.message : 'Unknown error');
+      console.error('============================');
+
       const errorMessage = error instanceof Error ? error.message : 'Failed to identify customer';
       setActionError(errorMessage);
     } finally {
@@ -242,15 +270,29 @@ export default function POSPage() {
       {/* Scanner Modal */}
       {showScanner && (
         <>
+          {console.log('=== RENDERING SCANNER MODAL ===', { showScanner, scannerMode, isProcessing })}
           <BarcodeScanner
             onScan={(barcode) => {
+              console.log('=== BARCODE SCANNER ON SCAN CALLED ===');
+              console.log('Barcode from scanner:', barcode);
+              console.log('Scanner mode:', scannerMode);
+              console.log('About to call handler...');
+
               if (scannerMode === 'product') {
+                console.log('Calling handleBarcodeScanned');
                 handleBarcodeScanned(barcode);
               } else {
+                console.log('Calling handleCustomerQRScanned');
                 handleCustomerQRScanned(barcode);
               }
+
+              console.log('Handler call completed');
             }}
-            onClose={() => setShowScanner(false)}
+            onClose={() => {
+              console.log('=== BARCODE SCANNER ON CLOSE CALLED ===');
+              setShowScanner(false);
+              console.log('Scanner close requested');
+            }}
             mode={scannerMode}
           />
           {/* Processing Overlay */}
