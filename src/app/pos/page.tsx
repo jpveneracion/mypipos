@@ -29,7 +29,8 @@ import {
   Barcode,
   Box,
   AlertCircle,
-  Loader2
+  Loader2,
+  ArrowLeft
 } from 'lucide-react';
 
 // Icon mapping for products
@@ -221,6 +222,17 @@ export default function POSPage() {
 
       {/* Shared Header */}
       <Header title="POS Terminal" subtitle="Point of Sale System" />
+
+      {/* Back to Mode Selection */}
+      <div className="px-6 py-3 bg-[#0D0F16]/50 border-b border-brand-indigo-800/30">
+        <button
+          onClick={() => router.push('/mode-selection')}
+          className="flex items-center gap-2 text-brand-indigo-400 hover:text-[#14D3C5] transition-colors text-sm font-medium"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back to Mode Selection</span>
+        </button>
+      </div>
 
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* Products Section */}

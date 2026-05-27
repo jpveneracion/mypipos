@@ -27,7 +27,8 @@ import {
   AlertCircle,
   CheckCircle,
   Clock,
-  Loader2
+  Loader2,
+  ArrowLeft
 } from 'lucide-react';
 
 interface ApiProduct extends Product {
@@ -337,6 +338,17 @@ export default function IMSPage() {
 
       {/* Shared Header */}
       <Header title="Inventory Management" subtitle="Manage products and stock levels" />
+
+      {/* Back to Mode Selection */}
+      <div className="px-6 py-3 bg-[#0D0F16]/50 border-b border-brand-indigo-800/30">
+        <button
+          onClick={() => router.push('/mode-selection')}
+          className="flex items-center gap-2 text-brand-indigo-400 hover:text-[#14D3C5] transition-colors text-sm font-medium"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back to Mode Selection</span>
+        </button>
+      </div>
 
       <div className="container mx-auto px-6 py-8 flex-1 overflow-y-auto">
         {/* Navigation and Action Buttons */}

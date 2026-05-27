@@ -18,7 +18,8 @@ import {
   FileText,
   Search,
   CreditCard,
-  Settings
+  Settings,
+  ArrowLeft
 } from 'lucide-react';
 
 const fadeUp = {
@@ -57,6 +58,19 @@ export default function CustomerPage() {
         title="myPiPOS Customer"
         subtitle={`Welcome, ${user?.piUsername}`}
       />
+
+      {/* Back to Mode Selection - only show if user has merchant access */}
+      {merchantId && (
+        <div className="px-6 py-3 bg-[#0D0F16]/50 border-b border-brand-indigo-800/30">
+          <button
+            onClick={() => router.push('/mode-selection')}
+            className="flex items-center gap-2 text-brand-indigo-400 hover:text-[#14D3C5] transition-colors text-sm font-medium"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Mode Selection</span>
+          </button>
+        </div>
+      )}
 
       <main className="container mx-auto px-6 py-8 flex-1">
         <div className="max-w-6xl mx-auto">
