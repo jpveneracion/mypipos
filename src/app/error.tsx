@@ -11,9 +11,22 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log the error to console for debugging
-    console.error('Application Error:', error);
+    // Log the entire error object for debugging
+    console.error('=== APPLICATION ERROR ===');
+    console.error('Error name:', error.name);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    console.error('Error digest:', error.digest);
+    console.error('Full error object:', error);
+    console.error('Error keys:', Object.keys(error));
+    console.error('========================');
   }, [error]);
+
+  // Extract all possible error information
+  const errorName = error.name || 'Unknown Error';
+  const errorMessage = error.message || 'An unexpected error occurred';
+  const errorStack = error.stack || '';
+  const errorDigest = error.digest;
 
   return (
     <div className="min-h-screen bg-[#0D0F16] flex items-center justify-center p-4">
@@ -27,35 +40,54 @@ export default function Error({
 
         {/* Error Title */}
         <h1 className="text-3xl font-bold text-brand-indigo-200 text-center mb-4">
-          Oops! Something went wrong
+          {errorName}
         </h1>
 
         {/* Error Message */}
         <div className="bg-brand-magenta-900/20 border border-brand-magenta-700 rounded-xl p-4 mb-6">
           <p className="text-brand-magenta-300 font-semibold text-sm mb-2">Error Details:</p>
           <p className="text-brand-magenta-400 text-sm font-mono break-words">
-            {error.message || 'An unexpected error occurred'}
+            {errorMessage}
           </p>
-          {error.digest && (
+          {errorDigest && (
             <p className="text-brand-indigo-500 text-xs mt-2">
-              Error ID: {error.digest}
+              Error ID: {errorDigest}
             </p>
           )}
         </div>
 
-        {/* Stack Trace (in development) */}
-        {process.env.NODE_ENV === 'development' && error.stack && (
-          <details className="mb-6">
-            <summary className="text-brand-indigo-400 text-sm font-semibold cursor-pointer hover:text-brand-indigo-300 mb-2">
-              Show Technical Details
-            </summary>
-            <div className="bg-brand-indigo-950 border border-brand-indigo-800 rounded-xl p-4 mt-2 max-h-64 overflow-y-auto">
-              <pre className="text-brand-indigo-400 text-xs font-mono whitespace-pre-wrap break-words">
-                {error.stack}
-              </pre>
+        {/* Full Error Object (for debugging) */}
+        <details className="mb-6">
+          <summary className="text-brand-indigo-400 text-sm font-semibold cursor-pointer hover:text-brand-indigo-300 mb-2">
+            Show Technical Details (Debug Info)
+          </summary>
+          <div className="bg-brand-indigo-950 border border-brand-indigo-800 rounded-xl p-4 mt-2 max-h-96 overflow-y-auto">
+            <div className="space-y-4">
+              {/* Error Properties */}
+              <div>
+                <p className="text-brand-indigo-300 text-xs font-semibold mb-1">Error Properties:</p>
+                <pre className="text-brand-indigo-400 text-xs font-mono whitespace-pre-wrap break-words">
+                  {JSON.stringify({
+                    name: error.name,
+                    message: error.message,
+                    digest: error.digest,
+                    keys: Object.keys(error)
+                  }, null, 2)}
+                </pre>
+              </div>
+
+              {/* Stack Trace */}
+              {errorStack && (
+                <div>
+                  <p className="text-brand-indigo-300 text-xs font-semibold mb-1">Stack Trace:</p>
+                  <pre className="text-brand-indigo-400 text-xs font-mono whitespace-pre-wrap break-words">
+                    {errorStack}
+                  </pre>
+                </div>
+              )}
             </div>
-          </details>
-        )}
+          </div>
+        </details>
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-3">
