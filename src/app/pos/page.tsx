@@ -123,27 +123,6 @@ export default function POSPage() {
 
   const { items, addItem, removeItem, updateQuantity, getSubtotal, getTax, getTotal, clearCart, setMerchantTaxRate, merchantTaxRate } = useCartStore();
 
-  // Memoized scanner handlers to prevent remounting
-  const handleScannerScan = useCallback((barcode: string) => {
-    addDebug('=== SCANNER SCAN CALLBACK ===');
-    addDebug(`Barcode from scanner: ${barcode}`);
-    addDebug(`Current scanner mode: ${scannerMode}`);
-
-    if (scannerMode === 'product') {
-      addDebug('Calling handleBarcodeScanned');
-      handleBarcodeScanned(barcode);
-    } else {
-      addDebug('Calling handleCustomerQRScanned');
-      handleCustomerQRScanned(barcode);
-    }
-  }, [scannerMode, handleBarcodeScanned, handleCustomerQRScanned, addDebug]);
-
-  const handleScannerClose = useCallback(() => {
-    addDebug('=== SCANNER CLOSE CALLBACK ===');
-    setShowScanner(false);
-    addDebug('Scanner close requested, showScanner set to false');
-  }, [addDebug]);
-
   // Fetch merchant data to get tax rate
   useEffect(() => {
     const fetchMerchantData = async () => {
@@ -255,6 +234,27 @@ export default function POSPage() {
       setIsProcessing(false);
     }
   }, [scannerMode, addDebug]); // Dependencies for useCallback
+
+  // Memoized scanner handlers to prevent remounting (defined after main handlers to avoid circular dependencies)
+  const handleScannerScan = useCallback((barcode: string) => {
+    addDebug('=== SCANNER SCAN CALLBACK ===');
+    addDebug(`Barcode from scanner: ${barcode}`);
+    addDebug(`Current scanner mode: ${scannerMode}`);
+
+    if (scannerMode === 'product') {
+      addDebug('Calling handleBarcodeScanned');
+      handleBarcodeScanned(barcode);
+    } else {
+      addDebug('Calling handleCustomerQRScanned');
+      handleCustomerQRScanned(barcode);
+    }
+  }, [scannerMode, handleBarcodeScanned, handleCustomerQRScanned, addDebug]);
+
+  const handleScannerClose = useCallback(() => {
+    addDebug('=== SCANNER CLOSE CALLBACK ===');
+    setShowScanner(false);
+    addDebug('Scanner close requested, showScanner set to false');
+  }, [addDebug]);
 
   const handleCheckout = async () => {
     try {

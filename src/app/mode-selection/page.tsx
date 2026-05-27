@@ -28,21 +28,27 @@ export default function ModeSelectionPage() {
   const router = useRouter();
   const { isAuthenticated, user, merchantId, currentContext, setContext } = useAuthStore();
   const [isLoading, setIsLoading] = useState(true);
+  const [hasRouted, setHasRouted] = useState(false);
 
   useEffect(() => {
+    // Prevent routing loops
+    if (hasRouted) return;
+
     if (!isAuthenticated) {
+      setHasRouted(true);
       router.push('/');
       return;
     }
 
     // Only show this page if user has merchantId
     if (!merchantId) {
+      setHasRouted(true);
       router.push('/customer');
       return;
     }
 
     setIsLoading(false);
-  }, [isAuthenticated, merchantId, router]);
+  }, [isAuthenticated, merchantId, router, hasRouted]);
 
   if (isLoading) {
     return (
@@ -94,6 +100,9 @@ export default function ModeSelectionPage() {
             >
               <button
                 onClick={() => {
+                  // Prevent multiple clicks
+                  if (hasRouted) return;
+                  setHasRouted(true);
                   setContext('merchant');
                   router.push('/pos');
                 }}
@@ -149,6 +158,9 @@ export default function ModeSelectionPage() {
             >
               <button
                 onClick={() => {
+                  // Prevent multiple clicks
+                  if (hasRouted) return;
+                  setHasRouted(true);
                   setContext('customer');
                   router.push('/customer');
                 }}

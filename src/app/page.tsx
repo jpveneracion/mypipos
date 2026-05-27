@@ -14,6 +14,11 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
+    // Only run routing logic if we're actually on the home page
+    if (typeof window !== 'undefined' && window.location.pathname !== '/') {
+      return;
+    }
+
     if (isAuthenticated && user && !isRouting) {
       setIsRouting(true);
 
