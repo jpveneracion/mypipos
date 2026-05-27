@@ -49,7 +49,7 @@ interface Category {
 
 export default function IMSPage() {
   const router = useRouter();
-  const { user, merchantId, isAuthenticated } = useAuthStore();
+  const { user, merchantId, isAuthenticated, currentContext } = useAuthStore();
 
   const [products, setProducts] = useState<ApiProduct[]>([]);
   const [categories, setCategories] = useState<string[]>(['All']);
@@ -71,7 +71,12 @@ export default function IMSPage() {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push('/mode-selection');
+      router.push('/');
+      return;
+    }
+
+    if (!merchantId) {
+      router.push('/customer');
       return;
     }
 
@@ -79,7 +84,7 @@ export default function IMSPage() {
     loadCategories();
     loadProducts();
     return () => { delete (window as any).openScanner; };
-  }, [isAuthenticated, merchantId]);
+  }, [isAuthenticated, merchantId, router]);
 
   async function loadCategories() {
     try {
