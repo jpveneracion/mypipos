@@ -8,6 +8,8 @@ import {
   deleteProductFromMerchant,
 } from '@/lib/db-products';
 
+const PINATA_GATEWAY = process.env.NEXT_PUBLIC_PINATA_GATEWAY || 'https://gateway.pinata.cloud';
+
 /**
  * GET /api/products
  * Fetch products for a merchant
@@ -99,7 +101,7 @@ export async function POST(request: NextRequest) {
       category,
       stock,
       minStock,
-      image,
+      ipfs_hash,
     } = body;
 
     // Validate required fields
@@ -126,7 +128,7 @@ export async function POST(request: NextRequest) {
       category,
       stock: stock ? parseInt(stock) : 0,
       minStock: minStock ? parseInt(minStock) : 10,
-      image,
+      ipfsHash: ipfs_hash,
     });
 
     return NextResponse.json({
@@ -179,7 +181,7 @@ export async function PUT(request: NextRequest) {
       category,
       stock,
       minStock,
-      image,
+      ipfs_hash,
     } = body;
 
     // Validate that at least one field is being updated
@@ -193,7 +195,7 @@ export async function PUT(request: NextRequest) {
       category === undefined &&
       stock === undefined &&
       minStock === undefined &&
-      image === undefined
+      ipfs_hash === undefined
     ) {
       return NextResponse.json(
         {
@@ -218,7 +220,7 @@ export async function PUT(request: NextRequest) {
       category,
       stock: stock ? parseInt(stock) : undefined,
       minStock: minStock ? parseInt(minStock) : undefined,
-      image,
+      ipfsHash: ipfs_hash,
     });
 
     if (!result) {
@@ -317,6 +319,10 @@ function formatProductForResponse(data: any): any {
     stock: inventory?.current_stock || 0,
     minStock: inventory?.low_stock_threshold || 10,
     image: product.main_image_url || merchantProduct.display_image_url,
+    ipfsHash: merchantProduct.ipfs_hash,
+    imageUrl: merchantProduct.ipfs_hash
+      ? `${PINATA_GATEWAY || 'https://gateway.pinata.cloud'}/ipfs/${merchantProduct.ipfs_hash}`
+      : (product.main_image_url || merchantProduct.display_image_url),
     createdAt: product.created_at,
     updatedAt: product.updated_at,
     // Attribution tracking - distinguish between universal creator and merchant adder
