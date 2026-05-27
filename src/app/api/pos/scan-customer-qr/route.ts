@@ -62,12 +62,10 @@ export async function POST(request: NextRequest) {
         total_amount,
         payment_method,
         payment_status,
-        u2a_payment_type,
-        u2a_payment_status,
         status,
         register_id,
         created_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
       RETURNING id`,
       [
         invoiceNumber,
@@ -78,8 +76,6 @@ export async function POST(request: NextRequest) {
         0,
         0,
         'pi',
-        'pending',
-        'customer_purchase',
         'pending',
         'draft', // **DRAFT STATUS - building invoice**
         registerId,
