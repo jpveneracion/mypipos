@@ -68,12 +68,7 @@ export default function POSPage() {
       router.push('/customer');
       return;
     }
-
-    if (currentContext !== 'merchant') {
-      router.push('/mode-selection');
-      return;
-    }
-  }, [isAuthenticated, merchantId, currentContext, router]);
+  }, [isAuthenticated, merchantId, router]);
 
   // Set up global handler for Pi Browser
   useEffect(() => {

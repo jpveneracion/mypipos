@@ -37,13 +37,8 @@ export default function CustomerPage() {
       return;
     }
 
-    if (merchantId && currentContext !== 'customer') {
-      router.push('/mode-selection');
-      return;
-    }
-
     setIsLoading(false);
-  }, [isAuthenticated, merchantId, currentContext, router]);
+  }, [isAuthenticated, router]);
 
   if (isLoading) {
     return (
