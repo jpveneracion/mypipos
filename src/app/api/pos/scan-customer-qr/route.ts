@@ -7,18 +7,38 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { decodeCustomerQR } from '@/lib/qr-codes';
 
 export async function POST(request: NextRequest) {
   try {
     const { customerPiUid, merchantId, registerId } = await request.json();
 
-    // Step 1: Find customer by Pi UID
+    console.log('=== CUSTOMER QR SCAN API ===');
+    console.log('Raw QR data:', customerPiUid);
+
+    let customerId: string;
+
+    // Try to decode as base64-encoded QR data first
+    const decodedQR = decodeCustomerQR(customerPiUid);
+    if (decodedQR) {
+      console.log('✅ Valid QR code decoded:', decodedQR);
+      customerId = decodedQR.i; // Use customer ID from decoded QR data
+    } else {
+      // Fallback: treat as raw customer ID (for backward compatibility)
+      console.log('⚠️ QR decode failed, treating as raw customer ID');
+      customerId = customerPiUid;
+    }
+
+    console.log('Looking up customer ID:', customerId);
+
+    // Step 1: Find customer by ID
     const customerResult = await query(
-      `SELECT * FROM users WHERE pi_uid = $1`,
-      [customerPiUid]
+      `SELECT * FROM users WHERE id = $1`,
+      [customerId]
     );
 
     if (!customerResult.rows[0]) {
+      console.log('❌ Customer not found in database');
       return NextResponse.json(
         { success: false, error: 'Customer not found' },
         { status: 404 }
@@ -26,6 +46,7 @@ export async function POST(request: NextRequest) {
     }
 
     const customer = customerResult.rows[0];
+    console.log('✅ Customer found:', customer.username);
 
     // Step 2: Create "draft" invoice linked to this customer
     const invoiceNumber = `INV-${Date.now().toString(36).toUpperCase()}`;
@@ -67,6 +88,7 @@ export async function POST(request: NextRequest) {
     );
 
     const draftInvoice = draftResult.rows[0];
+    console.log('✅ Draft invoice created:', draftInvoice.id);
 
     return NextResponse.json({
       success: true,
@@ -88,7 +110,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Customer QR scan error:', error);
+    console.error('❌ Customer QR scan error:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to link customer' },
       { status: 500 }
