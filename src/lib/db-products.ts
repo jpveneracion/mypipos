@@ -82,7 +82,7 @@ export async function createProductForMerchant(params: {
   category?: string;
   stock?: number;
   minStock?: number;
-  image?: string;
+  ipfsHash?: string;
 }): Promise<ProductWithMerchantData> {
   const {
     merchantId,
@@ -96,7 +96,7 @@ export async function createProductForMerchant(params: {
     category = null,
     stock = 0,
     minStock = 10,
-    image = null,
+    ipfsHash = null,
   } = params;
 
   return transaction(async (client) => {
@@ -153,10 +153,10 @@ export async function createProductForMerchant(params: {
     const merchantProductResult = await client.query(
       `INSERT INTO merchant_products (
         merchant_id, product_id, merchant_sku, merchant_barcode,
-        price, cost, is_visible, status, created_by
-      ) VALUES ($1, $2, $3, $4, $5, $6, true, 'active', $7)
+        price, cost, ipfs_hash, is_visible, status, created_by
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, true, 'active', $8)
       RETURNING *`,
-      [merchantId, productId, sku, barcode, price, cost, userId]
+      [merchantId, productId, sku, barcode, price, cost, ipfsHash, userId]
     );
 
     // 3. Initialize inventory
@@ -453,7 +453,7 @@ export async function updateProductForMerchant(params: {
   category?: string;
   stock?: number;
   minStock?: number;
-  image?: string;
+  ipfsHash?: string;
 }): Promise<ProductWithMerchantData | null> {
   const {
     merchantId,
@@ -468,7 +468,7 @@ export async function updateProductForMerchant(params: {
     category,
     stock,
     minStock,
-    image,
+    ipfsHash,
   } = params;
 
   return transaction(async (client) => {
@@ -503,10 +503,6 @@ export async function updateProductForMerchant(params: {
     if (categoryId !== null) {
       productUpdates.push(`universal_category_id = $${productParamIndex++}`);
       productValues.push(categoryId);
-    }
-    if (image !== undefined) {
-      productUpdates.push(`main_image_url = $${productParamIndex++}`);
-      productValues.push(image);
     }
 
     if (productUpdates.length > 0) {
@@ -545,6 +541,10 @@ export async function updateProductForMerchant(params: {
     if (cost !== undefined) {
       merchantUpdates.push(`cost = $${merchantParamIndex++}`);
       merchantValues.push(cost);
+    }
+    if (ipfsHash !== undefined) {
+      merchantUpdates.push(`ipfs_hash = $${merchantParamIndex++}`);
+      merchantValues.push(ipfsHash);
     }
 
     if (merchantUpdates.length > 0) {
