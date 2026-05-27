@@ -163,6 +163,22 @@ export default function IMSPage() {
     loadProducts();
   }, [searchQuery, selectedCategory, merchantId]);
 
+  // Check for edit parameter from POS barcode scanning
+  useEffect(() => {
+    const editProductId = new URLSearchParams(window.location.search).get('edit');
+    if (editProductId && products.length > 0) {
+      // Find the product to edit
+      const productToEdit = products.find(p => p.id === editProductId);
+      if (productToEdit) {
+        // Open edit modal with this product
+        setEditingProduct(productToEdit);
+        setShowEditModal(true);
+        // Clear the edit parameter from URL
+        router.replace('/ims');
+      }
+    }
+  }, [products, router]);
+
   const filteredProducts = products.filter(product => {
     const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

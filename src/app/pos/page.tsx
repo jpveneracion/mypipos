@@ -148,13 +148,17 @@ export default function POSPage() {
 
   const handleBarcodeScanned = (barcode: string) => {
     const product = products.find(p => p.barcode === barcode);
+
     if (product) {
-      addItem(product);
-      setSelectedCategory(product.category);
-      alert(`Added ${product.name} to cart`);
+      // Product exists - notify merchant and navigate to IMS for editing
+      alert(`Product found: ${product.name}\n\nNavigating to edit product...`);
+      // Navigate to IMS page with edit intent
+      router.push(`/ims?edit=${product.id}`);
     } else {
-      alert(`Product with barcode "${barcode}" not found`);
+      // Product doesn't exist - this is an error case
+      alert(`Product with barcode "${barcode}" not found in your inventory.\n\nPlease scan a valid product barcode.`);
     }
+
     setShowScanner(false);
   };
 
