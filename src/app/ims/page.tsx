@@ -194,8 +194,11 @@ export default function IMSPage() {
     // Check if product exists with this barcode
     const existingProduct = products.find(p => p.barcode === barcode);
     if (existingProduct) {
-      alert(`Product with barcode "${barcode}" already exists: ${existingProduct.name}`);
+      // Product exists - open edit modal
+      setEditingProduct(existingProduct);
+      setShowEditModal(true);
     } else {
+      // Product doesn't exist - add to new product form
       setScannedBarcode(barcode);
       setShowAddModal(true);
     }

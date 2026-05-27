@@ -158,16 +158,13 @@ export default function POSPage() {
       const product = products.find(p => p.barcode === barcode);
 
       if (product) {
-        // Product exists - notify merchant and navigate to IMS for editing
-        alert(`Product found: ${product.name}\n\nNavigating to edit product...`);
-        // Navigate to IMS page with edit intent
-        router.push(`/ims?edit=${product.id}`);
+        // Product exists - add to cart
+        addItem(product);
+        setShowScanner(false);
       } else {
-        // Product doesn't exist - this is an error case
+        // Product doesn't exist - show error
         throw new Error(`Product with barcode "${barcode}" not found in your inventory.\n\nPlease scan a valid product barcode.`);
       }
-
-      setShowScanner(false);
     } catch (error) {
       console.error('Barcode scan error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to process barcode scan';
