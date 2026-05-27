@@ -129,10 +129,10 @@ export async function createProductForMerchant(params: {
         productResult = await client.query(
           `INSERT INTO products (
             name, description, barcode, universal_sku,
-            universal_category_id, main_image_url, status, created_by, metadata
-          ) VALUES ($1, $2, $3, $4, $5, $6, 'active', $7, '{}')
+            universal_category_id, status, created_by, metadata
+          ) VALUES ($1, $2, $3, $4, $5, 'active', $6, '{}')
           RETURNING *`,
-          [name, description, barcode, sku, categoryId, image, userId]
+          [name, description, barcode, sku, categoryId, userId]
         );
       }
     } else {
@@ -140,10 +140,10 @@ export async function createProductForMerchant(params: {
       productResult = await client.query(
         `INSERT INTO products (
           name, description, universal_sku,
-          universal_category_id, main_image_url, status, created_by, metadata
+          universal_category_id, status, created_by, metadata
         ) VALUES ($1, $2, $3, $4, $5, 'active', $6, '{}')
         RETURNING *`,
-        [name, description, sku, categoryId, image, userId]
+        [name, description, sku, categoryId, userId]
       );
     }
 
