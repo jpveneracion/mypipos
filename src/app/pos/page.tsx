@@ -57,6 +57,8 @@ export default function POSPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [productsError, setProductsError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // Auth check
   useEffect(() => {
@@ -146,24 +148,41 @@ export default function POSPage() {
     return matchesCategory && matchesSearch;
   });
 
-  const handleBarcodeScanned = (barcode: string) => {
-    const product = products.find(p => p.barcode === barcode);
+  const handleBarcodeScanned = async (barcode: string) => {
+    try {
+      setActionError(null);
+      setIsProcessing(true);
 
-    if (product) {
-      // Product exists - notify merchant and navigate to IMS for editing
-      alert(`Product found: ${product.name}\n\nNavigating to edit product...`);
-      // Navigate to IMS page with edit intent
-      router.push(`/ims?edit=${product.id}`);
-    } else {
-      // Product doesn't exist - this is an error case
-      alert(`Product with barcode "${barcode}" not found in your inventory.\n\nPlease scan a valid product barcode.`);
+      console.log('Processing barcode scan:', barcode);
+
+      const product = products.find(p => p.barcode === barcode);
+
+      if (product) {
+        // Product exists - notify merchant and navigate to IMS for editing
+        alert(`Product found: ${product.name}\n\nNavigating to edit product...`);
+        // Navigate to IMS page with edit intent
+        router.push(`/ims?edit=${product.id}`);
+      } else {
+        // Product doesn't exist - this is an error case
+        throw new Error(`Product with barcode "${barcode}" not found in your inventory.\n\nPlease scan a valid product barcode.`);
+      }
+
+      setShowScanner(false);
+    } catch (error) {
+      console.error('Barcode scan error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to process barcode scan';
+      setActionError(errorMessage);
+      // Don't close the scanner on error - let merchant try again
+    } finally {
+      setIsProcessing(false);
     }
-
-    setShowScanner(false);
   };
 
   const handleCustomerQRScanned = async (customerData: string) => {
     try {
+      setActionError(null);
+      setIsProcessing(true);
+
       console.log('Scanned customer data:', customerData);
 
       const mockCustomer = {
@@ -177,28 +196,42 @@ export default function POSPage() {
       alert(`Customer identified: ${mockCustomer.name}`);
     } catch (error) {
       console.error('Customer scan error:', error);
-      alert('Failed to identify customer');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to identify customer';
+      setActionError(errorMessage);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
-  const handleCheckout = () => {
-    const total = getTotal();
-    const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
-    const currencySymbol = getCurrencySymbol();
+  const handleCheckout = async () => {
+    try {
+      setActionError(null);
+      setIsProcessing(true);
 
-    const confirmed = window.confirm(
-      `Checkout Summary:\n` +
-      `• ${itemCount} items\n` +
-      `• Subtotal: ${getSubtotal().toFixed(7)} ${currencySymbol}\n` +
-      `• Tax: ${getTax().toFixed(7)} ${currencySymbol}\n` +
-      `• Total: ${total.toFixed(7)} ${currencySymbol}\n\n` +
-      `Proceed with Pi payment?`
-    );
+      const total = getTotal();
+      const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+      const currencySymbol = getCurrencySymbol();
 
-    if (confirmed) {
-      alert(`Processing Pi payment of ${total.toFixed(7)} ${currencySymbol}...\n\n(Payment integration to be implemented)`);
-      clearCart();
-      setSelectedCustomer(null);
+      const confirmed = window.confirm(
+        `Checkout Summary:\n` +
+        `• ${itemCount} items\n` +
+        `• Subtotal: ${getSubtotal().toFixed(7)} ${currencySymbol}\n` +
+        `• Tax: ${getTax().toFixed(7)} ${currencySymbol}\n` +
+        `• Total: ${total.toFixed(7)} ${currencySymbol}\n\n` +
+        `Proceed with Pi payment?`
+      );
+
+      if (confirmed) {
+        alert(`Processing Pi payment of ${total.toFixed(7)} ${currencySymbol}...\n\n(Payment integration to be implemented)`);
+        clearCart();
+        setSelectedCustomer(null);
+      }
+    } catch (error) {
+      console.error('Checkout error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to process checkout';
+      setActionError(errorMessage);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -211,21 +244,51 @@ export default function POSPage() {
     <div className="min-h-screen bg-[#0D0F16] flex flex-col overflow-hidden">
       {/* Scanner Modal */}
       {showScanner && (
-        <BarcodeScanner
-          onScan={(barcode) => {
-            if (scannerMode === 'product') {
-              handleBarcodeScanned(barcode);
-            } else {
-              handleCustomerQRScanned(barcode);
-            }
-          }}
-          onClose={() => setShowScanner(false)}
-          mode={scannerMode}
-        />
+        <>
+          <BarcodeScanner
+            onScan={(barcode) => {
+              if (scannerMode === 'product') {
+                handleBarcodeScanned(barcode);
+              } else {
+                handleCustomerQRScanned(barcode);
+              }
+            }}
+            onClose={() => setShowScanner(false)}
+            mode={scannerMode}
+          />
+          {/* Processing Overlay */}
+          {isProcessing && (
+            <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[10000]">
+              <div className="bg-brand-indigo-900 rounded-2xl p-8 flex flex-col items-center gap-4">
+                <Loader2 className="w-12 h-12 text-brand-cyan-400 animate-spin" />
+                <p className="text-brand-indigo-200 font-semibold">Processing...</p>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {/* Shared Header */}
       <Header title="POS Terminal" subtitle="Point of Sale System" />
+
+      {/* Error Display */}
+      {actionError && (
+        <div className="mx-6 mt-4 bg-brand-magenta-900/30 border border-brand-magenta-700 rounded-xl p-4">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-brand-magenta-400 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h4 className="text-brand-magenta-300 font-semibold text-sm mb-1">Error</h4>
+              <p className="text-brand-magenta-400 text-sm">{actionError}</p>
+            </div>
+            <button
+              onClick={() => setActionError(null)}
+              className="text-brand-magenta-400 hover:text-brand-magenta-300 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Back to Mode Selection */}
       <div className="px-6 py-3 bg-[#0D0F16]/50 border-b border-brand-indigo-800/30">
