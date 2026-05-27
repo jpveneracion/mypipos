@@ -22,11 +22,24 @@ export default function Error({
     console.error('========================');
   }, [error]);
 
-  // Extract all possible error information
-  const errorName = error.name || 'Unknown Error';
-  const errorMessage = error.message || 'An unexpected error occurred';
-  const errorStack = error.stack || '';
-  const errorDigest = error.digest;
+  // Extract all possible error information with fallbacks
+  const errorName = error?.name || 'Unknown Error';
+  const errorMessage = error?.message || 'An unexpected error occurred';
+  const errorStack = error?.stack || '';
+  const errorDigest = error?.digest;
+
+  // Get all error properties for debugging
+  const errorKeys = error ? Object.keys(error) : [];
+  const errorEntries = error ? Object.entries(error) : [];
+
+  // Log for debugging
+  console.log('=== ERROR RENDER DEBUG ===');
+  console.log('Error object:', error);
+  console.log('Error name:', errorName);
+  console.log('Error message:', errorMessage);
+  console.log('Error keys:', errorKeys);
+  console.log('Error entries:', errorEntries);
+  console.log('=========================');
 
   return (
     <div className="min-h-screen bg-[#0D0F16] flex items-center justify-center p-4">
@@ -57,7 +70,7 @@ export default function Error({
         </div>
 
         {/* Full Error Object (for debugging) */}
-        <details className="mb-6">
+        <details className="mb-6" open>
           <summary className="text-brand-indigo-400 text-sm font-semibold cursor-pointer hover:text-brand-indigo-300 mb-2">
             Show Technical Details (Debug Info)
           </summary>
@@ -66,21 +79,50 @@ export default function Error({
               {/* Error Properties */}
               <div>
                 <p className="text-brand-indigo-300 text-xs font-semibold mb-1">Error Properties:</p>
-                <pre className="text-brand-indigo-400 text-xs font-mono whitespace-pre-wrap break-words">
-                  {JSON.stringify({
-                    name: error.name,
-                    message: error.message,
-                    digest: error.digest,
-                    keys: Object.keys(error)
-                  }, null, 2)}
-                </pre>
+                <div className="space-y-2">
+                  <div className="bg-brand-indigo-900/50 rounded p-2">
+                    <p className="text-brand-cyan-400 text-xs font-semibold mb-1">name:</p>
+                    <p className="text-brand-indigo-400 text-xs font-mono break-words">{errorName}</p>
+                  </div>
+                  <div className="bg-brand-indigo-900/50 rounded p-2">
+                    <p className="text-brand-cyan-400 text-xs font-semibold mb-1">message:</p>
+                    <p className="text-brand-indigo-400 text-xs font-mono break-words">{errorMessage}</p>
+                  </div>
+                  {errorDigest && (
+                    <div className="bg-brand-indigo-900/50 rounded p-2">
+                      <p className="text-brand-cyan-400 text-xs font-semibold mb-1">digest:</p>
+                      <p className="text-brand-indigo-400 text-xs font-mono break-words">{errorDigest}</p>
+                    </div>
+                  )}
+                  <div className="bg-brand-indigo-900/50 rounded p-2">
+                    <p className="text-brand-cyan-400 text-xs font-semibold mb-1">All Keys ({errorKeys.length}):</p>
+                    <p className="text-brand-indigo-400 text-xs font-mono break-words">{errorKeys.join(', ')}</p>
+                  </div>
+                </div>
               </div>
+
+              {/* All Error Properties */}
+              {errorEntries.length > 0 && (
+                <div>
+                  <p className="text-brand-indigo-300 text-xs font-semibold mb-1">All Error Properties:</p>
+                  <div className="space-y-1">
+                    {errorEntries.map(([key, value]) => (
+                      <div key={key} className="bg-brand-indigo-900/50 rounded p-2">
+                        <p className="text-brand-cyan-400 text-xs font-semibold">{key}:</p>
+                        <p className="text-brand-indigo-400 text-xs font-mono break-words">
+                          {typeof value === 'string' ? value : JSON.stringify(value, null, 2)}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Stack Trace */}
               {errorStack && (
                 <div>
                   <p className="text-brand-indigo-300 text-xs font-semibold mb-1">Stack Trace:</p>
-                  <pre className="text-brand-indigo-400 text-xs font-mono whitespace-pre-wrap break-words">
+                  <pre className="text-brand-indigo-400 text-xs font-mono whitespace-pre-wrap break-words bg-brand-indigo-900/50 rounded p-2">
                     {errorStack}
                   </pre>
                 </div>
