@@ -56,7 +56,6 @@ export async function POST(request: NextRequest) {
         transaction_number,
         merchant_id,
         customer_id,
-        cashier_id,
         subtotal,
         tax_amount,
         total_amount,
@@ -67,13 +66,12 @@ export async function POST(request: NextRequest) {
         status,
         register_id,
         created_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
       RETURNING id`,
       [
         invoiceNumber,
         merchantId,
         customer.id, // **LINK TO CUSTOMER**
-        registerId,
         0,
         0,
         0,
