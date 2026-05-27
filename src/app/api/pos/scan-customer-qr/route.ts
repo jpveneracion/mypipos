@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
 
     const customer = customerResult.rows[0];
     console.log('✅ Customer record found:', JSON.stringify(customer, null, 2));
-    console.log('✅ Customer username:', customer.username);
+    console.log('✅ Customer pi_username:', customer.pi_username);
     console.log('✅ Customer pi_uid:', customer.pi_uid);
 
     // Step 2: Create "draft" invoice linked to this customer
@@ -100,9 +100,9 @@ export async function POST(request: NextRequest) {
         invoiceNumber: invoiceNumber,
         customer: {
           id: customer.id,
-          username: customer.username,
+          username: customer.pi_username,
           pi_uid: customer.pi_uid,
-          name: customer.username
+          name: customer.pi_username
         },
         status: 'draft',
         items: [],
