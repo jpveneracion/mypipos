@@ -334,7 +334,7 @@ export default function POSPage() {
                   >
                     <div className="aspect-square bg-linear-to-br from-brand-cyan-900/20 to-brand-indigo-900/20 rounded-xl mb-4 flex items-center justify-center relative overflow-hidden">
                       <div className="absolute inset-0 bg-linear-to-br from-brand-cyan-400/0 to-brand-cyan-600/0 group-hover:from-brand-cyan-400/10 group-hover:to-brand-cyan-600/10 transition-all duration-300" />
-                      <div className="relative z-10 text-brand-cyan-400 group-hover:text-brand-cyan-300 group-hover:scale-110 transition-all duration-300">
+                      <div className="relative z-10 text-brand-cyan-400 group-hover:text-brand-cyan-300 group-hover:scale-110 transition-all duration-300 w-full h-full">
                         {product.imageUrl || product.ipfsHash ? (
                           <img
                             src={product.imageUrl || `https://gateway.pinata.cloud/ipfs/${product.ipfsHash}`}
@@ -342,16 +342,20 @@ export default function POSPage() {
                             className="w-full h-full object-cover rounded-xl"
                             onError={(e) => {
                               // Fallback to icon if image fails to load
-                              (e.target as HTMLImageElement).style.display = 'none';
-                              (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                              const img = e.target as HTMLImageElement;
+                              img.style.display = 'none';
+                              // Show the parent div's icon
+                              const parent = img.parentElement;
+                              if (parent) {
+                                const icon = parent.querySelector('.fallback-icon');
+                                if (icon) icon.classList.remove('hidden');
+                              }
                             }}
                           />
                         ) : null}
-                        {(!product.imageUrl && !product.ipfsHash) && (
-                        <div className="flex items-center justify-center">
+                        <div className={`fallback-icon ${!product.imageUrl && !product.ipfsHash ? '' : 'hidden'} flex items-center justify-center`}>
                           {productIcons[product.name] || <Package className="w-8 h-8" />}
                         </div>
-                      )}
                       </div>
                       {quantity > 0 && (
                         <div className="absolute top-2 right-2 w-8 h-8 bg-linear-to-br from-brand-cyan-400 to-brand-cyan-600 rounded-full flex items-center justify-center shadow-glow">
