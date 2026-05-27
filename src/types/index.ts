@@ -13,6 +13,7 @@ export interface Product {
   minStock: number;
   image?: string;
   imageUrl?: string;
+  ipfsHash?: string;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -7,6 +7,7 @@ import { Product } from '@/types';
 import { useAuthStore } from '@/lib/store';
 import Header from '@/components/Header';
 import BarcodeScanner from '@/components/pos/BarcodeScanner';
+import ProductPhotoUpload from '@/components/products/ProductPhotoUpload';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
@@ -58,6 +59,7 @@ export default function IMSPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [currentIpfsHash, setCurrentIpfsHash] = useState<string>('');
   const [scanningBarcode, setScanningBarcode] = useState(false);
   const [scannedBarcode, setScannedBarcode] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
@@ -258,7 +260,12 @@ export default function IMSPage() {
 
   const handleEditProduct = (product: Product) => {
     setEditingProduct(product);
+    setCurrentIpfsHash(product.ipfsHash || '');
     setShowEditModal(true);
+  };
+
+  const handlePhotoUploadSuccess = (ipfsHash: string) => {
+    setCurrentIpfsHash(ipfsHash);
   };
 
   const handleUpdateProduct = async (formData: {
@@ -293,6 +300,7 @@ export default function IMSPage() {
           minStock: parseInt(formData.minStock),
           category: formData.category || undefined,
           description: formData.description || undefined,
+          ipfs_hash: currentIpfsHash || undefined,
         }),
       });
 
@@ -301,6 +309,7 @@ export default function IMSPage() {
       if (data.success) {
         setShowEditModal(false);
         setEditingProduct(null);
+        setCurrentIpfsHash('');
         loadProducts();
       } else {
         setError(data.error || 'Failed to update product');
@@ -999,6 +1008,7 @@ export default function IMSPage() {
                   onClick={() => {
                     setShowEditModal(false);
                     setEditingProduct(null);
+                    setCurrentIpfsHash('');
                   }}
                   className="text-brand-dark-950/80 hover:text-brand-dark-950 text-lg md:text-xl font-bold"
                 >
@@ -1174,6 +1184,17 @@ export default function IMSPage() {
                   />
                 </div>
 
+                <div>
+                  <label className="block text-sm font-bold text-brand-indigo-300 mb-2">Product Photo</label>
+                  <ProductPhotoUpload
+                    merchantId={merchantId || ''}
+                    productId={editingProduct.id}
+                    onUploadSuccess={handlePhotoUploadSuccess}
+                    currentPhoto={editingProduct.ipfsHash}
+                    disabled={isSubmitting}
+                  />
+                </div>
+
                 <div className="flex gap-3 pt-4">
                   <Button
                     type="button"
@@ -1182,6 +1203,7 @@ export default function IMSPage() {
                     onClick={() => {
                       setShowEditModal(false);
                       setEditingProduct(null);
+                      setCurrentIpfsHash('');
                       setError(null);
                     }}
                     className="flex-1 border-brand-indigo-700 text-brand-indigo-400 hover:bg-brand-indigo-900/50"
