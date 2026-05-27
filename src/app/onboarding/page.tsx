@@ -10,9 +10,15 @@ export default function OnboardingPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    // Only run routing logic if we're actually on the onboarding page
+    if (typeof window !== 'undefined' && window.location.pathname !== '/onboarding') {
+      return;
+    }
+
     // Redirect if not authenticated
     if (!isAuthenticated) {
       router.push('/');
+      return;
     }
   }, [isAuthenticated, router]);
 

@@ -21,6 +21,11 @@ export default function ContextSwitcherDemo() {
 
   // Demo: Mock merchant user for testing
   useEffect(() => {
+    // Only run routing logic if we're actually on the demo page
+    if (typeof window !== 'undefined' && window.location.pathname !== '/demo/context-switcher') {
+      return;
+    }
+
     if (!isAuthenticated) {
       // For demo purposes, you might want to redirect to login
       // router.push('/');

@@ -58,6 +58,11 @@ export default function SimpleSettingsPage() {
   const [businessSuccess, setBusinessSuccess] = useState(false);
 
   useEffect(() => {
+    // Only run routing logic if we're actually on the account-settings page
+    if (typeof window !== 'undefined' && window.location.pathname !== '/account-settings') {
+      return;
+    }
+
     console.log('🚀 [SETTINGS] Page mounting...');
 
     // Get user from localStorage (mypipos uses 'mypipos-auth' key)

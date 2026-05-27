@@ -11,6 +11,11 @@ export default function AdminDashboard() {
   const router = useRouter();
 
   useEffect(() => {
+    // Only run routing logic if we're actually on the admin dashboard page
+    if (typeof window !== 'undefined' && window.location.pathname !== '/admin/dashboard') {
+      return;
+    }
+
     // Check authentication through multiple methods for Pi Browser compatibility
     let authenticated = false;
     let method = '';
