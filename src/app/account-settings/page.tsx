@@ -51,6 +51,12 @@ export default function SimpleSettingsPage() {
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [promotionalEmails, setPromotionalEmails] = useState(true);
 
+  // Business form state
+  const [businessName, setBusinessName] = useState('');
+  const [savingBusiness, setSavingBusiness] = useState(false);
+  const [businessError, setBusinessError] = useState<string | null>(null);
+  const [businessSuccess, setBusinessSuccess] = useState(false);
+
   useEffect(() => {
     console.log('🚀 [SETTINGS] Page mounting...');
 
@@ -93,9 +99,27 @@ export default function SimpleSettingsPage() {
           setEmailNotifications(s.notification_preferences?.email_notifications ?? true);
           setPromotionalEmails(s.notification_preferences?.promotional_emails ?? true);
 
+          // Populate business form
+          if (data.data.business?.business_name) {
+            setBusinessName(data.data.business.business_name);
+          }
+
           // Set default tab
           if (userData.userType === 'merchant' || userData.user_type === 'merchant' || userData.merchantId || userData.merchant_id) {
             setActiveTab('business');
+
+            // Fetch business settings separately for merchants
+            try {
+              const bizResponse = await fetch(`/api/merchant/settings?userId=${userData.id}`);
+              const bizData = await bizResponse.json();
+              console.log('✅ [SETTINGS] Business response:', bizData);
+
+              if (bizData.success && bizData.data?.business_name) {
+                setBusinessName(bizData.data.business_name);
+              }
+            } catch (bizErr) {
+              console.error('❌ [SETTINGS] Error fetching business settings:', bizErr);
+            }
           }
         }
       } catch (err) {
@@ -157,6 +181,42 @@ export default function SimpleSettingsPage() {
       setError(err instanceof Error ? err.message : 'Failed to save');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleSaveBusiness = async () => {
+    setSavingBusiness(true);
+    setBusinessError(null);
+    setBusinessSuccess(false);
+
+    try {
+      const payload = {
+        field: 'business_name',
+        value: businessName
+      };
+
+      console.log('💾 [BUSINESS] Saving:', payload);
+
+      const response = await fetch('/api/merchant/settings/update', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+      console.log('✅ [BUSINESS] Save response:', data);
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to save business settings');
+      }
+
+      setBusinessSuccess(true);
+      setTimeout(() => setBusinessSuccess(false), 3000);
+    } catch (err) {
+      console.error('❌ [BUSINESS] Save error:', err);
+      setBusinessError(err instanceof Error ? err.message : 'Failed to save business settings');
+    } finally {
+      setSavingBusiness(false);
     }
   };
 
@@ -388,6 +448,26 @@ export default function SimpleSettingsPage() {
               Configure your merchant business settings and preferences
             </p>
 
+            {/* Business Messages */}
+            {businessSuccess && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-4 bg-green-500/20 border border-green-500/30 text-green-300 rounded-lg"
+              >
+                ✓ Business settings saved successfully!
+              </motion.div>
+            )}
+            {businessError && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-4 bg-red-500/20 border border-red-500/30 text-red-300 rounded-lg"
+              >
+                ❌ {businessError}
+              </motion.div>
+            )}
+
             {/* Business Information */}
             <div className="border-b pb-6">
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Business Information</h3>
@@ -399,6 +479,8 @@ export default function SimpleSettingsPage() {
                   <input
                     type="text"
                     name="business_name"
+                    value={businessName}
+                    onChange={(e) => setBusinessName(e.target.value)}
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                     placeholder="My Awesome Store"
                   />
@@ -475,10 +557,21 @@ export default function SimpleSettingsPage() {
             <div className="flex justify-end pt-4 border-t">
               <button
                 type="button"
-                className="px-6 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 flex items-center gap-2"
+                onClick={handleSaveBusiness}
+                disabled={savingBusiness}
+                className="px-6 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
-                <Save size={16} />
-                Save Business Settings
+                {savingBusiness ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save size={16} />
+                    Save Business Settings
+                  </>
+                )}
               </button>
             </div>
           </div>

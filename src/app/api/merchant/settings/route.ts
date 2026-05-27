@@ -16,16 +16,21 @@ import { getAuthenticatedUser } from '@/lib/auth-api';
  */
 export async function GET(request: NextRequest) {
   try {
-    // Get authenticated user
+    // Get authenticated user - support both auth header and userId query param
     const user = await getAuthenticatedUser(request);
-    if (!user?.id) {
+
+    // Check for userId query parameter (fallback for non-auth requests)
+    const url = new URL(request.url);
+    const userIdParam = url.searchParams.get('userId');
+
+    const userId = user?.id || userIdParam;
+
+    if (!userId) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
       );
     }
-
-    const userId = user.id;
 
     // Get user's merchant ID and role from users table
     const userResult = await query(

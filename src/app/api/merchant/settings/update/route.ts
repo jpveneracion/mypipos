@@ -3,6 +3,7 @@ import { query } from '@/lib/db';
 import { getAuthenticatedUser } from '@/lib/auth-api';
 
 const VALID_BUSINESS_FIELDS = [
+  'business_name',
   'payment_methods',
   'store_hours',
   'store_locations',
@@ -63,6 +64,19 @@ export async function PUT(request: NextRequest) {
                      request.headers.get('x-real-ip') ||
                      null;
     const userAgent = request.headers.get('user-agent') || null;
+
+    // Handle business_name as special case - it's a direct column in merchants table
+    if (field === 'business_name') {
+      const result = await query(
+        'UPDATE merchants SET business_name = $1, updated_at = NOW() WHERE id = $2 RETURNING business_name',
+        [value, merchant_id]
+      );
+      return NextResponse.json({
+        success: true,
+        field,
+        updatedValue: { business_name: result.rows[0].business_name }
+      });
+    }
 
     // Update settings using security function
     const result = await query(
