@@ -29,9 +29,9 @@ export async function GET(request: NextRequest) {
 
     // Query customer profile from database using the authenticated user's ID
     const result = await query<Customer>(
-      `SELECT id, username, pi_uid as "piUid", merchant_id as "merchantId", created_at as "createdAt"
-       FROM customers
-       WHERE id = $1 OR pi_uid = $2
+      `SELECT id, pi_username as username, pi_uid as "piUid", merchant_id as "merchantId", created_at as "createdAt"
+       FROM users
+       WHERE (id = $1 OR pi_uid = $2) AND user_type = 'pioneer'
        LIMIT 1`,
       [user.id, user.piUid]
     );

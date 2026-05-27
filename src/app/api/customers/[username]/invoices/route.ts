@@ -19,9 +19,9 @@ export async function GET(
     const limit = parseInt(searchParams.get('limit') || '20');
     const status = searchParams.get('status'); // optional: 'pending', 'paid', 'failed'
 
-    // Step 1: Get customer by username using parameterized query
+    // Step 1: Get customer by Pi username using parameterized query
     const customerResult = await query(
-      'SELECT * FROM users WHERE username = $1',
+      'SELECT * FROM users WHERE pi_username = $1',
       [username]
     );
 
@@ -72,8 +72,8 @@ export async function GET(
       count: invoicesWithItems.length,
       customer: {
         id: customer.id,
-        username: customer.username,
-        name: customer.username
+        username: customer.pi_username,
+        name: customer.pi_username
       }
     });
 

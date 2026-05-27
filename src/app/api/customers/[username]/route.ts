@@ -36,11 +36,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     // Sanitize input
     const sanitizedUsername = sanitizeInput(username);
 
-    // Query customer from database
+    // Query customer from database (customers are users with user_type = 'pioneer')
     const result = await query<Customer>(
-      `SELECT id, username, pi_uid as "piUid", merchant_id as "merchantId", created_at as "createdAt"
-       FROM customers
-       WHERE username = $1
+      `SELECT id, pi_username as username, pi_uid as "piUid", merchant_id as "merchantId", created_at as "createdAt"
+       FROM users
+       WHERE user_type = 'pioneer' AND pi_username = $1
        LIMIT 1`,
       [sanitizedUsername]
     );
