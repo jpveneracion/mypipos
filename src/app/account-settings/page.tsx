@@ -388,6 +388,27 @@ export default function SimpleSettingsPage() {
               Configure your merchant business settings and preferences
             </p>
 
+            {/* Business Information */}
+            <div className="border-b pb-6">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Business Information</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Business/Store Name
+                  </label>
+                  <input
+                    type="text"
+                    name="business_name"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                    placeholder="My Awesome Store"
+                  />
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    Your business display name
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Payment Methods */}
             <div className="border-b pb-6">
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Payment Methods</h3>
@@ -396,35 +417,12 @@ export default function SimpleSettingsPage() {
                   <input
                     type="checkbox"
                     defaultChecked={true}
-                    className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                    disabled
+                    className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 opacity-50"
                   />
                   <div>
                     <span className="font-medium text-gray-900 dark:text-white">Pi Network</span>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Accept Pi payments</p>
-                  </div>
-                </label>
-
-                <label className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                  <input
-                    type="checkbox"
-                    defaultChecked={true}
-                    className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
-                  />
-                  <div>
-                    <span className="font-medium text-gray-900 dark:text-white">Cash</span>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Accept cash payments</p>
-                  </div>
-                </label>
-
-                <label className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                  <input
-                    type="checkbox"
-                    defaultChecked={true}
-                    className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
-                  />
-                  <div>
-                    <span className="font-medium text-gray-900 dark:text-white">Card</span>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Accept card payments</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Only payment method accepted</p>
                   </div>
                 </label>
               </div>

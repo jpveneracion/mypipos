@@ -39,12 +39,13 @@ export default function BusinessSettingsTab({
               </label>
               <input
                 type="text"
-                value={settings.business?.business_name || 'Loading...'}
-                disabled
-                className="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md"
+                value={settings.business?.business_name || ''}
+                onChange={(e) => handleUpdate('business_name', e.target.value)}
+                disabled={isSaving}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
               />
               <p className="mt-1 text-xs text-gray-500">
-                Contact support to change your business name
+                Your business/store display name
               </p>
             </div>
 

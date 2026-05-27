@@ -107,11 +107,9 @@ export interface CardSettings {
 }
 
 export interface PaymentMethodsConfig {
-  enabled_methods: Array<'pi' | 'cash' | 'card'>;
-  default_method: 'pi' | 'cash' | 'card';
+  enabled_methods: Array<'pi'>;
+  default_method: 'pi';
   pi_settings?: PiPaymentSettings;
-  cash_settings?: CashSettings;
-  card_settings?: CardSettings;
 }
 
 export interface DayHours {
