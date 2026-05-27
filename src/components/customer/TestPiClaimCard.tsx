@@ -4,14 +4,17 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Gift, Loader2, CheckCircle, Sparkles, AlertCircle } from 'lucide-react';
+import { Gift, Loader2, CheckCircle, Sparkles, AlertCircle, Wallet, Settings } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface TestPiClaimCardProps {
   userId: string;
 }
 
 export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
+  const router = useRouter();
   const [hasClaimed, setHasClaimed] = useState<boolean | null>(null);
+  const [hasWalletAddress, setHasWalletAddress] = useState<boolean>(false);
   const [isClaiming, setIsClaiming] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -26,6 +29,24 @@ export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
       setIsLoading(true);
       setError('');
 
+      // Get user details to check wallet address
+      const userResponse = await fetch(`/api/users/get-by-id`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId })
+      });
+
+      if (!userResponse.ok) {
+        throw new Error('Failed to get user details');
+      }
+
+      const userData = await userResponse.json();
+      const user = userData.user;
+
+      // Check if user has a wallet address
+      setHasWalletAddress(!!user?.pi_wallet_address);
+
+      // Check claim status
       const response = await fetch(`/api/customers/claim-test-pi?userId=${userId}`);
       const data = await response.json();
 
@@ -122,73 +143,106 @@ export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
 
   return (
     <div className="mb-6">
-      {hasClaimed === false ? (
+      {hasClaimed === false && !isLoading ? (
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Card className="bg-linear-to-br from-brand-cyan-900/20 to-brand-indigo-900/20 backdrop-blur-xl border border-brand-cyan-700/30 hover:shadow-glow transition-all duration-300">
-            <div className="p-6">
-              <div className="flex items-center gap-4">
-                {/* Icon */}
-                <div className="relative">
-                  <div className="w-16 h-16 bg-linear-to-br from-brand-cyan-400 to-brand-cyan-600 rounded-2xl flex items-center justify-center shadow-lg">
-                    <Gift className="w-8 h-8 text-brand-dark-950" />
-                  </div>
-                  <div className="absolute -top-1 -right-1 w-6 h-6 bg-brand-cyan-400 rounded-full flex items-center justify-center">
-                    <Sparkles className="w-4 h-4 text-brand-dark-950" />
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="flex-1">
-                  <h3 className="text-xl font-display font-bold text-brand-indigo-100 mb-1">
-                    Claim Your Test Pi
-                  </h3>
-                  <p className="text-brand-indigo-300 text-sm mb-3">
-                    Get 1 test Pi to explore the platform - one-time pioneer bonus!
-                  </p>
-
-                  {error && (
-                    <div className="bg-red-900/30 border border-red-700/50 rounded-lg p-2 mb-3">
-                      <p className="text-red-300 text-sm flex items-center gap-2">
-                        <AlertCircle className="w-4 h-4" />
-                        {error}
-                      </p>
+          {hasWalletAddress ? (
+            <Card className="bg-linear-to-br from-brand-cyan-900/20 to-brand-indigo-900/20 backdrop-blur-xl border border-brand-cyan-700/30 hover:shadow-glow transition-all duration-300">
+              <div className="p-6">
+                <div className="flex items-center gap-4">
+                  {/* Icon */}
+                  <div className="relative">
+                    <div className="w-16 h-16 bg-linear-to-br from-brand-cyan-400 to-brand-cyan-600 rounded-2xl flex items-center justify-center shadow-lg">
+                      <Gift className="w-8 h-8 text-brand-dark-950" />
                     </div>
-                  )}
-
-                  {successMessage && (
-                    <div className="bg-green-900/30 border border-green-700/50 rounded-lg p-2 mb-3">
-                      <p className="text-green-300 text-sm flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4" />
-                        {successMessage}
-                      </p>
+                    <div className="absolute -top-1 -right-1 w-6 h-6 bg-brand-cyan-400 rounded-full flex items-center justify-center">
+                      <Sparkles className="w-4 h-4 text-brand-dark-950" />
                     </div>
-                  )}
+                  </div>
 
-                  <Button
-                    onClick={handleClaim}
-                    disabled={isClaiming}
-                    className="w-full md:w-auto"
-                  >
-                    {isClaiming ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Claiming...
-                      </>
-                    ) : (
-                      <>
-                        <Gift className="mr-2 h-4 w-4" />
-                        Claim 1 Test Pi
-                      </>
+                  {/* Content */}
+                  <div className="flex-1">
+                    <h3 className="text-xl font-display font-bold text-brand-indigo-100 mb-1">
+                      Claim Your Test Pi
+                    </h3>
+                    <p className="text-brand-indigo-300 text-sm mb-3">
+                      Get 1 test Pi to explore the platform - one-time pioneer bonus!
+                    </p>
+
+                    {error && (
+                      <div className="bg-red-900/30 border border-red-700/50 rounded-lg p-2 mb-3">
+                        <p className="text-red-300 text-sm flex items-center gap-2">
+                          <AlertCircle className="w-4 h-4" />
+                          {error}
+                        </p>
+                      </div>
                     )}
-                  </Button>
+
+                    {successMessage && (
+                      <div className="bg-green-900/30 border border-green-700/50 rounded-lg p-2 mb-3">
+                        <p className="text-green-300 text-sm flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4" />
+                          {successMessage}
+                        </p>
+                      </div>
+                    )}
+
+                    <Button
+                      onClick={handleClaim}
+                      disabled={isClaiming}
+                      className="w-full md:w-auto"
+                    >
+                      {isClaiming ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Claiming...
+                        </>
+                      ) : (
+                        <>
+                          <Gift className="mr-2 h-4 w-4" />
+                          Claim 1 Test Pi
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </div>
-            </div>
-          </Card>
+            </Card>
+          ) : (
+            <Card className="bg-linear-to-br from-orange-900/20 to-brand-indigo-900/20 backdrop-blur-xl border border-orange-700/30 hover:shadow-glow transition-all duration-300">
+              <div className="p-6">
+                <div className="flex items-center gap-4">
+                  {/* Icon */}
+                  <div className="relative">
+                    <div className="w-16 h-16 bg-linear-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
+                      <Wallet className="w-8 h-8 text-brand-dark-950" />
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1">
+                    <h3 className="text-xl font-display font-bold text-brand-indigo-100 mb-1">
+                      Setup Your Pi Wallet
+                    </h3>
+                    <p className="text-brand-indigo-300 text-sm mb-3">
+                      You need to add your Pi wallet address before claiming Test Pi.
+                    </p>
+
+                    <Button
+                      onClick={() => router.push('/account-settings')}
+                      className="w-full md:w-auto"
+                    >
+                      <Settings className="mr-2 h-4 w-4" />
+                      Go to Settings
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          )}
         </motion.div>
       ) : (
         /* Loading state */
