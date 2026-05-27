@@ -17,6 +17,13 @@ export default function Home() {
     if (isAuthenticated && user && !isRouting) {
       setIsRouting(true);
 
+      // Check if user has completed onboarding
+      if (!user.onboardingComplete) {
+        router.push('/onboarding');
+        return;
+      }
+
+      // Onboarding complete - route based on merchant status
       if (merchantId) {
         router.push('/mode-selection');
       } else {
