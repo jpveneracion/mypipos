@@ -240,7 +240,10 @@ export default function CustomerPage() {
                 </div>
               </Card>
 
-              <Card className="bg-brand-indigo-900/30 backdrop-blur-xl border border-brand-indigo-800/50 hover:shadow-glass transition-all duration-300 cursor-pointer group">
+              <Card
+                className="bg-brand-indigo-900/30 backdrop-blur-xl border border-brand-indigo-800/50 hover:shadow-glass transition-all duration-300 cursor-pointer group"
+                onClick={() => router.push('/account-settings')}
+              >
                 <div className="p-6">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-linear-to-br from-brand-cyan-400/10 to-brand-cyan-600/10 rounded-xl flex items-center justify-center border border-brand-cyan-700/30 group-hover:scale-110 transition-transform">
