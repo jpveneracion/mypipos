@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const PINATA_JWT = process.env.PINATA_JWT;
 const PINATA_GATEWAY = process.env.NEXT_PUBLIC_PINATA_GATEWAY || 'https://gateway.pinata.cloud';
+const PINATA_GROUP_ID = process.env.PINATA_GROUP_ID || '86156b69-922f-4b4a-9e92-ff672f132a41';
 
 export async function POST(req: NextRequest) {
   try {
@@ -63,6 +64,7 @@ export async function POST(req: NextRequest) {
       keyvalues: {
         app: 'mypipos',
         uploadedAt: new Date().toISOString(),
+        group_id: PINATA_GROUP_ID,
       },
     });
     pinataForm.append('pinataMetadata', metadata);
