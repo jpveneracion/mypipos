@@ -65,12 +65,28 @@ export async function GET(request: NextRequest) {
 
     const settings = result.rows[0].get_user_account_settings;
 
-    // Return business settings
+    // Fetch merchant basic information
+    const merchantResult = await query(
+      'SELECT business_name, email, phone, website, city, state, postal_code, country FROM merchants WHERE id = $1',
+      [merchant_id]
+    );
+
+    const merchantInfo = merchantResult.rows[0] || {};
+
+    // Return business settings combined with merchant info
     return NextResponse.json({
       success: true,
       data: {
         merchant_id: merchant_id,
         business: {
+          business_name: merchantInfo.business_name,
+          email: merchantInfo.email,
+          phone: merchantInfo.phone,
+          website: merchantInfo.website,
+          city: merchantInfo.city,
+          state: merchantInfo.state,
+          postal_code: merchantInfo.postal_code,
+          country: merchantInfo.country,
           payment_methods: settings.business?.payment_methods || {},
           store_hours: settings.business?.store_hours || {},
           store_locations: settings.business?.store_locations || [],

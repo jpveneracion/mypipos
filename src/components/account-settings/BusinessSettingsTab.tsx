@@ -28,6 +28,57 @@ export default function BusinessSettingsTab({
 
   return (
     <div className="space-y-6">
+      {/* Business Information */}
+      <Card>
+        <div className="p-6">
+          <h2 className="text-xl font-semibold mb-4">Business Information</h2>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Business/Store Name
+              </label>
+              <input
+                type="text"
+                value={settings.business?.business_name || 'Loading...'}
+                disabled
+                className="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md"
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                Contact support to change your business name
+              </p>
+            </div>
+
+            {settings.business?.email && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Business Email
+                </label>
+                <input
+                  type="email"
+                  value={settings.business.email}
+                  disabled
+                  className="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md"
+                />
+              </div>
+            )}
+
+            {settings.business?.phone && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Business Phone
+                </label>
+                <input
+                  type="tel"
+                  value={settings.business.phone}
+                  disabled
+                  className="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md"
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      </Card>
+
       {/* Payment Methods */}
       <Card>
         <div className="p-6">

@@ -180,6 +180,14 @@ export interface AnalyticsConfig {
 export interface BusinessSettings {
   merchant_id?: string;
   business: {
+    business_name?: string;
+    email?: string;
+    phone?: string;
+    website?: string;
+    city?: string;
+    state?: string;
+    postal_code?: string;
+    country?: string;
     payment_methods: PaymentMethodsConfig;
     store_hours: StoreHours;
     store_locations: StoreLocation[];
