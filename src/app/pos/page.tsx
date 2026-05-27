@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '@/lib/store';
@@ -59,6 +59,15 @@ export default function POSPage() {
   const [productsError, setProductsError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<string[]>([]); // Visual debugging for Pi browser
+
+  // Helper function to add debug messages
+  const addDebug = useCallback((message: string) => {
+    const timestamp = new Date().toLocaleTimeString();
+    const debugMessage = `[${timestamp}] ${message}`;
+    console.log(debugMessage); // Still log to console
+    setDebugInfo(prev => [...prev, debugMessage].slice(-20)); // Keep last 20 messages
+  }, []);
 
   // Auth check
   useEffect(() => {
@@ -79,7 +88,12 @@ export default function POSPage() {
     return () => { delete (window as any).openScanner; };
   }, []);
 
-  // Fetch products from API
+  // Log scanner state changes
+  useEffect(() => {
+    if (showScanner) {
+      addDebug('=== RENDERING SCANNER MODAL ===');
+    }
+  }, [showScanner, addDebug]);
   useEffect(() => {
     const fetchProducts = async () => {
       if (!merchantId) return;
@@ -108,6 +122,27 @@ export default function POSPage() {
   }, [merchantId]);
 
   const { items, addItem, removeItem, updateQuantity, getSubtotal, getTax, getTotal, clearCart, setMerchantTaxRate, merchantTaxRate } = useCartStore();
+
+  // Memoized scanner handlers to prevent remounting
+  const handleScannerScan = useCallback((barcode: string) => {
+    addDebug('=== SCANNER SCAN CALLBACK ===');
+    addDebug(`Barcode from scanner: ${barcode}`);
+    addDebug(`Current scanner mode: ${scannerMode}`);
+
+    if (scannerMode === 'product') {
+      addDebug('Calling handleBarcodeScanned');
+      handleBarcodeScanned(barcode);
+    } else {
+      addDebug('Calling handleCustomerQRScanned');
+      handleCustomerQRScanned(barcode);
+    }
+  }, [scannerMode, handleBarcodeScanned, handleCustomerQRScanned, addDebug]);
+
+  const handleScannerClose = useCallback(() => {
+    addDebug('=== SCANNER CLOSE CALLBACK ===');
+    setShowScanner(false);
+    addDebug('Scanner close requested, showScanner set to false');
+  }, [addDebug]);
 
   // Fetch merchant data to get tax rate
   useEffect(() => {
@@ -148,55 +183,51 @@ export default function POSPage() {
     return matchesCategory && matchesSearch;
   });
 
-  const handleBarcodeScanned = async (barcode: string) => {
+  const handleBarcodeScanned = useCallback(async (barcode: string) => {
     try {
-      console.log('=== BARCODE SCAN START ===');
-      console.log('Barcode scanned:', barcode);
-      console.log('Current scanner mode:', scannerMode);
-      console.log('Current products:', products.length);
-      console.log('Selected customer:', selectedCustomer);
-      console.log('Scanner show state:', showScanner);
+      addDebug('=== BARCODE SCAN START ===');
+      addDebug(`Barcode scanned: ${barcode}`);
+      addDebug(`Scanner mode: ${scannerMode}`);
+      addDebug(`Products available: ${products.length}`);
+      addDebug(`Selected customer: ${selectedCustomer?.name || 'None'}`);
+      addDebug(`Scanner show state: ${showScanner}`);
 
       setActionError(null);
       setIsProcessing(true);
 
       const product = products.find(p => p.barcode === barcode);
-      console.log('Found product:', product ? product.name : 'NOT FOUND');
+      addDebug(`Found product: ${product ? product.name : 'NOT FOUND'}`);
 
       if (product) {
         // Product exists - add to cart
-        console.log('Adding product to cart:', product.name);
+        addDebug(`Adding product to cart: ${product.name}`);
         addItem(product);
-        console.log('Product added, closing scanner');
+        addDebug('Product added, closing scanner');
         setShowScanner(false);
-        console.log('Scanner closed, state should be false');
+        addDebug('Scanner closed, state should be false');
       } else {
         // Product doesn't exist - show error
         const errorMsg = `Product with barcode "${barcode}" not found in your inventory.\n\nPlease scan a valid product barcode.`;
-        console.error('Product not found, throwing error');
+        addDebug(`Product not found, throwing error: ${errorMsg}`);
         throw new Error(errorMsg);
       }
     } catch (error) {
-      console.error('=== BARCODE SCAN ERROR ===');
-      console.error('Error object:', error);
-      console.error('Error message:', error instanceof Error ? error.message : 'Unknown error');
-      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack');
-      console.error('========================');
-
+      addDebug('=== BARCODE SCAN ERROR ===');
+      addDebug(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
       const errorMessage = error instanceof Error ? error.message : 'Failed to process barcode scan';
       setActionError(errorMessage);
       // Don't close the scanner on error - let merchant try again
     } finally {
       setIsProcessing(false);
-      console.log('=== BARCODE SCAN END ===');
+      addDebug('=== BARCODE SCAN END ===');
     }
-  };
+  }, [products, addItem, scannerMode, selectedCustomer, showScanner, addDebug]); // Dependencies for useCallback
 
-  const handleCustomerQRScanned = async (customerData: string) => {
+  const handleCustomerQRScanned = useCallback(async (customerData: string) => {
     try {
-      console.log('=== CUSTOMER QR SCAN START ===');
-      console.log('Customer data scanned:', customerData);
-      console.log('Current scanner mode:', scannerMode);
+      addDebug('=== CUSTOMER QR SCAN START ===');
+      addDebug(`Customer data scanned: ${customerData}`);
+      addDebug(`Scanner mode: ${scannerMode}`);
 
       setActionError(null);
       setIsProcessing(true);
@@ -207,26 +238,23 @@ export default function POSPage() {
         piUsername: customerData.includes('@') ? customerData : `@${customerData}`,
       };
 
-      console.log('Created mock customer:', mockCustomer);
+      addDebug(`Created mock customer: ${mockCustomer.name}`);
       setSelectedCustomer(mockCustomer);
-      console.log('Customer set, closing scanner');
+      addDebug('Customer set, closing scanner');
       setShowScanner(false);
-      console.log('Scanner closed');
+      addDebug('Scanner closed');
 
       alert(`Customer identified: ${mockCustomer.name}`);
-      console.log('=== CUSTOMER QR SCAN END ===');
+      addDebug('=== CUSTOMER QR SCAN END ===');
     } catch (error) {
-      console.error('=== CUSTOMER SCAN ERROR ===');
-      console.error('Error object:', error);
-      console.error('Error message:', error instanceof Error ? error.message : 'Unknown error');
-      console.error('============================');
-
+      addDebug('=== CUSTOMER SCAN ERROR ===');
+      addDebug(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
       const errorMessage = error instanceof Error ? error.message : 'Failed to identify customer';
       setActionError(errorMessage);
     } finally {
       setIsProcessing(false);
     }
-  };
+  }, [scannerMode, addDebug]); // Dependencies for useCallback
 
   const handleCheckout = async () => {
     try {
@@ -270,29 +298,9 @@ export default function POSPage() {
       {/* Scanner Modal */}
       {showScanner && (
         <>
-          {console.log('=== RENDERING SCANNER MODAL ===', { showScanner, scannerMode, isProcessing })}
           <BarcodeScanner
-            onScan={(barcode) => {
-              console.log('=== BARCODE SCANNER ON SCAN CALLED ===');
-              console.log('Barcode from scanner:', barcode);
-              console.log('Scanner mode:', scannerMode);
-              console.log('About to call handler...');
-
-              if (scannerMode === 'product') {
-                console.log('Calling handleBarcodeScanned');
-                handleBarcodeScanned(barcode);
-              } else {
-                console.log('Calling handleCustomerQRScanned');
-                handleCustomerQRScanned(barcode);
-              }
-
-              console.log('Handler call completed');
-            }}
-            onClose={() => {
-              console.log('=== BARCODE SCANNER ON CLOSE CALLED ===');
-              setShowScanner(false);
-              console.log('Scanner close requested');
-            }}
+            onScan={handleScannerScan}
+            onClose={handleScannerClose}
             mode={scannerMode}
           />
           {/* Processing Overlay */}
@@ -305,6 +313,26 @@ export default function POSPage() {
             </div>
           )}
         </>
+      )}
+
+      {/* Visual Debug Display (for Pi browser) */}
+      {debugInfo.length > 0 && (
+        <div className="fixed bottom-4 left-4 z-[99999] bg-black/90 border border-brand-cyan-500 rounded-lg p-2 max-w-sm max-h-64 overflow-y-auto">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-brand-cyan-400 text-xs font-bold">Debug Log</p>
+            <button
+              onClick={() => setDebugInfo([])}
+              className="text-brand-magenta-400 text-xs hover:text-brand-magenta-300"
+            >
+              Clear
+            </button>
+          </div>
+          {debugInfo.map((msg, i) => (
+            <p key={i} className="text-brand-indigo-300 text-xs font-mono mb-1">
+              {msg}
+            </p>
+          ))}
+        </div>
       )}
 
       {/* Shared Header */}
