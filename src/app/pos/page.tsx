@@ -44,7 +44,7 @@ const productIcons: Record<string, React.ReactNode> = {
 
 export default function POSPage() {
   const router = useRouter();
-  const { isAuthenticated, merchantId, currentContext, setMerchantData } = useAuthStore();
+  const { isAuthenticated, merchantId, currentContext, setMerchantData, user } = useAuthStore();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [showScanner, setShowScanner] = useState(false);
@@ -260,6 +260,7 @@ export default function POSPage() {
         body: JSON.stringify({
           customerPiUid: customerData,
           merchantId: merchantId,
+          cashierId: user?.id, // Use authenticated user's ID as cashier
           registerId: 'pos-terminal-1'
         })
       });

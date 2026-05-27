@@ -11,10 +11,11 @@ import { decodeCustomerQR } from '@/lib/qr-codes';
 
 export async function POST(request: NextRequest) {
   try {
-    const { customerPiUid, merchantId, registerId } = await request.json();
+    const { customerPiUid, merchantId, cashierId, registerId } = await request.json();
 
     console.log('=== CUSTOMER QR SCAN API ===');
     console.log('Raw QR data:', customerPiUid);
+    console.log('Cashier ID:', cashierId);
 
     let customerId: string;
 
@@ -56,6 +57,7 @@ export async function POST(request: NextRequest) {
         transaction_number,
         merchant_id,
         customer_id,
+        cashier_id,
         subtotal,
         tax_amount,
         total_amount,
@@ -66,12 +68,13 @@ export async function POST(request: NextRequest) {
         status,
         register_id,
         created_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
       RETURNING id`,
       [
         invoiceNumber,
         merchantId,
         customer.id, // **LINK TO CUSTOMER**
+        cashierId,  // **CASHIER (authenticated user)**
         0,
         0,
         0,
