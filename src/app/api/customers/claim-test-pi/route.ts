@@ -22,27 +22,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Step 1: Check if user has already claimed test Pi
-    const existingClaimResult = await query(
-      `SELECT * FROM a2u_payments
-       WHERE to_user_id = $1
-       AND transaction_type = 'reward'
-       AND metadata->>'reward_type' = 'test_pi_claim'
-       AND status = 'completed'
-       LIMIT 1`,
-      [userId]
-    );
-
-    if (existingClaimResult.rows.length > 0) {
-      return NextResponse.json({
-        success: false,
-        error: 'Already claimed',
-        message: 'You have already claimed your 1 test Pi bonus',
-        alreadyClaimed: true
-      });
-    }
-
-    // Step 2: Get user details
+    // Step 1: Get user details first (needed for wallet address check)
     const userResult = await query(
       `SELECT * FROM users WHERE id = $1`,
       [userId]
@@ -57,11 +37,38 @@ export async function POST(request: NextRequest) {
 
     const user = userResult.rows[0];
 
+    if (!user.pi_wallet_address) {
+      return NextResponse.json(
+        { success: false, error: 'User does not have a Pi wallet address. Please add it in account settings first.' },
+        { status: 400 }
+      );
+    }
+
     if (!user.pi_uid) {
       return NextResponse.json(
         { success: false, error: 'User does not have Pi UID. Please authenticate with Pi Network first.' },
         { status: 400 }
       );
+    }
+
+    // Step 2: Check if this wallet address has already claimed test Pi (one per wallet address)
+    const existingClaimResult = await query(
+      `SELECT * FROM a2u_payments
+       WHERE to_address = $1
+       AND transaction_type = 'customer_reward'
+       AND metadata->>'reward_type' = 'test_pi_claim'
+       AND status = 'completed'
+       LIMIT 1`,
+      [user.pi_wallet_address]
+    );
+
+    if (existingClaimResult.rows.length > 0) {
+      return NextResponse.json({
+        success: false,
+        error: 'Already claimed',
+        message: 'This wallet address has already claimed the 1 test Pi bonus',
+        alreadyClaimed: true
+      });
     }
 
     // Step 3: Import and call A2U payment logic directly
@@ -116,15 +123,30 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Check if user has already claimed (using A2U payments)
+    // Get user details to check wallet address
+    const userResult = await query(
+      `SELECT pi_wallet_address FROM users WHERE id = $1`,
+      [userId]
+    );
+
+    if (!userResult.rows[0]) {
+      return NextResponse.json(
+        { success: false, error: 'User not found' },
+        { status: 404 }
+      );
+    }
+
+    const user = userResult.rows[0];
+
+    // Check if this wallet address has already claimed (one per wallet address)
     const existingClaimResult = await query(
       `SELECT * FROM a2u_payments
-       WHERE to_user_id = $1
+       WHERE to_address = $1
        AND transaction_type = 'customer_reward'
        AND metadata->>'reward_type' = 'test_pi_claim'
        AND status = 'completed'
        LIMIT 1`,
-      [userId]
+      [user.pi_wallet_address]
     );
 
     const hasClaimed = existingClaimResult.rows.length > 0;
