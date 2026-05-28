@@ -177,13 +177,13 @@ export default function CustomerPage() {
                   {console.log('=== CUSTOMER PAGE USER DATA ===')}
                   {console.log('User object:', JSON.stringify(user, null, 2))}
                   {console.log('User ID:', user.id)}
-                  {console.log('User piUsername:', user.pi_username)}
-                  {console.log('User piUsername (alt):', user.piUsername)}
+                  {console.log('User piUsername:', user.piUsername)}
+                  {console.log('User pi_username:', (user as any).pi_username)}
                   {console.log('=====================================')}
                   <CustomerQRCode
                     user={{
                       id: user.id,
-                      username: user.pi_username || user.piUsername || 'unknown'
+                      username: user.piUsername || 'unknown'
                     }}
                   />
                 </>
