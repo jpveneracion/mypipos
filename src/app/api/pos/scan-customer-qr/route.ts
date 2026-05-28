@@ -17,32 +17,25 @@ export async function POST(request: NextRequest) {
     console.log('Raw QR data:', customerPiUid);
     console.log('Cashier ID:', cashierId);
 
-    let customerId: string;
+    let customerUsername: string;
 
     // Try to decode as base64-encoded QR data first
     const decodedQR = decodeCustomerQR(customerPiUid);
     if (decodedQR) {
       console.log('✅ Valid QR code decoded:', decodedQR);
-      customerId = decodedQR.i; // Use customer ID from decoded QR data
+      customerUsername = decodedQR.u; // Use username from decoded QR data
     } else {
-      // Check if it's a raw UUID (new simple format)
-      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-      if (uuidRegex.test(customerPiUid)) {
-        console.log('✅ New simple QR format detected');
-        customerId = customerPiUid;
-      } else {
-        // Fallback: treat as raw customer ID (for backward compatibility)
-        console.log('⚠️ QR decode failed, treating as raw customer ID');
-        customerId = customerPiUid;
-      }
+      // Simple format: just the username
+      console.log('✅ Simple username QR format detected');
+      customerUsername = customerPiUid;
     }
 
-    console.log('Looking up customer ID:', customerId);
+    console.log('Looking up customer by username:', customerUsername);
 
-    // Step 1: Find customer by ID
+    // Step 1: Find customer by username (pi_username column)
     const customerResult = await query(
-      `SELECT * FROM users WHERE id = $1`,
-      [customerId]
+      `SELECT * FROM users WHERE pi_username = $1`,
+      [customerUsername]
     );
 
     if (!customerResult.rows[0]) {

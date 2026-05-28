@@ -9,8 +9,8 @@ import type { CustomerQRData } from '@/types/customer';
 export async function generateCustomerQR(
   customer: { id: string; username: string }
 ): Promise<string> {
-  // Simple format: customer ID only (much shorter = faster scanning)
-  const qrData = customer.id;
+  // Simple format: just the username (easiest to scan and remember)
+  const qrData = customer.username;
 
   return await QRCode.toDataURL(qrData, {
     errorCorrectionLevel: 'H',  // High error correction for better scanning
@@ -21,25 +21,10 @@ export async function generateCustomerQR(
 
 /**
  * Decode customer QR code data
- * Now handles simple customer ID format for instant scanning
+ * Now handles simple username format for instant scanning
  */
 export function decodeCustomerQR(qrData: string): CustomerQRData | null {
   try {
-    // Simple format: just the customer ID
-    // Check if it's a valid UUID format
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (uuidRegex.test(qrData)) {
-      // Return minimal structure for backwards compatibility
-      return {
-        t: "mpp_c",
-        v: "2.0",
-        u: "",
-        i: qrData,
-        ts: Math.floor(Date.now() / 1000),
-        s: ""
-      };
-    }
-
     // Try old format for backwards compatibility
     const decoded = JSON.parse(atob(qrData));
     if (decoded.t && decoded.t === 'mpp_c') {
