@@ -173,12 +173,20 @@ export default function CustomerPage() {
               </div>
 
               {user && (
-                <CustomerQRCode
-                  user={{
-                    id: user.id,
-                    username: user.piUsername
-                  }}
-                />
+                <>
+                  {console.log('=== CUSTOMER PAGE USER DATA ===')}
+                  {console.log('User object:', JSON.stringify(user, null, 2))}
+                  {console.log('User ID:', user.id)}
+                  {console.log('User piUsername:', user.pi_username)}
+                  {console.log('User piUsername (alt):', user.piUsername)}
+                  {console.log('=====================================')}
+                  <CustomerQRCode
+                    user={{
+                      id: user.id,
+                      username: user.pi_username || user.piUsername || 'unknown'
+                    }}
+                  />
+                </>
               )}
             </Card>
           </motion.div>
