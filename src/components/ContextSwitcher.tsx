@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 interface ContextSwitcherProps {
   className?: string;
@@ -13,34 +13,63 @@ export default function ContextSwitcher({ className = '' }: ContextSwitcherProps
   const { merchantId, currentContext, setContext, user } = useAuthStore();
   const [isOpen, setIsOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const isNavigating = useRef(false);
 
   // Only show context switcher if user has a merchantId
   if (!merchantId) {
     return null;
   }
 
-  const handleContextSwitch = (newContext: 'merchant' | 'customer') => {
-    if (newContext === currentContext) return;
+  const handleContextSwitch = useCallback((newContext: 'merchant' | 'customer') => {
+    if (newContext === currentContext || isNavigating.current) return;
 
-    setContext(newContext);
+    isNavigating.current = true;
 
     // Smart routing - stay on current page if possible, redirect only if needed
     const currentPath = window.location.pathname;
 
+    // First navigate, then update context to prevent race conditions
     if (newContext === 'merchant') {
       // Stay on current page unless it's customer-only
       if (currentPath === '/customer') {
         router.push('/mode-selection');
+      } else {
+        // Just update context, no navigation needed
+        setContext(newContext);
+        isNavigating.current = false;
+        return;
       }
     } else {
       // Switching to customer - redirect from POS/IMS to customer
       if (currentPath.startsWith('/pos') || currentPath.startsWith('/ims') || currentPath === '/mode-selection') {
         router.push('/customer');
+      } else {
+        // Just update context, no navigation needed
+        setContext(newContext);
+        isNavigating.current = false;
+        return;
       }
     }
 
+    // Update context after navigation starts
+    setTimeout(() => {
+      setContext(newContext);
+      isNavigating.current = false;
+    }, 100);
+
     setIsOpen(false);
-  };
+  }, [currentContext, router, setContext]);
+
+  // Reset navigation flag after route changes
+  useEffect(() => {
+    const resetNavFlag = () => {
+      isNavigating.current = false;
+    };
+
+    // Listen for route changes to reset the navigation flag
+    window.addEventListener('popstate', resetNavFlag);
+    return () => window.removeEventListener('popstate', resetNavFlag);
+  }, []);
 
   const toggleDropdown = () => {
     if (isOpen) {

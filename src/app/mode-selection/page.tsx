@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '@/lib/store';
@@ -29,10 +29,11 @@ export default function ModeSelectionPage() {
   const { isAuthenticated, user, merchantId, currentContext, setContext } = useAuthStore();
   const [isLoading, setIsLoading] = useState(true);
   const [hasRouted, setHasRouted] = useState(false);
+  const isNavigating = useRef(false);
 
   useEffect(() => {
     // Prevent routing loops
-    if (hasRouted) return;
+    if (hasRouted || isNavigating.current) return;
 
     if (!isAuthenticated) {
       setHasRouted(true);
@@ -101,10 +102,16 @@ export default function ModeSelectionPage() {
               <button
                 onClick={() => {
                   // Prevent multiple clicks
-                  if (hasRouted) return;
+                  if (hasRouted || isNavigating.current) return;
+                  isNavigating.current = true;
                   setHasRouted(true);
-                  setContext('merchant');
+
+                  // Navigate first, then update context to prevent race conditions
                   router.push('/pos');
+                  setTimeout(() => {
+                    setContext('merchant');
+                    isNavigating.current = false;
+                  }, 50);
                 }}
                 className="glass-card p-8 text-left hover:shadow-glass transition-all duration-300 group w-full"
               >
@@ -159,10 +166,16 @@ export default function ModeSelectionPage() {
               <button
                 onClick={() => {
                   // Prevent multiple clicks
-                  if (hasRouted) return;
+                  if (hasRouted || isNavigating.current) return;
+                  isNavigating.current = true;
                   setHasRouted(true);
-                  setContext('customer');
+
+                  // Navigate first, then update context to prevent race conditions
                   router.push('/customer');
+                  setTimeout(() => {
+                    setContext('customer');
+                    isNavigating.current = false;
+                  }, 50);
                 }}
                 className="glass-card p-8 text-left hover:shadow-glass transition-all duration-300 group w-full"
               >
