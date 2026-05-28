@@ -94,14 +94,14 @@ export default function CustomerQRCode({ user }: CustomerQRCodeProps) {
         {/* QR Code Container */}
         <div className="flex flex-col items-center justify-center mb-8">
           {isLoading ? (
-            <div className="w-72 h-72 flex items-center justify-center glass-card rounded-2xl border-2 border-dashed border-[#14D3C5]/30">
+            <div className="w-64 h-64 sm:w-72 sm:h-72 md:w-80 md:h-80 lg:w-96 lg:h-96 flex items-center justify-center glass-card rounded-2xl border-2 border-dashed border-[#14D3C5]/30">
               <div className="flex flex-col items-center gap-4">
                 <div className="w-14 h-14 border-4 border-[#14D3C5] border-t-transparent rounded-full animate-spin" />
                 <p className="text-brand-indigo-200 font-semibold">Generating QR Code...</p>
               </div>
             </div>
           ) : error ? (
-            <div className="w-72 h-72 flex items-center justify-center glass-card border-2 border-red-500/50">
+            <div className="w-64 h-64 sm:w-72 sm:h-72 md:w-80 md:h-80 lg:w-96 lg:h-96 flex items-center justify-center glass-card border-2 border-red-500/50">
               <div className="text-center px-6">
                 <div className="text-5xl mb-3">⚠️</div>
                 <p className="text-red-300 font-bold mb-2">Error</p>
@@ -116,13 +116,16 @@ export default function CustomerQRCode({ user }: CustomerQRCodeProps) {
               </div>
             </div>
           ) : (
-            <div className="relative group">
+            <div className="relative group flex items-center justify-center">
               <div className="absolute inset-0 bg-gradient-to-r from-[#14D3C5] to-[#25ede1] rounded-2xl blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-300" />
-              <img
-                src={qrCodeUrl}
-                alt="Payment QR Code"
-                className="relative w-72 h-72 bg-brand-indigo-900/30 rounded-2xl shadow-glass border-2 border-[#14D3C5]/30 group-hover:scale-105 transition-transform duration-300"
-              />
+              <div className="relative w-64 h-64 sm:w-72 sm:h-72 md:w-80 md:h-80 lg:w-96 lg:h-96">
+                <img
+                  src={qrCodeUrl}
+                  alt="Payment QR Code"
+                  className="w-full h-full bg-brand-indigo-900/30 rounded-2xl shadow-glass border-2 border-[#14D3C5]/30 group-hover:scale-105 transition-transform duration-300 object-contain"
+                  style={{ aspectRatio: '1/1' }}
+                />
+              </div>
             </div>
           )}
         </div>
