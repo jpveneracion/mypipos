@@ -56,27 +56,63 @@ export default function PiAuthButton() {
 
       // 2. Request the wallet address separately
       let walletAddress = null;
-      try {
-        const walletData = await (window as any).Pi.getWalletAddress();
-        walletAddress = walletData || null;
+      let debugInfo: any = {
+        piMethods: [],
+        walletAttempts: []
+      };
 
-        console.log('🔑 Pi Wallet address from getWalletAddress:', {
-          address: walletAddress ? `${walletAddress.substring(0, 10)}...` : null,
-          length: walletAddress?.length
-        });
-      } catch (walletError) {
-        console.warn('Failed to fetch wallet address:', walletError);
-        // Continue without wallet address - user might have denied access
+      try {
+        debugInfo.piMethods = Object.keys(window.Pi);
+        debugInfo.getWalletAddressExists = typeof (window as any).Pi.getWalletAddress;
+
+        // Try different methods that might exist
+        const walletMethods = [
+          'getWalletAddress',
+          'getWallet',
+          'getAccount',
+          'getUserAccounts'
+        ];
+
+        for (const method of walletMethods) {
+          if (typeof (window as any).Pi[method] === 'function') {
+            debugInfo.walletAttempts.push(method);
+
+            try {
+              const result = await (window as any).Pi[method]();
+              debugInfo[`${method}Result`] = result;
+
+              if (result && (result.address || typeof result === 'string')) {
+                walletAddress = result.address || result;
+                debugInfo.foundWallet = {
+                  method,
+                  preview: walletAddress.substring(0, 10) + '...'
+                };
+                break;
+              }
+            } catch (methodError: any) {
+              debugInfo[`${method}Error`] = methodError?.message || String(methodError);
+            }
+          }
+        }
+
+        if (!walletAddress) {
+          debugInfo.authResponseKeys = Object.keys(auth);
+          debugInfo.userKeys = auth.user ? Object.keys(auth.user) : 'no user';
+          debugInfo.userWallet = (auth as any).user?.wallet;
+        }
+      } catch (walletError: any) {
+        debugInfo.walletError = walletError?.message || String(walletError);
       }
 
-      // 3. Send both to backend
+      // 3. Send both to backend with debug info
       const response = await fetch('/api/auth/pi', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           accessToken: auth.accessToken,
           user: auth.user,
-          walletAddress: walletAddress
+          walletAddress: walletAddress,
+          _debug: debugInfo // Send debug info to server logs
         }),
       });
 
