@@ -9,6 +9,7 @@ import { Product } from '@/types';
 import Header from '@/components/Header';
 import BarcodeScanner from '@/components/pos/BarcodeScanner';
 import { Button } from '@/components/ui/Button';
+import { POSErrorBoundary } from '@/components/POSErrorBoundary';
 import { getCurrencySymbol, formatPrice } from '@/lib/currency';
 import {
   ShoppingCart,
@@ -360,7 +361,8 @@ export default function POSPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0D0F16] flex flex-col overflow-hidden">
+    <POSErrorBoundary>
+      <div className="min-h-screen bg-[#0D0F16] flex flex-col overflow-hidden">
       {/* Scanner Modal */}
       {showScanner && (
         <>
@@ -825,5 +827,6 @@ export default function POSPage() {
         </div>
       </div>
     </div>
+    </POSErrorBoundary>
   );
 }
