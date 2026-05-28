@@ -17,13 +17,17 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { accessToken, user } = body;
+    const { accessToken, user, walletAddress } = body;
 
     console.log(`📥 [PI AUTH] ${requestId} - Request body parsed`, {
       hasAccessToken: !!accessToken,
       hasUser: !!user,
       username: user?.username,
       uid: user?.uid,
+      hasWalletAddress: !!walletAddress,
+      walletAddressPreview: walletAddress ? `${walletAddress.substring(0, 10)}...` : null,
+      walletAddressFull: walletAddress, // Log full address to see if we're getting it
+      fullRequestBody: { accessToken, user, walletAddress } // Log everything
     });
 
     if (!accessToken) {
@@ -34,6 +38,14 @@ export async function POST(request: NextRequest) {
     if (!user || !user.uid || !user.username) {
       console.log(`⚠️ [PI AUTH] ${requestId} - Invalid user data`);
       return NextResponse.json({ error: 'Invalid user data' }, { status: 400 });
+    }
+
+    // Log wallet address (will be encrypted by database function)
+    if (walletAddress && walletAddress.length > 0) {
+      console.log(`✅ [PI AUTH] Wallet address extracted for encryption`, {
+        preview: `${walletAddress.substring(0, 10)}...`,
+        length: walletAddress.length
+      });
     }
 
     // 1. Verify with Pi Network API (CRITICAL - this was missing!)
@@ -84,15 +96,32 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 3. Create or update user using enhanced SECURITY DEFINER function
+    // 3. Check if user was previously deleted (soft delete check)
+    const deletedCheck = await query(
+      'SELECT id, deleted_at FROM users WHERE pi_uid = $1',
+      [user.uid]
+    );
+
+    if (deletedCheck.rows.length > 0 && deletedCheck.rows[0].deleted_at) {
+      console.log('⚠️ [PI AUTH] Deleted user attempting login', {
+        userId: deletedCheck.rows[0].id,
+        deletedAt: deletedCheck.rows[0].deleted_at
+      });
+      return NextResponse.json(
+        { error: 'This account has been deleted and cannot be used to login' },
+        { status: 403 }
+      );
+    }
+
+    // 4. Create or update user using enhanced SECURITY DEFINER function
     // IMPORTANT: Pass NULL for onboarding_complete to preserve existing value
     // If it's a new user, the function will default to false
     // If it's an existing user who completed onboarding, it stays true
-    console.log('🧠 [PI AUTH] Using enhanced SECURITY DEFINER function: create_or_update_user()');
+    console.log('🧠 [PI AUTH] Using enhanced SECURITY DEFINER function: create_or_update_user() with wallet address for encryption');
 
     const result = await query(
-      'SELECT * FROM create_or_update_user($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
-      [user.uid, user.username, 'pioneer', 'customer', null, null, null, null, null, null]
+      'SELECT * FROM create_or_update_user($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)',
+      [user.uid, user.username, 'pioneer', 'customer', null, null, null, null, null, null, walletAddress]
     );
 
     if (!result.rows || result.rows.length === 0) {

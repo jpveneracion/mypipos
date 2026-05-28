@@ -53,8 +53,33 @@ export default function PiAuthButton() {
       console.log('🥧 Pi Auth successful:', {
         uid: auth.user.uid,
         username: auth.user.username,
-        accessToken: auth.accessToken?.substring(0, 15) + '...'
+        accessToken: auth.accessToken?.substring(0, 15) + '...',
+        hasWalletAddress: !!(auth as any).user?.wallet?.address,
+        fullAuth: JSON.stringify(auth, (key, value) => {
+          if (key === 'accessToken' || key === 'authToken') return '***';
+          return value;
+        })
       });
+
+      // Extract wallet address if available (may be in different locations)
+      const walletAddress = (auth as any).user?.wallet?.address || (auth as any).wallet?.address || null;
+
+      console.log('🔍 Wallet address extraction attempt:', {
+        'auth.user.wallet': (auth as any).user?.wallet,
+        'auth.user.wallet.address': (auth as any).user?.wallet?.address,
+        'auth.wallet': (auth as any).wallet,
+        'auth.wallet.address': (auth as any).wallet?.address,
+        'final walletAddress': walletAddress
+      });
+
+      if (walletAddress) {
+        console.log('🔑 Pi Wallet address extracted:', {
+          address: `${walletAddress.substring(0, 10)}...`,
+          length: walletAddress.length
+        });
+      } else {
+        console.log('⚠️ No wallet address found in auth response');
+      }
 
       // Call backend to verify token and get/create user
       const response = await fetch('/api/auth/pi', {
@@ -62,7 +87,8 @@ export default function PiAuthButton() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           accessToken: auth.accessToken,
-          user: auth.user
+          user: auth.user,
+          walletAddress: walletAddress
         }),
       });
 

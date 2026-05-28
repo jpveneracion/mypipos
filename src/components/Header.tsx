@@ -16,9 +16,23 @@ export default function Header({ title, subtitle }: HeaderProps) {
   const { user, isAuthenticated, logout } = useAuthStore();
   const router = useRouter();
 
-  const handleLogout = () => {
-    logout();
-    router.push('/');
+  const handleLogout = async () => {
+    try {
+      // First clear Pi session if exists
+      if (typeof window !== 'undefined' && localStorage.getItem('pi_auth_session')) {
+        localStorage.removeItem('pi_auth_session');
+      }
+
+      // Then call logout function
+      logout();
+
+      // Navigate to home
+      router.push('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Force navigation even if error occurs
+      router.push('/');
+    }
   };
 
   return (
