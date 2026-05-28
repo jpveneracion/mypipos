@@ -25,9 +25,16 @@ export async function POST(request: NextRequest) {
       console.log('✅ Valid QR code decoded:', decodedQR);
       customerId = decodedQR.i; // Use customer ID from decoded QR data
     } else {
-      // Fallback: treat as raw customer ID (for backward compatibility)
-      console.log('⚠️ QR decode failed, treating as raw customer ID');
-      customerId = customerPiUid;
+      // Check if it's a raw UUID (new simple format)
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (uuidRegex.test(customerPiUid)) {
+        console.log('✅ New simple QR format detected');
+        customerId = customerPiUid;
+      } else {
+        // Fallback: treat as raw customer ID (for backward compatibility)
+        console.log('⚠️ QR decode failed, treating as raw customer ID');
+        customerId = customerPiUid;
+      }
     }
 
     console.log('Looking up customer ID:', customerId);

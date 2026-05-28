@@ -109,11 +109,11 @@ export interface InvoiceFilter {
 
 export interface CustomerQRData {
   t: 'mpp_c';  // type: myPiPOS customer
-  v: '1.0';    // version
+  v: '1.0' | '2.0';    // version
   u: string;   // username
   i: string;   // customer_id
-  ts: number;  // Unix timestamp (seconds)
-  s: string;   // signature
+  ts?: number;  // Unix timestamp (seconds) - optional in v2.0
+  s?: string;   // signature - optional in v2.0
 }
 
 export interface PaymentStatus {

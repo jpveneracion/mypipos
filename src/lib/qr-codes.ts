@@ -3,53 +3,50 @@ import QRCode from 'qrcode';
 import type { CustomerQRData } from '@/types/customer';
 
 /**
- * Generate condensed myPiPOS customer QR code
- * Optimized for fast scanning on merchant devices
+ * Generate simple myPiPOS customer QR code
+ * Optimized for instant scanning on merchant devices
  */
 export async function generateCustomerQR(
   customer: { id: string; username: string }
 ): Promise<string> {
-  // Condensed keys for 40% smaller QR code
-  const qrData: CustomerQRData = {
-    t: "mpp_c",                    // type: myPiPOS customer
-    v: "1.0",                      // version
-    u: customer.username,          // username
-    i: customer.id,                // customer_id
-    ts: Math.floor(Date.now() / 1000),  // Unix timestamp (seconds)
-    s: generateSignature(customer.id)    // signature
-  };
+  // Simple format: customer ID only (much shorter = faster scanning)
+  const qrData = customer.id;
 
-  const encoded = Buffer.from(JSON.stringify(qrData)).toString('base64');
-  return await QRCode.toDataURL(encoded, {
-    errorCorrectionLevel: 'M',  // Medium error correction
-    width: 256,
-    margin: 2
+  return await QRCode.toDataURL(qrData, {
+    errorCorrectionLevel: 'H',  // High error correction for better scanning
+    width: 512,                  // Larger size = easier to scan
+    margin: 4                    // More margin = better scanner recognition
   });
 }
 
 /**
- * Validate and decode customer QR code data
+ * Decode customer QR code data
+ * Now handles simple customer ID format for instant scanning
  */
 export function decodeCustomerQR(qrData: string): CustomerQRData | null {
   try {
+    // Simple format: just the customer ID
+    // Check if it's a valid UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (uuidRegex.test(qrData)) {
+      // Return minimal structure for backwards compatibility
+      return {
+        t: "mpp_c",
+        v: "2.0",
+        u: "",
+        i: qrData,
+        ts: Math.floor(Date.now() / 1000),
+        s: ""
+      };
+    }
+
+    // Try old format for backwards compatibility
     const decoded = JSON.parse(atob(qrData));
-
-    // Validate required fields
-    if (!decoded.t || decoded.t !== 'mpp_c') {
-      return null;
+    if (decoded.t && decoded.t === 'mpp_c') {
+      return decoded as CustomerQRData;
     }
 
-    if (!decoded.v || !decoded.u || !decoded.i || !decoded.ts || !decoded.s) {
-      return null;
-    }
-
-    // Validate timestamp is within 5 minutes (300 seconds)
-    const now = Math.floor(Date.now() / 1000);
-    if (Math.abs(now - decoded.ts) > 300) {
-      return null;  // QR code expired
-    }
-
-    return decoded as CustomerQRData;
+    return null;
   } catch (error) {
     return null;
   }
