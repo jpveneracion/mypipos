@@ -101,7 +101,8 @@ export async function POST(request: NextRequest) {
         customer: {
           id: customer.id,
           name: customer.pi_username || 'Customer',      // Display name
-          piUsername: customer.pi_uid                 // @username for display
+          piUsername: customer.pi_username,              // @username for display
+          piUid: customer.pi_uid                         // Pi Network UID
         },
         status: 'draft',
         items: [],

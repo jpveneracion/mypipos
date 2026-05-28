@@ -395,11 +395,11 @@ export default function POSPage() {
               Clear
             </button>
           </div>
-          {debugInfo.map((msg, i) => (
+          {/* {debugInfo.map((msg, i) => (
             <p key={i} className="text-brand-indigo-300 text-xs font-mono mb-1">
               {msg}
             </p>
-          ))}
+          ))} */}
         </div>
       )}
 
@@ -633,17 +633,17 @@ export default function POSPage() {
             </div>
 
             {selectedCustomer ? (
-              <div className="bg-linear-to-br from-brand-cyan-900/20 to-brand-indigo-900/20 backdrop-blur-xl border border-brand-cyan-800/50 rounded-xl p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-linear-to-br from-brand-cyan-400 to-brand-cyan-600 rounded-full flex items-center justify-center shadow-glow">
-                    <User className="w-5 h-5 text-brand-dark-950" />
+              <div className="bg-linear-to-br from-brand-cyan-900/20 to-brand-indigo-900/20 backdrop-blur-xl border border-brand-cyan-800/50 rounded-xl p-6">
+                <div className="flex items-center justify-center gap-4 mb-4">
+                  <div className="w-16 h-16 bg-linear-to-br from-brand-cyan-400 to-brand-cyan-600 rounded-full flex items-center justify-center shadow-glow">
+                    <User className="w-8 h-8 text-brand-dark-950" />
                   </div>
-                  <div className="flex-1">
-                    <div className="font-semibold text-brand-indigo-200 text-sm">
+                  <div className="flex-1 text-center">
+                    <div className="font-bold text-brand-indigo-100 text-xl mb-1">
                       {selectedCustomer.name || 'Customer'}
                     </div>
-                    <div className="text-xs text-brand-cyan-400">
-                      @{selectedCustomer.piUsername || (selectedCustomer as any).pi_uid || 'unknown'}
+                    <div className="text-sm text-brand-cyan-400 font-semibold">
+                      @{selectedCustomer.piUsername || 'unknown'}
                     </div>
                   </div>
                 </div>
@@ -651,9 +651,9 @@ export default function POSPage() {
                   size="sm"
                   variant="ghost"
                   onClick={() => setSelectedCustomer(null)}
-                  className="w-full mt-3 text-xs text-brand-magenta-400 hover:text-brand-magenta-300 hover:bg-brand-magenta-900/20"
+                  className="w-full text-sm text-brand-magenta-400 hover:text-brand-magenta-300 hover:bg-brand-magenta-900/20"
                 >
-                  <X className="w-3 h-3 mr-1" />
+                  <X className="w-4 h-4 mr-1" />
                   Clear Customer
                 </Button>
               </div>
