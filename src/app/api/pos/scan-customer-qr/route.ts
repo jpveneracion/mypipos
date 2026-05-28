@@ -113,8 +113,17 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('❌ Customer QR scan error:', error);
+
+    // Return detailed error for debugging
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorDetails = error instanceof Error ? error.stack : String(error);
+
     return NextResponse.json(
-      { success: false, error: 'Failed to link customer' },
+      {
+        success: false,
+        error: errorMessage,
+        details: errorDetails
+      },
       { status: 500 }
     );
   }
