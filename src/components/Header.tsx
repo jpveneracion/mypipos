@@ -16,22 +16,23 @@ export default function Header({ title, subtitle }: HeaderProps) {
   const { user, isAuthenticated, logout } = useAuthStore();
   const router = useRouter();
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
     try {
-      // First clear Pi session if exists
-      if (typeof window !== 'undefined' && localStorage.getItem('pi_auth_session')) {
+      // Clear all auth-related storage first
+      if (typeof window !== 'undefined') {
         localStorage.removeItem('pi_auth_session');
+        localStorage.removeItem('mypipos-auth');
       }
 
-      // Then call logout function
+      // Clear auth state BEFORE navigation to prevent React errors
       logout();
 
-      // Navigate to home
-      router.push('/');
+      // Use window.location.href for clean navigation after state is cleared
+      window.location.href = '/';
     } catch (error) {
       console.error('Logout error:', error);
       // Force navigation even if error occurs
-      router.push('/');
+      window.location.href = '/';
     }
   };
 

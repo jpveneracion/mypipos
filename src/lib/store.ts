@@ -105,16 +105,27 @@ export const useAuthStore = create<AuthStore>()(
       setMerchantData: (merchantData) => set({ merchantData }),
       setContext: (context) => set({ currentContext: context }),
       logout: () => {
-        // Clear persisted storage first
-        localStorage.removeItem('mypipos-auth');
-        // Then update state
-        set({
-          isAuthenticated: false,
-          user: null,
-          merchantId: null,
-          merchantData: null,
-          currentContext: 'customer'
-        });
+        try {
+          // Clear persisted storage first
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('mypipos-auth');
+          }
+        } catch (e) {
+          console.warn('Failed to clear auth storage:', e);
+        }
+
+        try {
+          // Then update state with error boundary
+          set({
+            isAuthenticated: false,
+            user: null,
+            merchantId: null,
+            merchantData: null,
+            currentContext: 'customer'
+          });
+        } catch (e) {
+          console.warn('Failed to update auth state:', e);
+        }
       },
     }),
     {
