@@ -35,16 +35,14 @@ export default function PiAuthButton() {
     setError(null);
 
     try {
-      // Use the same scopes as mypiroll
-      const scopes = ['username', 'payments', 'wallet_address'];
-
       // Handle incomplete payments during auth (mypiroll style)
       const onIncompletePaymentFound = (payment: any) => {
         console.log('⚠️ Incomplete payment found during auth:', payment.identifier);
         // TODO: Implement incomplete payment clearing
       };
 
-      const auth = await window.Pi.authenticate(scopes, onIncompletePaymentFound);
+      // 1. Authenticate the user first
+      const auth = await window.Pi.authenticate(['username'], onIncompletePaymentFound);
 
       if (!auth || !auth.user) {
         throw new Error('Authentication failed - no user data returned');
@@ -53,35 +51,25 @@ export default function PiAuthButton() {
       console.log('🥧 Pi Auth successful:', {
         uid: auth.user.uid,
         username: auth.user.username,
-        accessToken: auth.accessToken?.substring(0, 15) + '...',
-        hasWalletAddress: !!(auth as any).user?.wallet?.address,
-        fullAuth: JSON.stringify(auth, (key, value) => {
-          if (key === 'accessToken' || key === 'authToken') return '***';
-          return value;
-        })
+        accessToken: auth.accessToken?.substring(0, 15) + '...'
       });
 
-      // Extract wallet address if available (may be in different locations)
-      const walletAddress = (auth as any).user?.wallet?.address || (auth as any).wallet?.address || null;
+      // 2. Request the wallet address separately
+      let walletAddress = null;
+      try {
+        const walletData = await (window as any).Pi.getWalletAddress();
+        walletAddress = walletData || null;
 
-      console.log('🔍 Wallet address extraction attempt:', {
-        'auth.user.wallet': (auth as any).user?.wallet,
-        'auth.user.wallet.address': (auth as any).user?.wallet?.address,
-        'auth.wallet': (auth as any).wallet,
-        'auth.wallet.address': (auth as any).wallet?.address,
-        'final walletAddress': walletAddress
-      });
-
-      if (walletAddress) {
-        console.log('🔑 Pi Wallet address extracted:', {
-          address: `${walletAddress.substring(0, 10)}...`,
-          length: walletAddress.length
+        console.log('🔑 Pi Wallet address from getWalletAddress:', {
+          address: walletAddress ? `${walletAddress.substring(0, 10)}...` : null,
+          length: walletAddress?.length
         });
-      } else {
-        console.log('⚠️ No wallet address found in auth response');
+      } catch (walletError) {
+        console.warn('Failed to fetch wallet address:', walletError);
+        // Continue without wallet address - user might have denied access
       }
 
-      // Call backend to verify token and get/create user
+      // 3. Send both to backend
       const response = await fetch('/api/auth/pi', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
