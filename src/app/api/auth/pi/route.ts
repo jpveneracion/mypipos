@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { accessToken, user, walletAddress, _debug } = body;
+    const { accessToken, user, walletAddress } = body;
 
     console.log(`📥 [PI AUTH] ${requestId} - Request body parsed`, {
       hasAccessToken: !!accessToken,
@@ -26,22 +26,8 @@ export async function POST(request: NextRequest) {
       uid: user?.uid,
       hasWalletAddress: !!walletAddress,
       walletAddressPreview: walletAddress ? `${walletAddress.substring(0, 10)}...` : null,
-      walletAddressFull: walletAddress // Log full address to see if we're getting it
+      walletAddressFull: walletAddress
     });
-
-    // Log debug info if provided
-    if (_debug) {
-      console.log(`🔍 [PI AUTH] ${requestId} - Client-side debug info:`, {
-        availablePiMethods: _debug.piMethods,
-        getWalletAddressExists: _debug.getWalletAddressExists,
-        methodsAttempted: _debug.walletAttempts,
-        foundWalletData: _debug.foundWallet,
-        authResponseStructure: _debug.authResponseKeys,
-        userStructure: _debug.userKeys,
-        walletInAuth: _debug.userWallet,
-        errors: Object.keys(_debug).filter(k => k.includes('Error')).map(k => `${k}: ${_debug[k]}`)
-      });
-    }
 
     if (!accessToken) {
       console.log(`⚠️ [PI AUTH] ${requestId} - No access token provided`);

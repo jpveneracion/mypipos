@@ -41,8 +41,8 @@ export default function PiAuthButton() {
         // TODO: Implement incomplete payment clearing
       };
 
-      // 1. Authenticate the user first
-      const auth = await window.Pi.authenticate(['username'], onIncompletePaymentFound);
+      // 1. Authenticate WITH wallet_address scope
+      const auth = await window.Pi.authenticate(['username', 'wallet_address'], onIncompletePaymentFound);
 
       if (!auth || !auth.user) {
         throw new Error('Authentication failed - no user data returned');
@@ -54,65 +54,23 @@ export default function PiAuthButton() {
         accessToken: auth.accessToken?.substring(0, 15) + '...'
       });
 
-      // 2. Request the wallet address separately
-      let walletAddress = null;
-      let debugInfo: any = {
-        piMethods: [],
-        walletAttempts: []
-      };
+      // 2. Extract wallet address from auth response (when wallet_address scope is included)
+      const walletAddress = (auth.user as any).wallet_address || null;
 
-      try {
-        debugInfo.piMethods = Object.keys(window.Pi);
-        debugInfo.getWalletAddressExists = typeof (window as any).Pi.getWalletAddress;
-
-        // Try different methods that might exist
-        const walletMethods = [
-          'getWalletAddress',
-          'getWallet',
-          'getAccount',
-          'getUserAccounts'
-        ];
-
-        for (const method of walletMethods) {
-          if (typeof (window as any).Pi[method] === 'function') {
-            debugInfo.walletAttempts.push(method);
-
-            try {
-              const result = await (window as any).Pi[method]();
-              debugInfo[`${method}Result`] = result;
-
-              if (result && (result.address || typeof result === 'string')) {
-                walletAddress = result.address || result;
-                debugInfo.foundWallet = {
-                  method,
-                  preview: walletAddress.substring(0, 10) + '...'
-                };
-                break;
-              }
-            } catch (methodError: any) {
-              debugInfo[`${method}Error`] = methodError?.message || String(methodError);
-            }
-          }
-        }
-
-        if (!walletAddress) {
-          debugInfo.authResponseKeys = Object.keys(auth);
-          debugInfo.userKeys = auth.user ? Object.keys(auth.user) : 'no user';
-          debugInfo.userWallet = (auth as any).user?.wallet;
-        }
-      } catch (walletError: any) {
-        debugInfo.walletError = walletError?.message || String(walletError);
+      if (walletAddress) {
+        console.log('🔑 Wallet address found:', walletAddress.substring(0, 10) + '...');
+      } else {
+        console.log('⚠️ No wallet address in response');
       }
 
-      // 3. Send both to backend with debug info
+      // 3. Send to backend
       const response = await fetch('/api/auth/pi', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           accessToken: auth.accessToken,
           user: auth.user,
-          walletAddress: walletAddress,
-          _debug: debugInfo // Send debug info to server logs
+          walletAddress: walletAddress
         }),
       });
 
