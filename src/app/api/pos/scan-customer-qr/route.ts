@@ -100,9 +100,8 @@ export async function POST(request: NextRequest) {
         invoiceNumber: invoiceNumber,
         customer: {
           id: customer.id,
-          username: customer.pi_username,
-          pi_uid: customer.pi_uid,
-          name: customer.pi_username
+          name: customer.pi_username || 'Customer',      // Display name
+          piUsername: customer.pi_uid                 // @username for display
         },
         status: 'draft',
         items: [],

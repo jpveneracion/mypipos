@@ -641,7 +641,7 @@ export default function POSPage() {
                       {selectedCustomer.name || 'Customer'}
                     </div>
                     <div className="text-xs text-brand-cyan-400">
-                      @{selectedCustomer.piUsername || 'unknown'}
+                      @{selectedCustomer.piUsername || (selectedCustomer as any).pi_uid || 'unknown'}
                     </div>
                   </div>
                 </div>
