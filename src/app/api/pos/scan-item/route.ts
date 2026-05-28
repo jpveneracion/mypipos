@@ -114,12 +114,12 @@ export async function POST(request: NextRequest) {
         id: invoiceId,
         invoiceNumber: invoice.transaction_number,
         itemCount: result.itemCount,
-        subtotal: result.updatedInvoice.subtotal,
-        tax: result.updatedInvoice.tax_amount,
-        total: result.updatedInvoice.total_amount,
+        subtotal: parseFloat(result.updatedInvoice.subtotal),
+        tax: parseFloat(result.updatedInvoice.tax_amount),
+        total: parseFloat(result.updatedInvoice.total_amount),
         status: 'draft'
       },
-      message: `Item added! ${result.itemCount} items so far. Total: ${result.updatedInvoice.total_amount.toFixed(7)} Pi`
+      message: `Item added! ${result.itemCount} items so far. Total: ${parseFloat(result.updatedInvoice.total_amount).toFixed(7)} Pi`
     });
 
   } catch (error) {
