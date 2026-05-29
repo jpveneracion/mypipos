@@ -4,17 +4,14 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Gift, Loader2, CheckCircle, Sparkles, AlertCircle, Wallet, Settings } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { Gift, Loader2, CheckCircle, Sparkles, AlertCircle } from 'lucide-react';
 
 interface TestPiClaimCardProps {
   userId: string;
 }
 
 export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
-  const router = useRouter();
   const [hasClaimed, setHasClaimed] = useState<boolean | null>(null);
-  const [hasWalletAddress, setHasWalletAddress] = useState<boolean>(false);
   const [isClaiming, setIsClaiming] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -29,24 +26,7 @@ export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
       setIsLoading(true);
       setError('');
 
-      // Get user details to check wallet address
-      const userResponse = await fetch(`/api/users/get-by-id`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId })
-      });
-
-      if (!userResponse.ok) {
-        throw new Error('Failed to get user details');
-      }
-
-      const userData = await userResponse.json();
-      const user = userData.user;
-
-      // Check if user has a wallet address
-      setHasWalletAddress(!!user?.pi_wallet_address);
-
-      // Check claim status
+      // Check claim status (no wallet address needed - works with UID only)
       const response = await fetch(`/api/customers/claim-test-pi?userId=${userId}`);
       const data = await response.json();
 
@@ -70,50 +50,22 @@ export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
     try {
       setSuccessMessage('Processing your claim...');
 
-      // Get user details first
-      const userResponse = await fetch(`/api/users/get-by-id`, {
+      // Claim test Pi using backend endpoint (works with UID only)
+      const response = await fetch('/api/customers/claim-test-pi', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId })
       });
 
-      if (!userResponse.ok) {
-        throw new Error('Failed to get user details');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to claim test Pi');
       }
 
-      const userData = await userResponse.json();
-      const user = userData.user;
+      const result = await response.json();
 
-      if (!user || !user.pi_uid) {
-        throw new Error('User does not have a Pi UID. Please authenticate with Pi Network first.');
-      }
-
-      // Create A2U payment to send 1 Pi to user
-      const a2uResponse = await fetch('/api/payments/a2u', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          uid: user.pi_uid,
-          amount: 1.00,
-          memo: 'Test Pi Claim - One-time pioneer bonus',
-          transaction_type: 'customer_reward',
-          metadata: {
-            reward_type: 'test_pi_claim',
-            user_id: userId,
-            claimed_at: new Date().toISOString()
-          }
-        })
-      });
-
-      if (!a2uResponse.ok) {
-        const errorData = await a2uResponse.json();
-        throw new Error(errorData.error || 'A2U payment failed');
-      }
-
-      const a2uResult = await a2uResponse.json();
-
-      if (!a2uResult.success) {
-        throw new Error(a2uResult.error || 'A2U payment failed');
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to claim test Pi');
       }
 
       setSuccessMessage('Successfully claimed 1 Test Pi! 🎉 Check your Pi wallet.');
@@ -149,100 +101,67 @@ export function TestPiClaimCard({ userId }: TestPiClaimCardProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          {hasWalletAddress ? (
-            <Card className="bg-linear-to-br from-brand-cyan-900/20 to-brand-indigo-900/20 backdrop-blur-xl border border-brand-cyan-700/30 hover:shadow-glow transition-all duration-300">
-              <div className="p-6">
-                <div className="flex items-center gap-4">
-                  {/* Icon */}
-                  <div className="relative">
-                    <div className="w-16 h-16 bg-linear-to-br from-brand-cyan-400 to-brand-cyan-600 rounded-2xl flex items-center justify-center shadow-lg">
-                      <Gift className="w-8 h-8 text-brand-dark-950" />
-                    </div>
-                    <div className="absolute -top-1 -right-1 w-6 h-6 bg-brand-cyan-400 rounded-full flex items-center justify-center">
-                      <Sparkles className="w-4 h-4 text-brand-dark-950" />
-                    </div>
+          <Card className="bg-linear-to-br from-brand-cyan-900/20 to-brand-indigo-900/20 backdrop-blur-xl border border-brand-cyan-700/30 hover:shadow-glow transition-all duration-300">
+            <div className="p-6">
+              <div className="flex items-center gap-4">
+                {/* Icon */}
+                <div className="relative">
+                  <div className="w-16 h-16 bg-linear-to-br from-brand-cyan-400 to-brand-cyan-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Gift className="w-8 h-8 text-brand-dark-950" />
                   </div>
-
-                  {/* Content */}
-                  <div className="flex-1">
-                    <h3 className="text-xl font-display font-bold text-brand-indigo-100 mb-1">
-                      Claim Your Test Pi
-                    </h3>
-                    <p className="text-brand-indigo-300 text-sm mb-3">
-                      Get 1 test Pi to explore the platform - one-time pioneer bonus!
-                    </p>
-
-                    {error && (
-                      <div className="bg-red-900/30 border border-red-700/50 rounded-lg p-2 mb-3">
-                        <p className="text-red-300 text-sm flex items-center gap-2">
-                          <AlertCircle className="w-4 h-4" />
-                          {error}
-                        </p>
-                      </div>
-                    )}
-
-                    {successMessage && (
-                      <div className="bg-green-900/30 border border-green-700/50 rounded-lg p-2 mb-3">
-                        <p className="text-green-300 text-sm flex items-center gap-2">
-                          <CheckCircle className="w-4 h-4" />
-                          {successMessage}
-                        </p>
-                      </div>
-                    )}
-
-                    <Button
-                      onClick={handleClaim}
-                      disabled={isClaiming}
-                      className="w-full md:w-auto"
-                    >
-                      {isClaiming ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Claiming...
-                        </>
-                      ) : (
-                        <>
-                          <Gift className="mr-2 h-4 w-4" />
-                          Claim 1 Test Pi
-                        </>
-                      )}
-                    </Button>
+                  <div className="absolute -top-1 -right-1 w-6 h-6 bg-brand-cyan-400 rounded-full flex items-center justify-center">
+                    <Sparkles className="w-4 h-4 text-brand-dark-950" />
                   </div>
                 </div>
-              </div>
-            </Card>
-          ) : (
-            <Card className="bg-linear-to-br from-orange-900/20 to-brand-indigo-900/20 backdrop-blur-xl border border-orange-700/30 hover:shadow-glow transition-all duration-300">
-              <div className="p-6">
-                <div className="flex items-center gap-4">
-                  {/* Icon */}
-                  <div className="relative">
-                    <div className="w-16 h-16 bg-linear-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
-                      <Wallet className="w-8 h-8 text-brand-dark-950" />
+
+                {/* Content */}
+                <div className="flex-1">
+                  <h3 className="text-xl font-display font-bold text-brand-indigo-100 mb-1">
+                    Claim Your Test Pi
+                  </h3>
+                  <p className="text-brand-indigo-300 text-sm mb-3">
+                    Get 1 test Pi to explore the platform - one-time pioneer bonus!
+                  </p>
+
+                  {error && (
+                    <div className="bg-red-900/30 border border-red-700/50 rounded-lg p-2 mb-3">
+                      <p className="text-red-300 text-sm flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4" />
+                        {error}
+                      </p>
                     </div>
-                  </div>
+                  )}
 
-                  {/* Content */}
-                  <div className="flex-1">
-                    <h3 className="text-xl font-display font-bold text-brand-indigo-100 mb-1">
-                      Setup Your Pi Wallet
-                    </h3>
-                    <p className="text-brand-indigo-300 text-sm mb-3">
-                      You need to add your Pi wallet address before claiming Test Pi.
-                    </p>
+                  {successMessage && (
+                    <div className="bg-green-900/30 border border-green-700/50 rounded-lg p-2 mb-3">
+                      <p className="text-green-300 text-sm flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4" />
+                        {successMessage}
+                      </p>
+                    </div>
+                  )}
 
-                    <Button
-                      onClick={() => router.push('/account-settings')}
-                      className="w-full md:w-auto"
-                    >
-                      <Settings className="mr-2 h-4 w-4" />
-                      Go to Settings
-                    </Button>
-                  </div>
+                  <Button
+                    onClick={handleClaim}
+                    disabled={isClaiming}
+                    className="w-full md:w-auto"
+                  >
+                    {isClaiming ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Claiming...
+                      </>
+                    ) : (
+                      <>
+                        <Gift className="mr-2 h-4 w-4" />
+                        Claim 1 Test Pi
+                      </>
+                    )}
+                  </Button>
                 </div>
               </div>
-            </Card>
-          )}
+            </div>
+          </Card>
         </motion.div>
       ) : (
         /* Loading state */

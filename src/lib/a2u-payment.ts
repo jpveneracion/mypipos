@@ -215,15 +215,8 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
 
     const user = userResult.rows[0];
 
-    // Check if user has wallet address
-    if (!user.pi_wallet_address) {
-      return {
-        success: false,
-        error: 'User does not have a wallet address set'
-      };
-    }
-
     console.log(`[A2U] Processing A2U payment for user: ${user.username} (${uid})`);
+    console.log(`[A2U] Pi Network will resolve wallet address from UID automatically`);
 
     // Prepare payment args for A2U payment
     const paymentArgs: PaymentArgs = {
@@ -267,12 +260,11 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
           status,
           network,
           from_address,
-          to_address,
           txid,
           payment_completed_at,
           completed_at
         ) VALUES (
-          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16
         ) RETURNING *`,
         [
           transactionNumber,
@@ -288,7 +280,6 @@ export async function processA2UPayment(request: A2UPaymentRequest) {
           'completed',
           'Pi Testnet',
           'Pi Platform Wallet',
-          user.pi_wallet_address,
           result.txid,
           new Date().toISOString(),
           new Date().toISOString()

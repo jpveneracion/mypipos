@@ -37,13 +37,6 @@ export async function POST(request: NextRequest) {
 
     const user = userResult.rows[0];
 
-    if (!user.pi_wallet_address) {
-      return NextResponse.json(
-        { success: false, error: 'User does not have a Pi wallet address. Please add it in account settings first.' },
-        { status: 400 }
-      );
-    }
-
     if (!user.pi_uid) {
       return NextResponse.json(
         { success: false, error: 'User does not have Pi UID. Please authenticate with Pi Network first.' },
@@ -51,22 +44,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Step 2: Check if this wallet address has already claimed test Pi (one per wallet address)
+    // Step 2: Check if this user has already claimed test Pi (one per user)
     const existingClaimResult = await query(
       `SELECT * FROM a2u_payments
-       WHERE to_address = $1
+       WHERE to_user_id = $1
        AND transaction_type = 'customer_reward'
        AND metadata->>'reward_type' = 'test_pi_claim'
        AND status = 'completed'
        LIMIT 1`,
-      [user.pi_wallet_address]
+      [user.id]
     );
 
     if (existingClaimResult.rows.length > 0) {
       return NextResponse.json({
         success: false,
         error: 'Already claimed',
-        message: 'This wallet address has already claimed the 1 test Pi bonus',
+        message: 'This user has already claimed the 1 test Pi bonus',
         alreadyClaimed: true
       });
     }
@@ -123,30 +116,15 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get user details to check wallet address
-    const userResult = await query(
-      `SELECT pi_wallet_address FROM users WHERE id = $1`,
-      [userId]
-    );
-
-    if (!userResult.rows[0]) {
-      return NextResponse.json(
-        { success: false, error: 'User not found' },
-        { status: 404 }
-      );
-    }
-
-    const user = userResult.rows[0];
-
-    // Check if this wallet address has already claimed (one per wallet address)
+    // Check if this user has already claimed (one per user)
     const existingClaimResult = await query(
       `SELECT * FROM a2u_payments
-       WHERE to_address = $1
+       WHERE to_user_id = $1
        AND transaction_type = 'customer_reward'
        AND metadata->>'reward_type' = 'test_pi_claim'
        AND status = 'completed'
        LIMIT 1`,
-      [user.pi_wallet_address]
+      [userId]
     );
 
     const hasClaimed = existingClaimResult.rows.length > 0;

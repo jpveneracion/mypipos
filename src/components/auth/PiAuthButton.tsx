@@ -41,8 +41,8 @@ export default function PiAuthButton() {
         // TODO: Implement incomplete payment clearing
       };
 
-      // 1. Authenticate WITH wallet_address scope
-      const auth = await window.Pi.authenticate(['username', 'wallet_address'], onIncompletePaymentFound);
+      // 1. Authenticate with username scope only (frictionless login)
+      const auth = await window.Pi.authenticate(['username'], onIncompletePaymentFound);
 
       if (!auth || !auth.user) {
         throw new Error('Authentication failed - no user data returned');
@@ -54,23 +54,13 @@ export default function PiAuthButton() {
         accessToken: auth.accessToken?.substring(0, 15) + '...'
       });
 
-      // 2. Extract wallet address from auth response (when wallet_address scope is included)
-      const walletAddress = (auth.user as any).wallet_address || null;
-
-      if (walletAddress) {
-        console.log('🔑 Wallet address found:', walletAddress.substring(0, 10) + '...');
-      } else {
-        console.log('⚠️ No wallet address in response');
-      }
-
-      // 3. Send to backend
+      // 2. Send to backend (wallet address captured later during checkout)
       const response = await fetch('/api/auth/pi', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           accessToken: auth.accessToken,
-          user: auth.user,
-          walletAddress: walletAddress
+          user: auth.user
         }),
       });
 
