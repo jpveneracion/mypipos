@@ -81,6 +81,9 @@ export async function POST(request: NextRequest) {
       match: piUser.uid === user.uid && piUser.username === user.username
     });
 
+    // 🔍 RAW PI API RESPONSE - See exactly what Pi Network is sending
+    console.log('🔮 [RAW PI API RESPONSE]:', JSON.stringify(piUser, null, 2));
+
     // 2. Verify the frontend user data matches the API response
     if (piUser.uid !== user.uid || piUser.username !== user.username) {
       console.error('❌ [PI AUTH] User data mismatch!', {
